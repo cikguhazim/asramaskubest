@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="ms">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>E-Kehadiran Asrama</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body {
+      background-color: #f8f9fa;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    #loginScreen {
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0d6efd, #0dcaf0);
+    }
+
+    .login-card {
+      background: white;
+      padding: 2rem;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    #mainDashboard {
+      display: none;
+      padding-bottom: 80px;
+    }
+
+    .navbar {
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-card {
+      border-radius: 12px;
+      border: none;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .search-container {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+      margin-bottom: 20px;
+    }
+
+    .student-card {
+      background: white;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+      border-left: 5px solid #ccc;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .student-card.selected {
+      background-color: #e8f4fd;
+      border-left-color: #0d6efd;
+      transform: scale(1.02);
+    }
+
+    .status-badge {
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+
+    .status-masuk {
+      background-color: #d1e7dd;
+      color: #0f5132;
+    }
+
+    .status-keluar {
+      background-color: #f8d7da;
+      color: #842029;
+    }
+
+    .status-sakit {
+      background-color: #fff3cd;
+      color: #664d03;
+    }
+
+    .pending-card {
+      border-left: 5px solid #ffc107;
+      background: #fffcf2;
+    }
+
+    .bottom-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      padding: 10px 20px;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    #loader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.9);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+    }
+
+    .custom-toast {
+      background: white;
+      border-radius: 8px;
+      padding: 12px 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      margin-bottom: 10px;
+      display: none;
+      font-weight: 500;
+      border-left: 4px solid #0d6efd;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="loader">
+    <div class="spinner-border text-primary" role="status"></div>
+    <h5 class="mt-3 text-secondary">Memuatkan Data...</h5>
+  </div>
+
+  <div class="toast-container">
+    <div id="savingToast" class="custom-toast" style="border-left-color: #ffc107;">
+      <i class="fas fa-spinner fa-spin text-warning me-2"></i> Menyimpan...
+    </div>
+    <div id="syncToast" class="custom-toast" style="border-left-color: #198754;">
+      <i class="fas fa-check-circle text-success me-2"></i> Diselaraskan.
+    </div>
+  </div>
+
+  <div id="loginScreen">
+    <div class="login-card">
+      <img src="logosekolah.png" alt="Logo Sekolah" style="width: 100px; height: auto; margin-bottom: 15px;"
+        onerror="this.style.display='none'">
+      <h3 class="mb-4 text-dark">E-Kehadiran Asrama</h3>
+      <div id="loginError" class="alert alert-danger" style="display:none; font-size: 0.9rem;"></div>
+      <input type="text" id="loginUsername" class="form-control mb-3" placeholder="ID Pengguna (e.g., warden1)">
+      <input type="password" id="loginPass" class="form-control mb-4" placeholder="Kata Laluan">
+      <button id="btnLogin" class="btn btn-primary w-100 py-2" onclick="prosesLogMasuk()">LOG MASUK</button>
+    </div>
+  </div>
+
+  <div id="mainDashboard">
+    <nav class="navbar navbar-dark bg-primary sticky-top">
+      <div class="container-fluid flex-nowrap">
+        <span class="navbar-brand mb-0 h1 d-flex align-items-center text-truncate pe-2" style="min-width: 0;">
+          <img src="logosekolah.png" alt="Logo"
+            style="height: 32px; width: auto; margin-right: 8px; background-color: white; border-radius: 4px; padding: 2px; flex-shrink: 0;"
+            onerror="this.style.display='none'">
+          <span class="text-truncate">e-Asrama</span>
+          <span id="userBadge" class="badge bg-light text-primary ms-2 flex-shrink-0"
+            style="font-size: 0.75rem;"></span>
+        </span>
+        <div class="d-flex flex-shrink-0">
+          <button class="btn btn-sm btn-outline-light me-2" onclick="loadDataServer()"><i
+              class="fas fa-sync-alt"></i></button>
+          <button class="btn btn-sm btn-danger" onclick="logKeluar()"><i class="fas fa-sign-out-alt"></i></button>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container mt-3">
+      <div id="chartSection" class="card stat-card p-3 mb-3" style="display:none;">
+        <h6 class="text-muted mb-2 text-center">Ringkasan Semasa</h6>
+        <div style="height: 150px; position: relative; width: 100%;">
+          <canvas id="statusChart"></canvas>
+        </div>
+      </div>
+
+      <div id="pendingSection" style="display:none;" class="mb-4">
+        <h5 class="text-warning mb-3"><i class="fas fa-bell"></i> Menunggu Pengesahan (<span id="pendingCount">0</span>)
+        </h5>
+        <div id="pendingContainer"></div>
+      </div>
+
+      <div class="search-container">
+        <div class="row g-2">
+          <div class="col-12 col-md-4">
+            <input type="text" id="searchInput" class="form-control" placeholder="Cari Nama, Kelas, Dorm..."
+              onkeyup="filterList()">
+          </div>
+          <div class="col-12 col-md-4">
+            <select id="filterStatus" class="form-select" onchange="filterList()">
+              <option value="Semua">Semua Status</option>
+              <option value="Masuk">Masuk</option>
+              <option value="Keluar">Keluar</option>
+              <option value="Sakit">Sakit</option>
+            </select>
+          </div>
+          <div class="col-6 col-md-2">
+            <button class="btn btn-info w-100 text-white" onclick="bukaLogHariIni()"><i class="fas fa-history"></i> Log
+              Hari Ini</button>
+          </div>
+          <div class="col-6 col-md-2">
+            <button class="btn btn-danger w-100" onclick="muatTurunPDF()"><i class="fas fa-file-pdf"></i> PDF</button>
+          </div>
+          <div class="col-12 mt-2">
+            <div class="dropdown">
+              <button class="btn btn-sm btn-outline-primary dropdown-toggle w-100" type="button"
+                data-bs-toggle="dropdown">
+                <i class="fas fa-check-double"></i> Pilih Pukal (Senarai Terkini)
+              </button>
+              <ul class="dropdown-menu w-100 shadow-sm">
+                <li><a class="dropdown-item" href="#" onclick="pilihPukal('Semua')">✅ Pilih Semua (Tersenarai)</a></li>
+                <li><a class="dropdown-item" href="#" onclick="pilihPukal('Masuk')"><i
+                      class="fas fa-sign-in-alt text-success"></i> Pilih Semua: Masuk</a></li>
+                <li><a class="dropdown-item" href="#" onclick="pilihPukal('Keluar')"><i
+                      class="fas fa-sign-out-alt text-danger"></i> Pilih Semua: Keluar</a></li>
+                <li><a class="dropdown-item" href="#" onclick="pilihPukal('Sakit')"><i
+                      class="fas fa-procedures text-warning"></i> Pilih Semua: Sakit</a></li>
+                <li>
+                  <hr class="dropdown-divider">
+                </li>
+                <li><a class="dropdown-item text-danger" href="#" onclick="clearSelection()"><i
+                      class="fas fa-times-circle"></i> Batal Semua Pilihan</a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-12 mt-2" id="adminToolsSection" style="display:none;">
+            <div class="row g-2">
+              <div class="col-12 col-md-6">
+                <button class="btn btn-sm btn-success w-100" onclick="bukaModalTambah()"><i class="fas fa-user-plus"></i> Tambah Pelajar Baru</button>
+              </div>
+              <div class="col-12 col-md-6">
+                <a href="https://docs.google.com/spreadsheets/d/1oY-LbRwZ0z74lpSQm5rKHgEXw3Hn0nbwawbeVY9je0o/edit?gid=0#gid=0" target="_blank" class="btn btn-sm btn-primary w-100"><i class="fas fa-table"></i> Buka Google Sheet</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h5 class="text-secondary mb-3"><i class="fas fa-users"></i> Senarai Murid</h5>
+      <div id="studentList"></div>
+    </div>
+
+    <div class="bottom-bar" id="bottomBar" style="display:none;">
+      <div>
+        <span class="badge bg-primary rounded-pill fs-6 py-2 px-3" id="selectionCount">0 Dipilih</span>
+      </div>
+      <div>
+        <button class="btn btn-outline-secondary me-2" onclick="clearSelection()">Batal</button>
+        <button class="btn btn-primary shadow" onclick="openActionModal()">Kemaskini <i
+            class="fas fa-chevron-right ms-1"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasLog" aria-labelledby="offcanvasLogLabel">
+    <div class="offcanvas-header bg-info text-white">
+      <h5 class="offcanvas-title" id="offcanvasLogLabel"><i class="fas fa-history me-2"></i> Pergerakan Hari Ini</h5>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body p-0">
+      <div id="logHariIniContainer">
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="actionModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title">Tindakan</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="statusForm">
+            <input type="hidden" id="studentNames" name="studentNames">
+            <div class="mb-3">
+              <label class="form-label text-muted">Status Baharu</label>
+              <select class="form-select form-select-lg" id="actionType" name="actionType"
+                onchange="toggleReasonField()" required>
+                <option value="Keluar">Keluar (Outing/Pulang)</option>
+                <option value="Masuk">Masuk (Kembali)</option>
+                <option value="Sakit">Sakit (Klinik/Wad)</option>
+              </select>
+            </div>
+
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <label class="form-label text-muted">Tarikh</label>
+                <input type="date" class="form-control" id="customDate" required>
+              </div>
+              <div class="col-6">
+                <label class="form-label text-muted">Masa</label>
+                <input type="time" class="form-control" id="customTime" required>
+              </div>
+            </div>
+
+            <div class="mb-3" id="reasonGroup">
+              <label class="form-label text-muted">Sebab / Tujuan</label>
+              <textarea class="form-control" id="reason" rows="2"
+                placeholder="Cth: Pulang bermalam / Ke Klinik"></textarea>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label text-muted">Gambar Bukti (Pilihan)</label>
+              <input class="form-control" type="file" accept="image/*" capture="environment" id="cameraInput"
+                onchange="compressAndConvertToBase64()">
+              <input type="hidden" id="imageFile">
+              <div id="imagePreview" class="mt-2 text-center" style="display:none;">
+                <img id="previewImg" src="" style="max-width: 100%; max-height: 200px; border-radius: 8px;">
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+          <button type="button" class="btn btn-primary" onclick="submitForm()"><i class="fas fa-save me-1"></i>
+            Simpan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="detailsModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="d_name">Nama Murid</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p class="mb-1 text-muted small">Kelas / Blok (Dorm)</p>
+          <p class="fw-bold"><span id="d_class"></span> | <span id="d_block"></span></p>
+
+          <p class="mb-1 text-muted small mt-3">Status Terkini</p>
+          <p><span id="d_status" class="status-badge"></span></p>
+
+          <p class="mb-1 text-muted small mt-3">Tarikh / Masa</p>
+          <p id="d_time" class="fw-bold"></p>
+
+          <div id="d_reason_box" style="display:none;">
+            <p class="mb-1 text-muted small mt-3">Sebab / Catatan</p>
+            <p id="d_reason" class="fw-bold"></p>
+          </div>
+
+          <div id="d_img_box" class="mt-3 text-center" style="display:none;">
+            <p class="mb-1 text-muted small text-start">Lampiran / Gambar Bukti</p>
+            <img id="d_img" src="" style="max-width: 100%; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+            <a id="d_img_link" href="#" target="_blank" class="btn btn-sm btn-outline-primary mt-2 w-100"><i
+                class="fas fa-external-link-alt"></i> Buka Gambar Penuh</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="tambahPelajarModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header bg-success text-white">
+          <h5 class="modal-title"><i class="fas fa-user-plus me-2"></i>Tambah Pelajar</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="tambahPelajarForm">
+            <div class="mb-3">
+              <label class="form-label text-muted">Nama Penuh</label>
+              <input type="text" class="form-control" id="tp_nama" required>
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <label class="form-label text-muted">Kelas</label>
+                <input type="text" class="form-control" id="tp_kelas" required placeholder="Cth: 5 Sains">
+              </div>
+              <div class="col-6">
+                <label class="form-label text-muted">Blok / Dorm</label>
+                <input type="text" class="form-control" id="tp_dorm" required placeholder="Cth: B1-G">
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+          <button type="button" class="btn btn-success" onclick="simpanPelajarBaru()"><i class="fas fa-save me-1"></i>
+            Simpan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+  <script>
+    // ==============================================================
+    // MASUKKAN URL WEB APP API ANDA DI BAWAH INI
+    // ==============================================================
+    const API_URL = "https://script.google.com/macros/s/AKfycbxmcx3UMuY466oqsTnhnjoS_kw3MvZv6nDXPlI9SJufCG_jX0NfuHx80SPJEErQk52d/exec";
+
+    let allStudents = [];
+    let allPending = [];
+    let selectedStudents = new Set();
+    let actionModal, detailsModal, offcanvasLog, tambahModal, myPieChart;
+    let userRole = "";
+    let userEmail = "";
+
+    window.onload = function () {
+      actionModal = new bootstrap.Modal(document.getElementById('actionModal'));
+      detailsModal = new bootstrap.Modal(document.getElementById('detailsModal'));
+      tambahModal = new bootstrap.Modal(document.getElementById('tambahPelajarModal'));
+      offcanvasLog = new bootstrap.Offcanvas(document.getElementById('offcanvasLog'));
+      setCurrentDateTime();
+    };
+
+    function setCurrentDateTime() {
+      const now = new Date();
+      now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+      document.getElementById('customDate').value = now.toISOString().slice(0, 10);
+      document.getElementById('customTime').value = now.toISOString().slice(11, 16);
+    }
+
+    async function callServer(actionData) {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        body: JSON.stringify(actionData),
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+      });
+      const result = await response.json();
+
+      if (result.status === "error") throw new Error(result.message);
+      return result.data !== undefined ? result.data : result;
+    }
+
+    async function prosesLogMasuk() {
+      const uname = document.getElementById('loginUsername').value;
+      const pass = document.getElementById('loginPass').value;
+      const btn = document.getElementById('btnLogin');
+      const err = document.getElementById('loginError');
+
+      if (!uname || !pass) { err.innerText = "Sila isi ID Pengguna dan kata laluan."; err.style.display = 'block'; return; }
+      btn.disabled = true; btn.innerText = "MENYEMAK..."; err.style.display = 'none';
+
+      try {
+        const res = await callServer({ action: "sahkanLogMasuk", username: uname, password: pass });
+        if (res.status === "berjaya") {
+          userRole = res.peranan; userEmail = res.username;
+          document.getElementById('loginScreen').style.display = 'none';
+          document.getElementById('mainDashboard').style.display = 'block';
+          loadDataServer();
+        } else {
+          err.innerText = res.mesej; err.style.display = 'block';
+          btn.disabled = false; btn.innerText = "LOG MASUK";
+        }
+      } catch (e) {
+        err.innerText = "Ralat: " + e.message;
+        err.style.display = 'block';
+        btn.disabled = false; btn.innerText = "LOG MASUK";
+      }
+    }
+
+    function logKeluar() {
+      userRole = ""; userEmail = "";
+      document.getElementById('mainDashboard').style.display = 'none';
+      document.getElementById('loginScreen').style.display = 'flex';
+      document.getElementById('loginPass').value = '';
+      document.getElementById('btnLogin').disabled = false;
+      document.getElementById('btnLogin').innerText = "LOG MASUK";
+    }
+
+    async function loadDataServer() {
+      document.getElementById('loader').style.display = 'flex';
+      clearSelection();
+      try {
+        const data = await callServer({ action: "getAppInitData", username: userEmail });
+        document.getElementById('userBadge').innerText = (data.role === 'warden' ? 'Warden' : 'Pengawal');
+
+        if (data.role === 'warden') {
+          document.getElementById('chartSection').style.display = 'block';
+          document.getElementById('adminToolsSection').style.display = 'block';
+        }
+
+        document.getElementById('pendingSection').style.display = 'block';
+
+        allPending = data.pending;
+        renderPendingData();
+        renderData(data.students);
+      } catch (err) { alert("Ralat memuat data: " + err.message); }
+      document.getElementById('loader').style.display = 'none';
+    }
+
+    function renderData(data) {
+      allStudents = data;
+      filterList();
+      updateDashboard(allStudents);
+    }
+
+    function updateDashboard(students) {
+      if (userRole !== 'warden') return;
+      let masuk = 0, keluar = 0, sakit = 0;
+      students.forEach(s => {
+        if (s.status === 'Masuk') masuk++; else if (s.status === 'Keluar') keluar++; else if (s.status === 'Sakit') sakit++;
+      });
+      const ctx = document.getElementById('statusChart').getContext('2d');
+      if (myPieChart) myPieChart.destroy();
+      myPieChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: { labels: ['Masuk', 'Keluar', 'Sakit'], datasets: [{ data: [masuk, keluar, sakit], backgroundColor: ['#198754', '#dc3545', '#ffc107'], borderWidth: 0 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
+      });
+    }
+
+    function filterList() {
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      const statusFilter = document.getElementById('filterStatus').value;
+      const container = document.getElementById('studentList');
+      container.innerHTML = '';
+
+      const filtered = allStudents.filter(s => {
+        const matchSearch = String(s.name).toLowerCase().includes(searchTerm) ||
+          String(s.classroom).toLowerCase().includes(searchTerm) ||
+          String(s.block).toLowerCase().includes(searchTerm);
+        const matchStatus = statusFilter === 'Semua' || s.status === statusFilter;
+        return matchSearch && matchStatus;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="text-center text-muted mt-4"><i class="fas fa-search fa-2x mb-2"></i><p>Tiada rekod dijumpai</p></div>`;
+        return;
+      }
+
+      filtered.forEach(s => {
+        const isSel = selectedStudents.has(s.name) ? 'selected' : '';
+        let badgeCls = s.status === 'Masuk' ? 'status-masuk' : (s.status === 'Keluar' ? 'status-keluar' : 'status-sakit');
+
+        let timeStr = "-";
+        let daysOutStr = "";
+        if (s.timestamp) {
+          let d = new Date(s.timestamp);
+          timeStr = d.toLocaleDateString('ms-MY') + " " + d.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' });
+          if (s.status !== 'Masuk') {
+            const diffTime = Math.abs(new Date() - d);
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            if (diffDays > 0) {
+              daysOutStr = `<span class="badge bg-warning text-dark ms-1" style="font-size: 0.7rem;"><i class="fas fa-calendar-times"></i> ${diffDays} hari</span>`;
+            }
+          }
+        }
+
+        let attachIcon = (s.imageUrl && s.imageUrl.trim() !== "")
+          ? `<span class="badge bg-secondary ms-1" onclick="showDetails('${s.name}'); event.stopPropagation();" title="Ada Lampiran"><i class="fas fa-paperclip"></i> Lampiran</span>`
+          : '';
+
+        const div = document.createElement('div');
+        div.className = `student-card ${isSel}`;
+        div.id = 'card-' + s.name.replace(/\s+/g, '-');
+        div.innerHTML = `
+          <div class="d-flex justify-content-between align-items-center">
+            <div style="flex:1;" onclick="toggleSelection('${s.name}')">
+              <h6 class="mb-1">${s.name} ${attachIcon}</h6>
+              <small class="text-muted"><i class="fas fa-door-open me-1"></i>${s.classroom} | ${s.block}</small><br>
+              <small class="text-muted" style="font-size:0.75rem;"><i class="far fa-clock me-1"></i>${timeStr}${daysOutStr}</small>
+            </div>
+            <div class="text-end ms-2">
+              <span class="status-badge ${badgeCls} mb-2 d-inline-block">${s.status}</span><br>
+              <button class="btn btn-sm btn-light border" onclick="showDetails('${s.name}'); event.stopPropagation();"><i class="fas fa-info-circle text-info"></i></button>
+              ${userRole === 'warden' ? `<button class="btn btn-sm btn-light border text-danger ms-1" onclick="buangPelajar('${s.name.replace(/'/g, "\\'")}'); event.stopPropagation();"><i class="fas fa-trash-alt"></i></button>` : ''}
+            </div>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function pilihPukal(jenis) {
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      const statusFilter = document.getElementById('filterStatus').value;
+
+      allStudents.forEach(s => {
+        const matchSearch = String(s.name).toLowerCase().includes(searchTerm) || String(s.classroom).toLowerCase().includes(searchTerm) || String(s.block).toLowerCase().includes(searchTerm);
+        const matchStatus = statusFilter === 'Semua' || s.status === statusFilter;
+
+        if (matchSearch && matchStatus) {
+          if (jenis === 'Semua' || s.status === jenis) {
+            selectedStudents.add(s.name);
+          }
+        }
+      });
+      filterList();
+      updateBottomBar();
+    }
+
+    function renderPendingData() {
+      const container = document.getElementById('pendingContainer');
+      document.getElementById('pendingCount').innerText = allPending.length;
+      container.innerHTML = '';
+
+      if (allPending.length === 0) { document.getElementById('pendingSection').style.display = 'none'; return; }
+      document.getElementById('pendingSection').style.display = 'block';
+
+      allPending.forEach(p => {
+        let badgeCls = p.action === 'Masuk' ? 'status-masuk' : (p.action === 'Keluar' ? 'status-keluar' : 'status-sakit');
+        let d = new Date(p.timestamp);
+        let timeStr = d.toLocaleDateString('ms-MY') + " " + d.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' });
+
+        let actionButtons = "";
+        if (userRole === 'warden') {
+          actionButtons = `
+              <button class="btn btn-sm btn-success mb-1" onclick="resolvePendingReq('${p.id}', true)"><i class="fas fa-check"></i></button>
+              <button class="btn btn-sm btn-danger" onclick="resolvePendingReq('${p.id}', false)"><i class="fas fa-times"></i></button>
+            `;
+        } else {
+          actionButtons = `<span class="badge bg-warning text-dark px-2 py-2"><i class="fas fa-hourglass-half me-1"></i> Menunggu...</span>`;
+        }
+
+        const div = document.createElement('div');
+        div.className = `student-card pending-card`;
+        div.id = 'pending-' + p.id;
+        div.innerHTML = `
+          <div class="d-flex justify-content-between">
+            <div>
+              <h6 class="mb-1">${p.name}</h6>
+              <span class="status-badge ${badgeCls}">${p.action}</span>
+              <small class="text-muted ms-2">${timeStr}</small>
+              <p class="mb-0 mt-1 small text-secondary"><i class="fas fa-comment-dots"></i> ${p.reason || '-'}</p>
+              ${p.imageUrl ? `<a href="${p.imageUrl}" target="_blank" class="badge bg-secondary text-decoration-none mt-1"><i class="fas fa-paperclip"></i> Lihat Gambar</a>` : ''}
+              <p class="mb-0 mt-1 small text-muted" style="font-size:0.7rem;">Oleh: ${p.guardEmail}</p>
+            </div>
+            <div class="d-flex flex-column justify-content-center align-items-end">
+              ${actionButtons}
+            </div>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function showDetails(name) {
+      let s = allStudents.find(x => x.name === name);
+      if (!s) return;
+      document.getElementById('d_name').innerText = s.name;
+      document.getElementById('d_class').innerText = s.classroom;
+      document.getElementById('d_block').innerText = s.block;
+
+      let badge = document.getElementById('d_status');
+      badge.innerText = s.status;
+      badge.className = "status-badge " + (s.status === 'Masuk' ? 'status-masuk' : (s.status === 'Keluar' ? 'status-keluar' : 'status-sakit'));
+
+      if (s.timestamp) {
+        let d = new Date(s.timestamp);
+        let timeStr = d.toLocaleDateString('ms-MY') + " " + d.toLocaleTimeString('ms-MY');
+        if (s.status !== 'Masuk') {
+          const diffTime = Math.abs(new Date() - d);
+          const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+          if (diffDays > 0) {
+            timeStr += ` (${diffDays} hari tidak masuk)`;
+          }
+        }
+        document.getElementById('d_time').innerText = timeStr;
+      } else { document.getElementById('d_time').innerText = "-"; }
+
+      if (s.reason && s.reason !== "-") {
+        document.getElementById('d_reason_box').style.display = 'block';
+        document.getElementById('d_reason').innerText = s.reason;
+      } else { document.getElementById('d_reason_box').style.display = 'none'; }
+
+      if (s.imageUrl && s.imageUrl !== "") {
+        document.getElementById('d_img_box').style.display = 'block';
+        document.getElementById('d_img').src = s.imageUrl;
+        document.getElementById('d_img_link').href = s.imageUrl;
+      } else { document.getElementById('d_img_box').style.display = 'none'; }
+
+      detailsModal.show();
+    }
+
+    function toggleSelection(name) {
+      if (selectedStudents.has(name)) { selectedStudents.delete(name); } else { selectedStudents.add(name); }
+      const card = document.getElementById('card-' + name.replace(/\s+/g, '-'));
+      if (card) { card.classList.toggle('selected'); }
+      updateBottomBar();
+    }
+
+    function clearSelection() {
+      selectedStudents.clear();
+      document.querySelectorAll('.student-card.selected').forEach(el => el.classList.remove('selected'));
+      updateBottomBar();
+    }
+
+    function updateBottomBar() {
+      const bar = document.getElementById('bottomBar');
+      const count = document.getElementById('selectionCount');
+      if (selectedStudents.size > 0) {
+        count.innerText = `${selectedStudents.size} Dipilih`;
+        bar.style.display = 'flex';
+      } else { bar.style.display = 'none'; }
+    }
+
+    function openActionModal() {
+      document.getElementById('studentNames').value = JSON.stringify(Array.from(selectedStudents));
+      document.getElementById('cameraInput').value = "";
+      document.getElementById('imageFile').value = "";
+      document.getElementById('imagePreview').style.display = 'none';
+      setCurrentDateTime();
+      toggleReasonField();
+      actionModal.show();
+    }
+
+    function toggleReasonField() {
+      var action = document.getElementById('actionType').value;
+      var group = document.getElementById('reasonGroup');
+      if (action === 'Masuk') { group.style.display = 'none'; document.getElementById('reason').value = ""; }
+      else { group.style.display = 'block'; }
+    }
+
+    function compressAndConvertToBase64() {
+      var file = document.getElementById('cameraInput').files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function (event) {
+        var img = new Image();
+        img.onload = function () {
+          var canvas = document.createElement('canvas');
+          var ctx = canvas.getContext('2d');
+          var MAX_WIDTH = 800; var MAX_HEIGHT = 800;
+          var width = img.width; var height = img.height;
+          if (width > height) { if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } }
+          else { if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; } }
+          canvas.width = width; canvas.height = height;
+          ctx.drawImage(img, 0, 0, width, height);
+          var dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+          document.getElementById('imageFile').value = dataUrl;
+          document.getElementById('previewImg').src = dataUrl;
+          document.getElementById('imagePreview').style.display = 'block';
+        }
+        img.src = event.target.result;
+      }
+      reader.readAsDataURL(file);
+    }
+
+    function submitForm() {
+      var f = document.getElementById('statusForm');
+      if (f.actionType.value !== 'Masuk' && f.reason.value.trim() === '') { alert("Sila nyatakan sebab / tujuan."); return; }
+      actionModal.hide();
+      document.getElementById('savingToast').style.display = 'block';
+      sendDataOptimistic();
+    }
+
+    async function sendDataOptimistic() {
+      var f = document.getElementById('statusForm');
+      var rawNames = f.studentNames.value; var names = JSON.parse(rawNames);
+      var action = f.actionType.value; var reason = f.reason.value;
+      var timestamp = f.customDate.value + 'T' + f.customTime.value;
+      var imageBase64 = f.imageFile.value;
+
+      if (userRole === 'warden') {
+        names.forEach(n => {
+          var s = allStudents.find(x => x.name === n);
+          if (s) {
+            s.status = action;
+            s.reason = (action === 'Masuk') ? '-' : reason;
+            s.timestamp = timestamp;
+            if (imageBase64) s.imageUrl = imageBase64;
+          }
+        });
+        renderData(allStudents);
+      }
+      clearSelection();
+
+      var d = { studentNames: rawNames, actionType: action, customDate: f.customDate.value, customTime: f.customTime.value, reason: reason, imageFile: imageBase64 };
+
+      try {
+        const res = await callServer({ action: "processEntry", data: d, username: userEmail });
+        document.getElementById('savingToast').style.display = 'none';
+        var syncToast = document.getElementById('syncToast');
+        syncToast.innerHTML = '<i class="fas fa-check-circle text-success me-2"></i> ' + res;
+        syncToast.style.display = 'block'; setTimeout(() => { syncToast.style.display = 'none'; }, 4000);
+        if (userRole === 'guard') { loadDataServer(); }
+      } catch (err) {
+        alert("Gagal menghantar rekod: " + err.message);
+        document.getElementById('savingToast').style.display = 'none'; loadDataServer();
+      }
+    }
+
+    async function resolvePendingReq(id, isApproved) {
+      document.getElementById('savingToast').style.display = 'block';
+      var card = document.getElementById('pending-' + id);
+      if (card) card.style.display = 'none';
+      try {
+        const res = await callServer({ action: "resolvePending", id: id, isApproved: isApproved, username: userEmail });
+        document.getElementById('savingToast').style.display = 'none';
+        var syncToast = document.getElementById('syncToast');
+        syncToast.innerHTML = '<i class="fas fa-info-circle text-info me-2"></i> ' + res;
+        syncToast.style.display = 'block'; setTimeout(() => { syncToast.style.display = 'none'; }, 4000);
+
+        const data = await callServer({ action: "getAppInitData", username: userEmail });
+        allPending = data.pending; renderPendingData(); renderData(data.students);
+      } catch (err) {
+        document.getElementById('savingToast').style.display = 'none';
+        var syncToast = document.getElementById('syncToast');
+        syncToast.innerHTML = '<i class="fas fa-exclamation-triangle text-danger me-2"></i> Gagal diproses.';
+        syncToast.style.display = 'block'; setTimeout(() => { syncToast.style.display = 'none'; }, 4000);
+        if (card) card.style.display = 'block';
+      }
+    }
+
+    // ==========================================
+    // FUNGSI MUAT TURUN PDF (jsPDF)
+    // ==========================================
+    function muatTurunPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      doc.setFontSize(14);
+      doc.text("Laporan E-Kehadiran Asrama", 14, 20);
+
+      doc.setFontSize(10);
+      const statusFilter = document.getElementById('filterStatus').value;
+      doc.text("Tapisan Status : " + statusFilter, 14, 28);
+      doc.text("Tarikh Laporan : " + new Date().toLocaleDateString('ms-MY'), 14, 34);
+
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = allStudents.filter(s => {
+        const matchSearch = String(s.name).toLowerCase().includes(searchTerm) ||
+          String(s.classroom).toLowerCase().includes(searchTerm) ||
+          String(s.block).toLowerCase().includes(searchTerm);
+        const matchStatus = statusFilter === 'Semua' || s.status === statusFilter;
+        return matchSearch && matchStatus;
+      });
+
+      const tableData = filtered.map((s, index) => {
+        let timeStr = "-";
+        if (s.timestamp) {
+          let d = new Date(s.timestamp);
+          timeStr = d.toLocaleDateString('ms-MY') + " " + d.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' });
+          if (s.status !== 'Masuk') {
+            const diffTime = Math.abs(new Date() - d);
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            if (diffDays > 0) {
+              timeStr += ` (${diffDays} hari)`;
+            }
+          }
+        }
+        return [index + 1, s.name, s.classroom, s.block, s.status, timeStr, s.reason || '-'];
+      });
+
+      doc.autoTable({
+        startY: 40,
+        head: [['No', 'Nama', 'Kelas', 'Dorm', 'Status', 'Masa', 'Sebab/Tujuan']],
+        body: tableData,
+        theme: 'grid',
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [13, 110, 253] }
+      });
+
+      doc.save("Laporan_Kehadiran_Asrama.pdf");
+    }
+
+    // ==========================================
+    // FUNGSI BARU: LOG PERGERAKAN HARI INI
+    // ==========================================
+    function bukaLogHariIni() {
+      const container = document.getElementById('logHariIniContainer');
+      container.innerHTML = ''; // Kosongkan data lama
+
+      // Dapatkan tarikh mula hari ini (00:00:00)
+      const startOfToday = new Date();
+      startOfToday.setHours(0, 0, 0, 0);
+
+      // Tapis hanya pelajar yang ada rekod pada hari ini sahaja
+      const logsToday = allStudents.filter(s => {
+        if (!s.timestamp) return false;
+        let d = new Date(s.timestamp);
+        return d >= startOfToday; // Bandingkan jika tarikh lebih besar dari mula hari ini
+      });
+
+      // Susun mengikut waktu paling terkini di atas
+      logsToday.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+      // Jika tiada pergerakan
+      if (logsToday.length === 0) {
+        container.innerHTML = `
+          <div class="text-center p-4">
+            <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+            <p class="text-muted">Tiada pergerakan direkodkan pada hari ini.</p>
+          </div>
+        `;
+      } else {
+        // Bina senarai pergerakan
+        let html = '<ul class="list-group list-group-flush">';
+        logsToday.forEach(s => {
+          let d = new Date(s.timestamp);
+          let timeStr = d.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' });
+          let badgeCls = s.status === 'Masuk' ? 'status-masuk' : (s.status === 'Keluar' ? 'status-keluar' : 'status-sakit');
+
+          html += `
+          <li class="list-group-item d-flex justify-content-between align-items-center px-3 py-3 border-bottom">
+            <div>
+              <h6 class="mb-1" style="font-size: 0.95rem;">${s.name}</h6>
+              <small class="text-muted d-block" style="font-size: 0.75rem;">
+                <i class="far fa-clock me-1"></i>${timeStr} &nbsp;|&nbsp; <i class="fas fa-door-open me-1"></i>${s.classroom}
+              </small>
+            </div>
+            <span class="status-badge ${badgeCls}">${s.status}</span>
+          </li>`;
+        });
+        html += '</ul>';
+        container.innerHTML = html;
+      }
+
+      // Buka Offcanvas (Menu Tepi)
+      offcanvasLog.show();
+    }
+
+    // ==========================================
+    // FUNGSI URUS PELAJAR (TAMBAH / BUANG)
+    // ==========================================
+    function bukaModalTambah() {
+      document.getElementById('tp_nama').value = '';
+      document.getElementById('tp_kelas').value = '';
+      document.getElementById('tp_dorm').value = '';
+      tambahModal.show();
+    }
+
+    async function simpanPelajarBaru() {
+      const nama = document.getElementById('tp_nama').value.trim();
+      const kelas = document.getElementById('tp_kelas').value.trim();
+      const dorm = document.getElementById('tp_dorm').value.trim();
+
+      if (!nama || !kelas || !dorm) { alert("Sila isi semua maklumat."); return; }
+
+      document.getElementById('savingToast').style.display = 'block';
+      tambahModal.hide();
+
+      try {
+        const res = await callServer({
+          action: "addStudent",
+          name: nama,
+          classroom: kelas,
+          block: dorm,
+          username: userEmail
+        });
+        document.getElementById('savingToast').style.display = 'none';
+        var syncToast = document.getElementById('syncToast');
+        syncToast.innerHTML = '<i class="fas fa-check-circle text-success me-2"></i> Pelajar ditambah.';
+        syncToast.style.display = 'block'; setTimeout(() => { syncToast.style.display = 'none'; }, 4000);
+
+        loadDataServer(); // Muat semula senarai dari server
+      } catch (err) {
+        document.getElementById('savingToast').style.display = 'none';
+        alert("Gagal menambah pelajar: " + err.message);
+      }
+    }
+
+    async function buangPelajar(nama) {
+      if (!confirm("Anda pasti mahu memadam rekod pelajar: " + nama + "?")) return;
+
+      document.getElementById('savingToast').style.display = 'block';
+      try {
+        const res = await callServer({
+          action: "removeStudent",
+          name: nama,
+          username: userEmail
+        });
+        document.getElementById('savingToast').style.display = 'none';
+        var syncToast = document.getElementById('syncToast');
+        syncToast.innerHTML = '<i class="fas fa-trash text-success me-2"></i> Pelajar dipadam.';
+        syncToast.style.display = 'block'; setTimeout(() => { syncToast.style.display = 'none'; }, 4000);
+
+        loadDataServer(); // Muat semula senarai dari server
+      } catch (err) {
+        document.getElementById('savingToast').style.display = 'none';
+        alert("Gagal memadam pelajar: " + err.message);
+      }
+    }
+  </script>
+</body>
+
+</html>
