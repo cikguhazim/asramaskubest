@@ -181,6 +181,8 @@
     <nav class="navbar navbar-dark bg-primary sticky-top">
       <div class="container-fluid flex-nowrap">
         <span class="navbar-brand mb-0 h1 d-flex align-items-center text-truncate pe-2" style="min-width: 0;">
+          <button id="btnBackMenu" class="btn btn-sm btn-outline-light me-2" style="display:none;"
+            onclick="paparMenuUtama()"><i class="fas fa-home"></i></button>
           <img src="logosekolah.png" alt="Logo"
             style="height: 32px; width: auto; margin-right: 8px; background-color: white; border-radius: 4px; padding: 2px; flex-shrink: 0;"
             onerror="this.style.display='none'">
@@ -196,7 +198,57 @@
       </div>
     </nav>
 
-    <div class="container mt-3">
+    <!-- Main Menu View -->
+    <div id="mainMenuView" class="container mt-5">
+      <div class="row g-4 justify-content-center">
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="card h-100 shadow-sm border-0 text-center p-4" onclick="bukaKeberadaan()"
+            style="cursor:pointer; transition: transform 0.2s;">
+            <i class="fas fa-map-marker-alt fa-4x text-primary mb-3"></i>
+            <h4 class="text-dark">Keberadaan Murid</h4>
+            <p class="text-muted small">Semak & Kemaskini Status Kehadiran Asrama</p>
+          </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="card h-100 shadow-sm border-0 text-center p-4" onclick="bukaDisiplin('Merit')"
+            style="cursor:pointer; transition: transform 0.2s;">
+            <i class="fas fa-star fa-4x text-success mb-3"></i>
+            <h4 class="text-dark">Rekod Amalan Baik</h4>
+            <p class="text-muted small">Beri Mata Merit kepada Individu atau Dorm</p>
+          </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="card h-100 shadow-sm border-0 text-center p-4" onclick="bukaDisiplin('Demerit')"
+            style="cursor:pointer; transition: transform 0.2s;">
+            <i class="fas fa-exclamation-triangle fa-4x text-danger mb-3"></i>
+            <h4 class="text-dark">Rekod Salah Laku</h4>
+            <p class="text-muted small">Beri Mata Demerit kepada Individu atau Dorm</p>
+          </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="card h-100 shadow-sm border-0 text-center p-4" onclick="bukaLaporan()"
+            style="cursor:pointer; transition: transform 0.2s;">
+            <i class="fas fa-chart-bar fa-4x text-info mb-3"></i>
+            <h4 class="text-dark">Laporan Disiplin</h4>
+            <p class="text-muted small">Lihat Kedudukan Mata & Sejarah Rekod</p>
+          </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-4">
+          <a href="https://docs.google.com/spreadsheets/d/1oY-LbRwZ0z74lpSQm5rKHgEXw3Hn0nbwawbeVY9je0o/edit?gid=471973262#gid=471973262"
+            target="_blank" class="text-decoration-none">
+            <div class="card h-100 shadow-sm border-0 text-center p-4"
+              style="cursor:pointer; transition: transform 0.2s;">
+              <i class="fas fa-cog fa-4x text-secondary mb-3"></i>
+              <h4 class="text-dark">Tetapan</h4>
+              <p class="text-muted small">Urus Data di dalam Google Sheet</p>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Attendance View -->
+    <div id="attendanceView" style="display:none;" class="container mt-3">
       <div id="chartSection" class="card stat-card p-3 mb-3" style="display:none;">
         <h6 class="text-muted mb-2 text-center">Ringkasan Semasa</h6>
         <div style="height: 150px; position: relative; width: 100%;">
@@ -256,10 +308,13 @@
           <div class="col-12 mt-2" id="adminToolsSection" style="display:none;">
             <div class="row g-2">
               <div class="col-12 col-md-6">
-                <button class="btn btn-sm btn-success w-100" onclick="bukaModalTambah()"><i class="fas fa-user-plus"></i> Tambah Pelajar Baru</button>
+                <button class="btn btn-sm btn-success w-100" onclick="bukaModalTambah()"><i
+                    class="fas fa-user-plus"></i> Tambah Pelajar Baru</button>
               </div>
               <div class="col-12 col-md-6">
-                <a href="https://docs.google.com/spreadsheets/d/1oY-LbRwZ0z74lpSQm5rKHgEXw3Hn0nbwawbeVY9je0o/edit?gid=0#gid=0" target="_blank" class="btn btn-sm btn-primary w-100"><i class="fas fa-table"></i> Buka Google Sheet</a>
+                <a href="https://docs.google.com/spreadsheets/d/1oY-LbRwZ0z74lpSQm5rKHgEXw3Hn0nbwawbeVY9je0o/edit?gid=0#gid=0"
+                  target="_blank" class="btn btn-sm btn-primary w-100"><i class="fas fa-table"></i> Buka Google
+                  Sheet</a>
               </div>
             </div>
           </div>
@@ -278,6 +333,141 @@
         <button class="btn btn-outline-secondary me-2" onclick="clearSelection()">Batal</button>
         <button class="btn btn-primary shadow" onclick="openActionModal()">Kemaskini <i
             class="fas fa-chevron-right ms-1"></i></button>
+      </div>
+    </div>
+  </div><!-- End attendanceView -->
+
+  <!-- Discipline View (Merit / Demerit) -->
+  <div id="disciplineView" style="display:none;" class="container mt-3 mb-5">
+    <div class="card border-0 shadow-sm p-4">
+      <h4 id="disciplineTitle" class="mb-4 text-center"></h4>
+      <form id="disciplineForm">
+        <input type="hidden" id="disc_type">
+        <div class="mb-3">
+          <label class="form-label fw-bold">Pilihan Rekod</label>
+          <select class="form-select" id="disc_targetType" onchange="toggleDisciplineTarget()">
+            <option value="Individu">Individu (Pilih Pelajar)</option>
+            <option value="Dorm">Bilik Dorm (Semua dalam dorm)</option>
+          </select>
+        </div>
+
+        <div class="mb-3" id="disc_individu_group">
+          <label class="form-label fw-bold">Nama Pelajar (Carian)</label>
+          <input type="text" id="disc_search" class="form-control mb-2" placeholder="Cari nama..."
+            onkeyup="filterDisciplineStudents()">
+          <div id="disc_studentList" class="border rounded p-2"
+            style="max-height: 200px; overflow-y: auto; background: #fafafa;">
+            <!-- Student checkboxes injected here -->
+          </div>
+        </div>
+
+        <div class="mb-3" id="disc_dorm_group" style="display:none;">
+          <label class="form-label fw-bold">Pilih Blok / Dorm</label>
+          <select class="form-select" id="disc_dormSelect">
+            <!-- Dorms injected here -->
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold">Mata (1 - 10)</label>
+          <input type="number" class="form-control" id="disc_points" min="1" max="10" required>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold">Catatan / Sebab</label>
+          <textarea class="form-control" id="disc_reason" rows="3" required
+            placeholder="Cth: Tolong angkat barang / Bising selepas lampu tutup"></textarea>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label fw-bold">Gambar Bukti (Pilihan)</label>
+          <input class="form-control" type="file" accept="image/*" capture="environment" id="disc_cameraInput"
+            onchange="compressDiscImage()">
+          <input type="hidden" id="disc_imageFile">
+          <div id="disc_imagePreview" class="mt-2 text-center" style="display:none;">
+            <img id="disc_previewImg" src="" style="max-width: 100%; max-height: 200px; border-radius: 8px;">
+          </div>
+        </div>
+
+        <button type="button" class="btn btn-lg w-100 text-white" id="btnHantarDisiplin"
+          onclick="hantarRekodDisiplin()"><i class="fas fa-paper-plane me-2"></i> Hantar Rekod</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Report View -->
+  <div id="reportView" style="display:none;" class="container mt-3 mb-5">
+    <h4 class="text-primary mb-3"><i class="fas fa-chart-bar me-2"></i> Laporan Disiplin</h4>
+
+    <ul class="nav nav-tabs mb-3" id="reportTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active fw-bold" id="tab-individu" data-bs-toggle="tab"
+          data-bs-target="#content-individu" type="button" role="tab" onclick="renderReportIndividu()">🏆
+          Individu</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link fw-bold" id="tab-dorm" data-bs-toggle="tab" data-bs-target="#content-dorm" type="button"
+          role="tab" onclick="renderReportDorm()">🏠 Dorm</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link fw-bold" id="tab-sejarah" data-bs-toggle="tab" data-bs-target="#content-sejarah"
+          type="button" role="tab" onclick="renderReportSejarah()">📜 Sejarah</button>
+      </li>
+    </ul>
+
+    <div class="tab-content bg-white p-3 border border-top-0 rounded-bottom" id="reportTabsContent">
+      <div class="tab-pane fade show active" id="content-individu" role="tabpanel">
+        <div class="mb-3 position-relative">
+          <i class="fas fa-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+          <input type="text" id="searchIndividu" class="form-control form-control-lg ps-5 bg-light border-0 shadow-sm"
+            placeholder="Cari nama pelajar..." onkeyup="renderReportIndividu()">
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th style="width: 50px">No</th>
+                <th>Nama Murid</th>
+                <th>Dorm</th>
+                <th class="text-end">Mata</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-individu"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="tab-pane fade" id="content-dorm" role="tabpanel">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th style="width: 50px">No</th>
+                <th>Blok / Dorm</th>
+                <th class="text-end">Jumlah Mata Keseluruhan</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-dorm"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="tab-pane fade" id="content-sejarah" role="tabpanel">
+        <div id="historyLogContainer"></div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <!-- Modal Sejarah Pelajar Individu -->
+  <div class="modal fade" id="studentHistoryModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header border-0 bg-info text-white">
+          <h5 class="modal-title fw-bold" id="studentHistoryModalTitle">Rekod Disiplin</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-0">
+          <div id="studentHistoryContainer" class="p-3"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -364,6 +554,9 @@
           <p class="mb-1 text-muted small mt-3">Status Terkini</p>
           <p><span id="d_status" class="status-badge"></span></p>
 
+          <p class="mb-1 text-muted small mt-3">Mata Rekod (Amalan Baik/Salah Laku)</p>
+          <p id="d_merit" class="fw-bold"></p>
+
           <p class="mb-1 text-muted small mt-3">Tarikh / Masa</p>
           <p id="d_time" class="fw-bold"></p>
 
@@ -424,10 +617,11 @@
     // ==============================================================
     // MASUKKAN URL WEB APP API ANDA DI BAWAH INI
     // ==============================================================
-    const API_URL = "https://script.google.com/macros/s/AKfycbxmcx3UMuY466oqsTnhnjoS_kw3MvZv6nDXPlI9SJufCG_jX0NfuHx80SPJEErQk52d/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbwYvfK6XQwqx8FCP9kZ2_RZVO29mYVTOJ1WmaOfEqQEwUi8hZBE6rRQgWp_1aVAvdx0/exec";
 
     let allStudents = [];
     let allPending = [];
+    let allMeritLogs = [];
     let selectedStudents = new Set();
     let actionModal, detailsModal, offcanvasLog, tambahModal, myPieChart;
     let userRole = "";
@@ -475,6 +669,13 @@
           userRole = res.peranan; userEmail = res.username;
           document.getElementById('loginScreen').style.display = 'none';
           document.getElementById('mainDashboard').style.display = 'block';
+
+          if (userRole === 'guard') {
+            bukaKeberadaan();
+          } else {
+            paparMenuUtama();
+          }
+
           loadDataServer();
         } else {
           err.innerText = res.mesej; err.style.display = 'block';
@@ -511,6 +712,7 @@
         document.getElementById('pendingSection').style.display = 'block';
 
         allPending = data.pending;
+        allMeritLogs = data.meritLogs || [];
         renderPendingData();
         renderData(data.students);
       } catch (err) { alert("Ralat memuat data: " + err.message); }
@@ -579,6 +781,11 @@
           ? `<span class="badge bg-secondary ms-1" onclick="showDetails('${s.name}'); event.stopPropagation();" title="Ada Lampiran"><i class="fas fa-paperclip"></i> Lampiran</span>`
           : '';
 
+        let meritPts = s.meritPoints || 0;
+        let meritBadge = meritPts >= 0
+          ? `<span class="badge bg-light text-success border border-success"><i class="fas fa-star text-warning"></i> ${meritPts} Mata</span>`
+          : `<span class="badge bg-light text-danger border border-danger"><i class="fas fa-exclamation-triangle"></i> ${meritPts} Mata</span>`;
+
         const div = document.createElement('div');
         div.className = `student-card ${isSel}`;
         div.id = 'card-' + s.name.replace(/\s+/g, '-');
@@ -588,6 +795,7 @@
               <h6 class="mb-1">${s.name} ${attachIcon}</h6>
               <small class="text-muted"><i class="fas fa-door-open me-1"></i>${s.classroom} | ${s.block}</small><br>
               <small class="text-muted" style="font-size:0.75rem;"><i class="far fa-clock me-1"></i>${timeStr}${daysOutStr}</small>
+              <div class="mt-1">${meritBadge}</div>
             </div>
             <div class="text-end ms-2">
               <span class="status-badge ${badgeCls} mb-2 d-inline-block">${s.status}</span><br>
@@ -673,6 +881,14 @@
       let badge = document.getElementById('d_status');
       badge.innerText = s.status;
       badge.className = "status-badge " + (s.status === 'Masuk' ? 'status-masuk' : (s.status === 'Keluar' ? 'status-keluar' : 'status-sakit'));
+
+      let d_merit = document.getElementById('d_merit');
+      if (d_merit) {
+        let meritPts = s.meritPoints || 0;
+        d_merit.innerHTML = meritPts >= 0
+          ? `<i class="fas fa-star text-warning"></i> ${meritPts} Mata Merit`
+          : `<i class="fas fa-exclamation-triangle text-danger"></i> ${meritPts} Mata Demerit`;
+      }
 
       if (s.timestamp) {
         let d = new Date(s.timestamp);
@@ -999,6 +1215,330 @@
         document.getElementById('savingToast').style.display = 'none';
         alert("Gagal memadam pelajar: " + err.message);
       }
+    }
+
+    // ==========================================
+    // FUNGSI ROUTING & REKOD DISIPLIN
+    // ==========================================
+    function paparMenuUtama() {
+      document.getElementById('mainMenuView').style.display = 'block';
+      document.getElementById('attendanceView').style.display = 'none';
+      document.getElementById('disciplineView').style.display = 'none';
+      document.getElementById('reportView').style.display = 'none';
+      document.getElementById('btnBackMenu').style.display = 'none';
+    }
+
+    function bukaKeberadaan() {
+      document.getElementById('mainMenuView').style.display = 'none';
+      document.getElementById('attendanceView').style.display = 'block';
+      document.getElementById('disciplineView').style.display = 'none';
+      document.getElementById('reportView').style.display = 'none';
+
+      if (userRole === 'warden') {
+        document.getElementById('btnBackMenu').style.display = 'block';
+      } else {
+        document.getElementById('btnBackMenu').style.display = 'none';
+      }
+
+      filterList();
+    }
+
+    function bukaLaporan() {
+      document.getElementById('mainMenuView').style.display = 'none';
+      document.getElementById('attendanceView').style.display = 'none';
+      document.getElementById('disciplineView').style.display = 'none';
+      document.getElementById('reportView').style.display = 'block';
+      document.getElementById('btnBackMenu').style.display = 'block';
+
+      renderReportIndividu();
+    }
+
+    function bukaDisiplin(jenis) {
+      document.getElementById('mainMenuView').style.display = 'none';
+      document.getElementById('attendanceView').style.display = 'none';
+      document.getElementById('disciplineView').style.display = 'block';
+      document.getElementById('btnBackMenu').style.display = 'block';
+
+      document.getElementById('disc_type').value = jenis;
+      const title = document.getElementById('disciplineTitle');
+      const btn = document.getElementById('btnHantarDisiplin');
+
+      if (jenis === 'Merit') {
+        title.innerHTML = '<i class="fas fa-star text-success me-2"></i> Rekod Amalan Baik';
+        btn.className = 'btn btn-lg w-100 text-white btn-success';
+      } else {
+        title.innerHTML = '<i class="fas fa-exclamation-triangle text-danger me-2"></i> Rekod Salah Laku';
+        btn.className = 'btn btn-lg w-100 text-white btn-danger';
+      }
+
+      // Setup forms
+      document.getElementById('disc_points').value = '';
+      document.getElementById('disc_reason').value = '';
+      document.getElementById('disc_cameraInput').value = '';
+      document.getElementById('disc_imageFile').value = '';
+      document.getElementById('disc_imagePreview').style.display = 'none';
+
+      // Setup Dorm List
+      const uniqueDorms = [...new Set(allStudents.map(s => s.block))].filter(b => b.trim() !== "");
+      uniqueDorms.sort();
+      const dormSelect = document.getElementById('disc_dormSelect');
+      dormSelect.innerHTML = uniqueDorms.map(d => `<option value="${d}">${d}</option>`).join('');
+
+      filterDisciplineStudents();
+    }
+
+    function toggleDisciplineTarget() {
+      const target = document.getElementById('disc_targetType').value;
+      if (target === 'Individu') {
+        document.getElementById('disc_individu_group').style.display = 'block';
+        document.getElementById('disc_dorm_group').style.display = 'none';
+      } else {
+        document.getElementById('disc_individu_group').style.display = 'none';
+        document.getElementById('disc_dorm_group').style.display = 'block';
+      }
+    }
+
+    function filterDisciplineStudents() {
+      const search = document.getElementById('disc_search').value.toLowerCase();
+      const list = document.getElementById('disc_studentList');
+      list.innerHTML = '';
+
+      const filtered = allStudents.filter(s => s.name.toLowerCase().includes(search));
+      filtered.forEach(s => {
+        list.innerHTML += `
+          <div class="form-check border-bottom py-2">
+            <input class="form-check-input disc-student-cb" type="checkbox" value="${s.name}" id="cb_${s.name.replace(/[^a-zA-Z0-9]/g, '')}">
+            <label class="form-check-label w-100" for="cb_${s.name.replace(/[^a-zA-Z0-9]/g, '')}">
+              ${s.name} <small class="text-muted">(${s.block})</small>
+            </label>
+          </div>
+        `;
+      });
+    }
+
+    function compressDiscImage() {
+      var file = document.getElementById('disc_cameraInput').files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function (event) {
+        var img = new Image();
+        img.onload = function () {
+          var canvas = document.createElement('canvas');
+          var ctx = canvas.getContext('2d');
+          var MAX_WIDTH = 800; var MAX_HEIGHT = 800;
+          var width = img.width; var height = img.height;
+          if (width > height) { if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } }
+          else { if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; } }
+          canvas.width = width; canvas.height = height;
+          ctx.drawImage(img, 0, 0, width, height);
+          var dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+          document.getElementById('disc_imageFile').value = dataUrl;
+          document.getElementById('disc_previewImg').src = dataUrl;
+          document.getElementById('disc_imagePreview').style.display = 'block';
+        }
+        img.src = event.target.result;
+      }
+      reader.readAsDataURL(file);
+    }
+
+    async function hantarRekodDisiplin() {
+      const type = document.getElementById('disc_type').value;
+      const targetType = document.getElementById('disc_targetType').value;
+      let points = parseInt(document.getElementById('disc_points').value);
+      const reason = document.getElementById('disc_reason').value.trim();
+      const imageBase64 = document.getElementById('disc_imageFile').value;
+
+      if (!points || points < 1 || points > 10) { alert("Sila masukkan mata antara 1 hingga 10."); return; }
+      if (!reason) { alert("Sila nyatakan catatan/sebab."); return; }
+
+      let targetStudents = [];
+      if (targetType === 'Individu') {
+        const cbs = document.querySelectorAll('.disc-student-cb:checked');
+        cbs.forEach(cb => targetStudents.push(cb.value));
+        if (targetStudents.length === 0) { alert("Sila pilih sekurang-kurangnya seorang pelajar."); return; }
+      } else {
+        const dorm = document.getElementById('disc_dormSelect').value;
+        targetStudents = allStudents.filter(s => s.block === dorm).map(s => s.name);
+        if (targetStudents.length === 0) { alert("Tiada pelajar dijumpai di dorm ini."); return; }
+        if (!confirm(`Tindakan ini akan mengemaskini mata untuk ${targetStudents.length} pelajar di dorm ${dorm}. Teruskan?`)) return;
+      }
+
+      if (type === 'Demerit') {
+        points = -Math.abs(points);
+      }
+
+      document.getElementById('savingToast').style.display = 'block';
+      const btn = document.getElementById('btnHantarDisiplin');
+      btn.disabled = true;
+
+      try {
+        const payload = {
+          action: "recordBehavior",
+          studentNames: JSON.stringify(targetStudents),
+          type: type,
+          points: points,
+          reason: reason,
+          imageFile: imageBase64,
+          username: userEmail
+        };
+
+        await callServer(payload);
+        document.getElementById('savingToast').style.display = 'none';
+
+        var syncToast = document.getElementById('syncToast');
+        syncToast.innerHTML = '<i class="fas fa-check-circle text-success me-2"></i> Rekod disimpan.';
+        syncToast.style.display = 'block'; setTimeout(() => { syncToast.style.display = 'none'; }, 4000);
+
+        btn.disabled = false;
+        loadDataServer();
+        paparMenuUtama();
+      } catch (err) {
+        document.getElementById('savingToast').style.display = 'none';
+        alert("Ralat menyimpan rekod: " + err.message);
+        btn.disabled = false;
+      }
+    }
+
+    // ==========================================
+    // FUNGSI LAPORAN (REPORT RENDERING)
+    // ==========================================
+    function renderReportIndividu() {
+      const tbody = document.getElementById('tbody-individu');
+      const searchTerm = document.getElementById('searchIndividu') ? document.getElementById('searchIndividu').value.toLowerCase() : "";
+
+      let filtered = allStudents;
+      if (searchTerm) {
+        filtered = filtered.filter(s => s.name.toLowerCase().includes(searchTerm));
+      }
+
+      let sorted = [...filtered].sort((a, b) => (b.meritPoints || 0) - (a.meritPoints || 0));
+
+      let html = '';
+      if (sorted.length === 0) {
+        html = '<tr><td colspan="4" class="text-center text-muted py-4">Tiada rekod dijumpai.</td></tr>';
+      } else {
+        sorted.forEach((s, index) => {
+          let pts = s.meritPoints || 0;
+          let badge = pts >= 0 ? `<span class="badge bg-success">${pts}</span>` : `<span class="badge bg-danger">${pts}</span>`;
+          html += `
+            <tr>
+              <td>${index + 1}</td>
+              <td class="fw-bold">
+                <a href="javascript:void(0)" onclick="viewStudentHistory('${s.name}')" class="text-decoration-none text-dark d-block">
+                  ${s.name} <i class="fas fa-external-link-alt ms-1 small text-muted"></i>
+                </a>
+              </td>
+              <td class="text-muted small">${s.block}</td>
+              <td class="text-end">${badge}</td>
+            </tr>
+          `;
+        });
+      }
+      tbody.innerHTML = html;
+    }
+
+    function renderReportDorm() {
+      const tbody = document.getElementById('tbody-dorm');
+
+      let dormTotals = {};
+      allStudents.forEach(s => {
+        if (!dormTotals[s.block]) dormTotals[s.block] = 0;
+        dormTotals[s.block] += (s.meritPoints || 0);
+      });
+
+      let sortedDorms = Object.keys(dormTotals).map(dorm => {
+        return { dorm: dorm, total: dormTotals[dorm] };
+      }).sort((a, b) => b.total - a.total);
+
+      let html = '';
+      sortedDorms.forEach((d, index) => {
+        let badge = d.total >= 0 ? `<span class="badge bg-success fs-6">${d.total}</span>` : `<span class="badge bg-danger fs-6">${d.total}</span>`;
+        html += `
+          <tr>
+            <td>${index + 1}</td>
+            <td class="fw-bold fs-5">${d.dorm}</td>
+            <td class="text-end">${badge}</td>
+          </tr>
+        `;
+      });
+      tbody.innerHTML = html;
+    }
+
+    function viewStudentHistory(studentName) {
+      document.getElementById('studentHistoryModalTitle').innerText = "Rekod: " + studentName;
+      const container = document.getElementById('studentHistoryContainer');
+
+      let studentLogs = allMeritLogs.filter(log => log.name === studentName);
+
+      if (!studentLogs || studentLogs.length === 0) {
+        container.innerHTML = '<div class="text-center text-muted p-4"><i class="fas fa-folder-open fa-3x mb-2"></i><br>Tiada rekod disiplin setakat ini.</div>';
+      } else {
+        let sortedLogs = [...studentLogs].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        let html = '<div class="list-group list-group-flush">';
+
+        sortedLogs.forEach(log => {
+          let d = new Date(log.timestamp);
+          let timeStr = d.toLocaleDateString('ms-MY') + " " + d.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' });
+          let typeIcon = log.type === 'Merit' ? '<i class="fas fa-star text-success"></i>' : '<i class="fas fa-exclamation-triangle text-danger"></i>';
+          let pointBadge = log.points >= 0 ? `<span class="badge bg-success">+${log.points}</span>` : `<span class="badge bg-danger">${log.points}</span>`;
+          let imageLink = (log.imageUrl && log.imageUrl.trim() !== "")
+            ? `<a href="${log.imageUrl}" target="_blank" class="badge bg-secondary text-decoration-none mt-2"><i class="fas fa-camera"></i> Gambar</a>` : '';
+
+          html += `
+            <div class="list-group-item py-3">
+              <div class="d-flex w-100 justify-content-between align-items-center mb-1">
+                <h6 class="mb-0 fw-bold">${typeIcon} ${log.type}</h6>
+                ${pointBadge}
+              </div>
+              <p class="mb-1 text-dark small">${log.reason}</p>
+              <small class="text-muted"><i class="far fa-clock"></i> ${timeStr} | Oleh: ${log.warden}</small>
+              <div>${imageLink}</div>
+            </div>
+          `;
+        });
+        html += '</div>';
+        container.innerHTML = html;
+      }
+
+      let myModal = new bootstrap.Modal(document.getElementById('studentHistoryModal'));
+      myModal.show();
+    }
+
+    function renderReportSejarah() {
+      const container = document.getElementById('historyLogContainer');
+
+      if (!allMeritLogs || allMeritLogs.length === 0) {
+        container.innerHTML = '<div class="text-center text-muted p-4"><i class="fas fa-folder-open fa-3x mb-2"></i><br>Tiada rekod setakat ini.</div>';
+        return;
+      }
+
+      let sortedLogs = [...allMeritLogs].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+      let html = '<div class="list-group">';
+      sortedLogs.forEach(log => {
+        let d = new Date(log.timestamp);
+        let timeStr = d.toLocaleDateString('ms-MY') + " " + d.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' });
+
+        let typeIcon = log.type === 'Merit' ? '<i class="fas fa-star text-success"></i>' : '<i class="fas fa-exclamation-triangle text-danger"></i>';
+        let pointBadge = log.points >= 0 ? `<span class="badge bg-success">+${log.points}</span>` : `<span class="badge bg-danger">${log.points}</span>`;
+
+        let imageLink = (log.imageUrl && log.imageUrl.trim() !== "")
+          ? `<a href="${log.imageUrl}" target="_blank" class="badge bg-secondary text-decoration-none mt-2"><i class="fas fa-camera"></i> Gambar</a>` : '';
+
+        html += `
+          <div class="list-group-item list-group-item-action py-3">
+            <div class="d-flex w-100 justify-content-between align-items-center mb-1">
+              <h6 class="mb-0 fw-bold">${typeIcon} ${log.name}</h6>
+              ${pointBadge}
+            </div>
+            <p class="mb-1 text-dark small">${log.reason}</p>
+            <small class="text-muted"><i class="far fa-clock"></i> ${timeStr} | Oleh: ${log.warden}</small>
+            <div>${imageLink}</div>
+          </div>
+        `;
+      });
+      html += '</div>';
+      container.innerHTML = html;
     }
   </script>
 </body>

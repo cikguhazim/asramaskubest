@@ -34,6 +34,8 @@ function doPost(e) {
       result = addStudent(payload);
     } else if (action === "removeStudent") {
       result = removeStudent(payload);
+    } else if (action === "recordBehavior") {
+      result = recordBehavior(payload);
     }
 
     return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
@@ -81,7 +83,8 @@ function getAppInitData(username) {
       status: sData[i][3] || "Masuk", 
       timestamp: sData[i][4] || "",   
       reason: sData[i][5] || "-",     
-      imageUrl: sData[i][6] || ""     
+      imageUrl: sData[i][6] || "",
+      meritPoints: sData[i][7] || 0
     });
   }
 
@@ -103,7 +106,25 @@ function getAppInitData(username) {
     }
   }
 
-  return { status: "berjaya", data: { role: role, pending: pending, students: students } };
+  var meritLogsSheet = ss.getSheetByName("MeritLogs");
+  var meritLogs = [];
+  if (meritLogsSheet) {
+    var mData = meritLogsSheet.getDataRange().getValues();
+    for (var i = 1; i < mData.length; i++) {
+      if(!mData[i][0]) continue;
+      meritLogs.push({
+        timestamp: mData[i][0],
+        name: mData[i][1],
+        type: mData[i][2],
+        points: mData[i][3],
+        reason: mData[i][4],
+        imageUrl: mData[i][5],
+        warden: mData[i][6]
+      });
+    }
+  }
+
+  return { status: "berjaya", data: { role: role, pending: pending, students: students, meritLogs: meritLogs } };
 }
 
 // ==========================================
@@ -218,7 +239,8 @@ function addStudent(payload) {
     "Masuk", 
     "", 
     "-", 
-    ""
+    "",
+    0
   ];
   sheet.appendRow(newRow);
   
@@ -253,7 +275,56 @@ function removeStudent(payload) {
 }
 
 // ==========================================
-// 5. FUNGSI SIMPAN GAMBAR KE GOOGLE DRIVE
+// 5. FUNGSI REKOD DISIPLIN (MERIT / DEMERIT)
+// ==========================================
+function recordBehavior(payload) {
+  var ss = SpreadsheetApp.openById(SHEET_ID);
+  var sheet = ss.getSheetByName(TAB_STUDENTS);
+  var sheetLogs = ss.getSheetByName("MeritLogs");
+  
+  if (!sheet) return { status: "error", message: "Sheet Students tidak dijumpai" };
+  if (!sheetLogs) {
+    sheetLogs = ss.insertSheet("MeritLogs");
+    sheetLogs.appendRow(["Timestamp", "Nama Murid", "Jenis", "Mata", "Catatan", "Gambar", "Warden"]);
+  }
+  
+  var names = JSON.parse(payload.studentNames);
+  var points = parseInt(payload.points) || 0;
+  
+  var imgUrl = "";
+  if (payload.imageFile && payload.imageFile.trim() !== "") {
+     var randomText = Math.floor(Math.random() * 10000);
+     imgUrl = saveImageToDrive(payload.imageFile, "Bukti_Disiplin_" + randomText + ".jpg");
+  }
+
+  var dataRange = sheet.getDataRange();
+  var values = dataRange.getValues();
+  var now = new Date();
+  
+  var logRows = [];
+  
+  for (var i = 1; i < values.length; i++) {
+    var currentName = values[i][0];
+    if (names.includes(currentName)) {
+      var currentPoints = parseInt(values[i][7]) || 0;
+      var newPoints = currentPoints + points;
+      
+      sheet.getRange(i + 1, 8).setValue(newPoints);
+      
+      logRows.push([now, currentName, payload.type, points, payload.reason, imgUrl, payload.username]);
+    }
+  }
+  
+  if (logRows.length > 0) {
+    if(sheetLogs.getLastRow() === 0) sheetLogs.appendRow(["Timestamp", "Nama Murid", "Jenis", "Mata", "Catatan", "Gambar", "Warden"]);
+    sheetLogs.getRange(sheetLogs.getLastRow() + 1, 1, logRows.length, 7).setValues(logRows);
+  }
+  
+  return { status: "berjaya", data: "Rekod disiplin disimpan" };
+}
+
+// ==========================================
+// 6. FUNGSI SIMPAN GAMBAR KE GOOGLE DRIVE
 // ==========================================
 function saveImageToDrive(base64Data, fileName) {
   if (!base64Data) return ""; 
