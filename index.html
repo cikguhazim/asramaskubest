@@ -306,17 +306,8 @@
             </div>
           </div>
           <div class="col-12 mt-2" id="adminToolsSection" style="display:none;">
-            <div class="row g-2">
-              <div class="col-12 col-md-6">
-                <button class="btn btn-sm btn-success w-100" onclick="bukaModalTambah()"><i
-                    class="fas fa-user-plus"></i> Tambah Pelajar Baru</button>
-              </div>
-              <div class="col-12 col-md-6">
-                <a href="https://docs.google.com/spreadsheets/d/1oY-LbRwZ0z74lpSQm5rKHgEXw3Hn0nbwawbeVY9je0o/edit?gid=0#gid=0"
-                  target="_blank" class="btn btn-sm btn-primary w-100"><i class="fas fa-table"></i> Buka Google
-                  Sheet</a>
-              </div>
-            </div>
+            <button class="btn btn-sm btn-success w-100" onclick="bukaModalTambah()"><i class="fas fa-user-plus"></i>
+              Tambah Pelajar Baru</button>
           </div>
         </div>
       </div>
@@ -343,6 +334,11 @@
       <h4 id="disciplineTitle" class="mb-4 text-center"></h4>
       <form id="disciplineForm">
         <input type="hidden" id="disc_type">
+        <div class="mb-3">
+          <label class="form-label fw-bold">Tarikh</label>
+          <input type="date" class="form-control" id="disc_date">
+        </div>
+
         <div class="mb-3">
           <label class="form-label fw-bold">Pilihan Rekod</label>
           <select class="form-select" id="disc_targetType" onchange="toggleDisciplineTarget()">
@@ -388,7 +384,6 @@
             <img id="disc_previewImg" src="" style="max-width: 100%; max-height: 200px; border-radius: 8px;">
           </div>
         </div>
-
         <button type="button" class="btn btn-lg w-100 text-white" id="btnHantarDisiplin"
           onclick="hantarRekodDisiplin()"><i class="fas fa-paper-plane me-2"></i> Hantar Rekod</button>
       </form>
@@ -397,7 +392,44 @@
 
   <!-- Report View -->
   <div id="reportView" style="display:none;" class="container mt-3 mb-5">
-    <h4 class="text-primary mb-3"><i class="fas fa-chart-bar me-2"></i> Laporan Disiplin</h4>
+    <div
+      class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mb-3 gap-2">
+      <h4 class="text-primary mb-0"><i class="fas fa-chart-bar me-2"></i> Laporan Disiplin</h4>
+      <div class="d-flex gap-2 flex-wrap">
+        <select id="filterYear" class="form-select w-auto text-primary border-primary"
+          onchange="renderReportIndividu(); renderReportDorm(); renderReportSejarah();">
+          <option value="all">Semua Tahun</option>
+          <option value="1">Tahun 1</option>
+          <option value="2">Tahun 2</option>
+          <option value="3">Tahun 3</option>
+          <option value="4">Tahun 4</option>
+          <option value="5">Tahun 5</option>
+          <option value="6">Tahun 6</option>
+        </select>
+        <select id="filterGender" class="form-select w-auto text-primary border-primary"
+          onchange="renderReportIndividu(); renderReportDorm(); renderReportSejarah();">
+          <option value="all">Semua Jantina</option>
+          <option value="Lelaki">Lelaki</option>
+          <option value="Perempuan">Perempuan</option>
+        </select>
+        <select id="filterMonth" class="form-select w-auto fw-bold text-primary border-primary"
+          onchange="renderReportIndividu(); renderReportDorm(); renderReportSejarah();">
+          <option value="all">Semua Masa</option>
+          <option value="1">Januari</option>
+          <option value="2">Februari</option>
+          <option value="3">Mac</option>
+          <option value="4">April</option>
+          <option value="5">Mei</option>
+          <option value="6">Jun</option>
+          <option value="7">Julai</option>
+          <option value="8">Ogos</option>
+          <option value="9">September</option>
+          <option value="10">Oktober</option>
+          <option value="11">November</option>
+          <option value="12">Disember</option>
+        </select>
+      </div>
+    </div>
 
     <ul class="nav nav-tabs mb-3" id="reportTabs" role="tablist">
       <li class="nav-item" role="presentation">
@@ -467,6 +499,11 @@
         </div>
         <div class="modal-body p-0">
           <div id="studentHistoryContainer" class="p-3"></div>
+        </div>
+        <div class="modal-footer border-0 p-3 pt-0">
+          <button type="button" class="btn btn-danger w-100" id="btnPrintSalahLaku" style="display:none;" onclick="muatTurunPDFSalahLaku()">
+            <i class="fas fa-file-pdf"></i> Print Lampiran Senarai Salah Laku
+          </button>
         </div>
       </div>
     </div>
@@ -586,18 +623,23 @@
         <div class="modal-body">
           <form id="tambahPelajarForm">
             <div class="mb-3">
-              <label class="form-label text-muted">Nama Penuh</label>
-              <input type="text" class="form-control" id="tp_nama" required>
+              <label class="form-label">Nama Penuh</label>
+              <input type="text" class="form-control" id="newStudentName" required>
             </div>
-            <div class="row g-2 mb-3">
-              <div class="col-6">
-                <label class="form-label text-muted">Kelas</label>
-                <input type="text" class="form-control" id="tp_kelas" required placeholder="Cth: 5 Sains">
-              </div>
-              <div class="col-6">
-                <label class="form-label text-muted">Blok / Dorm</label>
-                <input type="text" class="form-control" id="tp_dorm" required placeholder="Cth: B1-G">
-              </div>
+            <div class="mb-3">
+              <label class="form-label">Kelas</label>
+              <input type="text" class="form-control" id="newStudentClass" placeholder="Cth: 5 Arif" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Jantina</label>
+              <select class="form-select" id="newStudentGender" required>
+                <option value="Lelaki">Lelaki</option>
+                <option value="Perempuan">Perempuan</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Bilik Dorm</label>
+              <input type="text" class="form-control" id="newStudentDorm" placeholder="Cth: A1-01" required>
             </div>
           </form>
         </div>
@@ -617,12 +659,13 @@
     // ==============================================================
     // MASUKKAN URL WEB APP API ANDA DI BAWAH INI
     // ==============================================================
-    const API_URL = "https://script.google.com/macros/s/AKfycbwYvfK6XQwqx8FCP9kZ2_RZVO29mYVTOJ1WmaOfEqQEwUi8hZBE6rRQgWp_1aVAvdx0/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbzlDioj2syCKExCQ5J7hDedAmx4Jd74HJcaW2CQlOiQXKkSBNGWbl7myg58DbgEqA/exec";
 
     let allStudents = [];
     let allPending = [];
     let allMeritLogs = [];
     let selectedStudents = new Set();
+    let disc_selectedStudents = new Set();
     let actionModal, detailsModal, offcanvasLog, tambahModal, myPieChart;
     let userRole = "";
     let userEmail = "";
@@ -1050,6 +1093,74 @@
     // ==========================================
     // FUNGSI MUAT TURUN PDF (jsPDF)
     // ==========================================
+    function muatTurunPDFSalahLaku() {
+      if (!currentHistoryStudent) return;
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      
+      doc.setFontSize(14);
+      doc.text("Lampiran Senarai Salah Laku", 14, 20);
+      
+      doc.setFontSize(10);
+      doc.text("Nama Pelajar : " + currentHistoryStudent, 14, 28);
+      
+      let student = allStudents.find(s => s.name === currentHistoryStudent);
+      if (student) {
+        doc.text("Kelas : " + (student.classroom || "-") + "   |   Dorm : " + (student.block || "-"), 14, 34);
+      }
+      doc.text("Tarikh Cetakan : " + new Date().toLocaleDateString('ms-MY'), 14, 40);
+
+      const monthFilter = document.getElementById('filterMonth') ? document.getElementById('filterMonth').value : "all";
+      let salahLakuLogs = allMeritLogs.filter(log => {
+        if (log.name !== currentHistoryStudent) return false;
+        if (log.type !== 'Demerit') return false;
+        if (monthFilter !== "all") {
+          let d = new Date(log.timestamp);
+          if ((d.getMonth() + 1).toString() !== monthFilter) return false;
+        }
+        return true;
+      });
+
+      let sortedLogs = [...salahLakuLogs].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+      const tableData = sortedLogs.map((log, index) => {
+        let d = new Date(log.timestamp);
+        let timeStr = d.toLocaleDateString('ms-MY') + " " + d.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' });
+        return [
+          index + 1, 
+          timeStr, 
+          log.reason || '-'
+        ];
+      });
+
+      doc.autoTable({
+        startY: 46,
+        head: [['No', 'Tarikh & Masa', 'Sebab / Catatan']],
+        body: tableData,
+        theme: 'grid',
+        styles: { 
+          fontSize: 10, 
+          textColor: [0, 0, 0], 
+          lineColor: [180, 180, 180], 
+          lineWidth: 0.1,
+          cellPadding: 2,
+          valign: 'middle'
+        },
+        headStyles: { 
+          fillColor: [240, 240, 240], 
+          textColor: [0, 0, 0],
+          fontStyle: 'bold'
+        },
+        columnStyles: {
+          0: { cellWidth: 15, halign: 'center' },
+          1: { cellWidth: 45 },
+          2: { cellWidth: 'auto' }
+        }
+      });
+
+      doc.save("Salah_Laku_" + currentHistoryStudent.replace(/[^a-zA-Z0-9]/g, '_') + ".pdf");
+    }
+
     function muatTurunPDF() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
@@ -1159,18 +1270,19 @@
     // FUNGSI URUS PELAJAR (TAMBAH / BUANG)
     // ==========================================
     function bukaModalTambah() {
-      document.getElementById('tp_nama').value = '';
-      document.getElementById('tp_kelas').value = '';
-      document.getElementById('tp_dorm').value = '';
+      document.getElementById('newStudentName').value = '';
+      document.getElementById('newStudentClass').value = '';
+      document.getElementById('newStudentDorm').value = '';
       tambahModal.show();
     }
 
     async function simpanPelajarBaru() {
-      const nama = document.getElementById('tp_nama').value.trim();
-      const kelas = document.getElementById('tp_kelas').value.trim();
-      const dorm = document.getElementById('tp_dorm').value.trim();
+      const nama = document.getElementById('newStudentName').value.trim();
+      const kelas = document.getElementById('newStudentClass').value.trim();
+      const gender = document.getElementById('newStudentGender').value;
+      const dorm = document.getElementById('newStudentDorm').value.trim();
 
-      if (!nama || !kelas || !dorm) { alert("Sila isi semua maklumat."); return; }
+      if (!nama || !kelas || !gender || !dorm) { alert("Sila isi semua maklumat."); return; }
 
       document.getElementById('savingToast').style.display = 'block';
       tambahModal.hide();
@@ -1180,6 +1292,7 @@
           action: "addStudent",
           name: nama,
           classroom: kelas,
+          gender: gender,
           block: dorm,
           username: userEmail
         });
@@ -1272,9 +1385,11 @@
       }
 
       // Setup forms
+      document.getElementById('disc_date').value = new Date().toISOString().split('T')[0];
       document.getElementById('disc_points').value = '';
       document.getElementById('disc_reason').value = '';
       document.getElementById('disc_cameraInput').value = '';
+      disc_selectedStudents.clear();
       document.getElementById('disc_imageFile').value = '';
       document.getElementById('disc_imagePreview').style.display = 'none';
 
@@ -1303,17 +1418,26 @@
       const list = document.getElementById('disc_studentList');
       list.innerHTML = '';
 
-      const filtered = allStudents.filter(s => s.name.toLowerCase().includes(search));
+      const filtered = allStudents.filter(s => s.name.toLowerCase().includes(search) && s.status === "Masuk");
       filtered.forEach(s => {
+        const isChecked = disc_selectedStudents.has(s.name) ? 'checked' : '';
         list.innerHTML += `
           <div class="form-check border-bottom py-2">
-            <input class="form-check-input disc-student-cb" type="checkbox" value="${s.name}" id="cb_${s.name.replace(/[^a-zA-Z0-9]/g, '')}">
+            <input class="form-check-input disc-student-cb" type="checkbox" value="${s.name}" id="cb_${s.name.replace(/[^a-zA-Z0-9]/g, '')}" ${isChecked} onchange="toggleDiscStudent('${s.name}', this.checked)">
             <label class="form-check-label w-100" for="cb_${s.name.replace(/[^a-zA-Z0-9]/g, '')}">
               ${s.name} <small class="text-muted">(${s.block})</small>
             </label>
           </div>
         `;
       });
+    }
+
+    function toggleDiscStudent(name, isChecked) {
+      if (isChecked) {
+        disc_selectedStudents.add(name);
+      } else {
+        disc_selectedStudents.delete(name);
+      }
     }
 
     function compressDiscImage() {
@@ -1347,20 +1471,21 @@
       let points = parseInt(document.getElementById('disc_points').value);
       const reason = document.getElementById('disc_reason').value.trim();
       const imageBase64 = document.getElementById('disc_imageFile').value;
+      const customDate = document.getElementById('disc_date').value;
 
       if (!points || points < 1 || points > 10) { alert("Sila masukkan mata antara 1 hingga 10."); return; }
       if (!reason) { alert("Sila nyatakan catatan/sebab."); return; }
+      if (!customDate) { alert("Sila pilih tarikh."); return; }
 
       let targetStudents = [];
       if (targetType === 'Individu') {
-        const cbs = document.querySelectorAll('.disc-student-cb:checked');
-        cbs.forEach(cb => targetStudents.push(cb.value));
+        targetStudents = Array.from(disc_selectedStudents);
         if (targetStudents.length === 0) { alert("Sila pilih sekurang-kurangnya seorang pelajar."); return; }
       } else {
         const dorm = document.getElementById('disc_dormSelect').value;
-        targetStudents = allStudents.filter(s => s.block === dorm).map(s => s.name);
-        if (targetStudents.length === 0) { alert("Tiada pelajar dijumpai di dorm ini."); return; }
-        if (!confirm(`Tindakan ini akan mengemaskini mata untuk ${targetStudents.length} pelajar di dorm ${dorm}. Teruskan?`)) return;
+        targetStudents = allStudents.filter(s => s.block === dorm && s.status === "Masuk").map(s => s.name);
+        if (targetStudents.length === 0) { alert("Tiada pelajar yang hadir dijumpai di dorm ini."); return; }
+        if (!confirm(`Tindakan ini akan mengemaskini mata untuk ${targetStudents.length} pelajar yang HADIR di dorm ${dorm}. Teruskan?`)) return;
       }
 
       if (type === 'Demerit') {
@@ -1379,6 +1504,7 @@
           points: points,
           reason: reason,
           imageFile: imageBase64,
+          customDate: customDate,
           username: userEmail
         };
 
@@ -1405,20 +1531,45 @@
     function renderReportIndividu() {
       const tbody = document.getElementById('tbody-individu');
       const searchTerm = document.getElementById('searchIndividu') ? document.getElementById('searchIndividu').value.toLowerCase() : "";
+      const monthFilter = document.getElementById('filterMonth') ? document.getElementById('filterMonth').value : "all";
+      const yearFilter = document.getElementById('filterYear') ? document.getElementById('filterYear').value : "all";
+      const genderFilter = document.getElementById('filterGender') ? document.getElementById('filterGender').value : "all";
 
-      let filtered = allStudents;
+      let filtered = allStudents.map(s => {
+        let studentCopy = { ...s };
+        if (monthFilter === "all") {
+          studentCopy.displayPoints = s.meritPoints || 0;
+        } else {
+          let monthPoints = 0;
+          let studentLogs = allMeritLogs.filter(log => {
+            if (log.name !== s.name) return false;
+            let d = new Date(log.timestamp);
+            return (d.getMonth() + 1).toString() === monthFilter;
+          });
+          studentLogs.forEach(l => { monthPoints += (parseInt(l.points) || 0); });
+          studentCopy.displayPoints = monthPoints;
+        }
+        return studentCopy;
+      });
+
       if (searchTerm) {
         filtered = filtered.filter(s => s.name.toLowerCase().includes(searchTerm));
       }
+      if (yearFilter !== "all") {
+        filtered = filtered.filter(s => s.classroom && s.classroom.match(new RegExp('\\b' + yearFilter + '\\b')));
+      }
+      if (genderFilter !== "all") {
+        filtered = filtered.filter(s => s.gender && s.gender.toLowerCase() === genderFilter.toLowerCase());
+      }
 
-      let sorted = [...filtered].sort((a, b) => (b.meritPoints || 0) - (a.meritPoints || 0));
+      let sorted = [...filtered].sort((a, b) => b.displayPoints - a.displayPoints);
 
       let html = '';
       if (sorted.length === 0) {
         html = '<tr><td colspan="4" class="text-center text-muted py-4">Tiada rekod dijumpai.</td></tr>';
       } else {
         sorted.forEach((s, index) => {
-          let pts = s.meritPoints || 0;
+          let pts = s.displayPoints || 0;
           let badge = pts >= 0 ? `<span class="badge bg-success">${pts}</span>` : `<span class="badge bg-danger">${pts}</span>`;
           html += `
             <tr>
@@ -1439,11 +1590,30 @@
 
     function renderReportDorm() {
       const tbody = document.getElementById('tbody-dorm');
+      const monthFilter = document.getElementById('filterMonth') ? document.getElementById('filterMonth').value : "all";
+      const yearFilter = document.getElementById('filterYear') ? document.getElementById('filterYear').value : "all";
+      const genderFilter = document.getElementById('filterGender') ? document.getElementById('filterGender').value : "all";
 
       let dormTotals = {};
-      allStudents.forEach(s => {
+      let filteredStudents = allStudents;
+      if (yearFilter !== "all") filteredStudents = filteredStudents.filter(s => s.classroom && s.classroom.match(new RegExp('\\b' + yearFilter + '\\b')));
+      if (genderFilter !== "all") filteredStudents = filteredStudents.filter(s => s.gender && s.gender.toLowerCase() === genderFilter.toLowerCase());
+
+      filteredStudents.forEach(s => {
         if (!dormTotals[s.block]) dormTotals[s.block] = 0;
-        dormTotals[s.block] += (s.meritPoints || 0);
+
+        let pts = 0;
+        if (monthFilter === "all") {
+          pts = s.meritPoints || 0;
+        } else {
+          let studentLogs = allMeritLogs.filter(log => {
+            if (log.name !== s.name) return false;
+            let d = new Date(log.timestamp);
+            return (d.getMonth() + 1).toString() === monthFilter;
+          });
+          studentLogs.forEach(l => { pts += (parseInt(l.points) || 0); });
+        }
+        dormTotals[s.block] += pts;
       });
 
       let sortedDorms = Object.keys(dormTotals).map(dorm => {
@@ -1464,11 +1634,27 @@
       tbody.innerHTML = html;
     }
 
+    let currentHistoryStudent = "";
     function viewStudentHistory(studentName) {
+      currentHistoryStudent = studentName;
       document.getElementById('studentHistoryModalTitle').innerText = "Rekod: " + studentName;
       const container = document.getElementById('studentHistoryContainer');
+      const monthFilter = document.getElementById('filterMonth') ? document.getElementById('filterMonth').value : "all";
 
-      let studentLogs = allMeritLogs.filter(log => log.name === studentName);
+      let studentLogs = allMeritLogs.filter(log => {
+        if (log.name !== studentName) return false;
+        if (monthFilter !== "all") {
+          let d = new Date(log.timestamp);
+          if ((d.getMonth() + 1).toString() !== monthFilter) return false;
+        }
+        return true;
+      });
+
+      const btnPrint = document.getElementById('btnPrintSalahLaku');
+      if (btnPrint) {
+        let hasSalahLaku = studentLogs.some(log => log.type === 'Demerit');
+        btnPrint.style.display = hasSalahLaku ? 'block' : 'none';
+      }
 
       if (!studentLogs || studentLogs.length === 0) {
         container.innerHTML = '<div class="text-center text-muted p-4"><i class="fas fa-folder-open fa-3x mb-2"></i><br>Tiada rekod disiplin setakat ini.</div>';
@@ -1506,13 +1692,34 @@
 
     function renderReportSejarah() {
       const container = document.getElementById('historyLogContainer');
+      const monthFilter = document.getElementById('filterMonth') ? document.getElementById('filterMonth').value : "all";
+      const yearFilter = document.getElementById('filterYear') ? document.getElementById('filterYear').value : "all";
+      const genderFilter = document.getElementById('filterGender') ? document.getElementById('filterGender').value : "all";
 
-      if (!allMeritLogs || allMeritLogs.length === 0) {
+      let filteredLogs = allMeritLogs || [];
+      if (monthFilter !== "all") {
+        filteredLogs = filteredLogs.filter(log => {
+          let d = new Date(log.timestamp);
+          return (d.getMonth() + 1).toString() === monthFilter;
+        });
+      }
+
+      if (yearFilter !== "all" || genderFilter !== "all") {
+        filteredLogs = filteredLogs.filter(log => {
+          let student = allStudents.find(s => s.name === log.name);
+          if (!student) return false;
+          if (yearFilter !== "all" && !(student.classroom && student.classroom.match(new RegExp('\\b' + yearFilter + '\\b')))) return false;
+          if (genderFilter !== "all" && !(student.gender && student.gender.toLowerCase() === genderFilter.toLowerCase())) return false;
+          return true;
+        });
+      }
+
+      if (!filteredLogs || filteredLogs.length === 0) {
         container.innerHTML = '<div class="text-center text-muted p-4"><i class="fas fa-folder-open fa-3x mb-2"></i><br>Tiada rekod setakat ini.</div>';
         return;
       }
 
-      let sortedLogs = [...allMeritLogs].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      let sortedLogs = [...filteredLogs].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
       let html = '<div class="list-group">';
       sortedLogs.forEach(log => {
