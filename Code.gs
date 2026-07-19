@@ -125,7 +125,26 @@ function getAppInitData(username) {
     }
   }
 
-  return { status: "berjaya", data: { role: role, pending: pending, students: students, meritLogs: meritLogs } };
+  var classesSheet = ss.getSheetByName("SenaraiKelas");
+  var classesList = [];
+  if (classesSheet) {
+    var cData = classesSheet.getDataRange().getValues();
+    // Assuming row 1 is header, so start from i=1
+    for (var i = 1; i < cData.length; i++) {
+      if(cData[i][0]) classesList.push(cData[i][0]);
+    }
+  }
+
+  var dormsSheet = ss.getSheetByName("SenaraiNamaBilik");
+  var dormsList = [];
+  if (dormsSheet) {
+    var dData = dormsSheet.getDataRange().getValues();
+    for (var i = 1; i < dData.length; i++) {
+      if(dData[i][0]) dormsList.push(dData[i][0]);
+    }
+  }
+
+  return { status: "berjaya", data: { role: role, pending: pending, students: students, meritLogs: meritLogs, classesList: classesList, dormsList: dormsList } };
 }
 
 // ==========================================

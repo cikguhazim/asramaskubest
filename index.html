@@ -366,7 +366,19 @@
 
         <div class="mb-3">
           <label class="form-label fw-bold">Mata (1 - 10)</label>
-          <input type="number" class="form-control" id="disc_points" min="1" max="10" required>
+          <input type="hidden" id="disc_points" value="">
+          <div class="d-flex flex-wrap gap-2" id="disc_points_container">
+            <button type="button" class="btn btn-outline-primary point-btn flex-fill" onclick="setDiscPoints(1)">1</button>
+            <button type="button" class="btn btn-outline-primary point-btn flex-fill" onclick="setDiscPoints(2)">2</button>
+            <button type="button" class="btn btn-outline-primary point-btn flex-fill" onclick="setDiscPoints(3)">3</button>
+            <button type="button" class="btn btn-outline-primary point-btn flex-fill" onclick="setDiscPoints(4)">4</button>
+            <button type="button" class="btn btn-outline-primary point-btn flex-fill" onclick="setDiscPoints(5)">5</button>
+            <button type="button" class="btn btn-outline-primary point-btn flex-fill" onclick="setDiscPoints(6)">6</button>
+            <button type="button" class="btn btn-outline-primary point-btn flex-fill" onclick="setDiscPoints(7)">7</button>
+            <button type="button" class="btn btn-outline-primary point-btn flex-fill" onclick="setDiscPoints(8)">8</button>
+            <button type="button" class="btn btn-outline-primary point-btn flex-fill" onclick="setDiscPoints(9)">9</button>
+            <button type="button" class="btn btn-outline-primary point-btn flex-fill" onclick="setDiscPoints(10)">10</button>
+          </div>
         </div>
 
         <div class="mb-3">
@@ -501,7 +513,8 @@
           <div id="studentHistoryContainer" class="p-3"></div>
         </div>
         <div class="modal-footer border-0 p-3 pt-0">
-          <button type="button" class="btn btn-danger w-100" id="btnPrintSalahLaku" style="display:none;" onclick="muatTurunPDFSalahLaku()">
+          <button type="button" class="btn btn-danger w-100" id="btnPrintSalahLaku" style="display:none;"
+            onclick="muatTurunPDFSalahLaku()">
             <i class="fas fa-file-pdf"></i> Print Lampiran Senarai Salah Laku
           </button>
         </div>
@@ -628,7 +641,9 @@
             </div>
             <div class="mb-3">
               <label class="form-label">Kelas</label>
-              <input type="text" class="form-control" id="newStudentClass" placeholder="Cth: 5 Arif" required>
+              <select class="form-select" id="newStudentClass" required>
+                <option value="">-- Sila Pilih --</option>
+              </select>
             </div>
             <div class="mb-3">
               <label class="form-label">Jantina</label>
@@ -639,7 +654,9 @@
             </div>
             <div class="mb-3">
               <label class="form-label">Bilik Dorm</label>
-              <input type="text" class="form-control" id="newStudentDorm" placeholder="Cth: A1-01" required>
+              <select class="form-select" id="newStudentDorm" required>
+                <option value="">-- Sila Pilih --</option>
+              </select>
             </div>
           </form>
         </div>
@@ -659,7 +676,7 @@
     // ==============================================================
     // MASUKKAN URL WEB APP API ANDA DI BAWAH INI
     // ==============================================================
-    const API_URL = "https://script.google.com/macros/s/AKfycbzlDioj2syCKExCQ5J7hDedAmx4Jd74HJcaW2CQlOiQXKkSBNGWbl7myg58DbgEqA/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbx1CubNYdYxePCBMFeCtqyZlNQbLhRKMWZiBSDPQsI86q3_WFLD3v7k3www5zgh4srM/exec";
 
     let allStudents = [];
     let allPending = [];
@@ -758,6 +775,15 @@
         allMeritLogs = data.meritLogs || [];
         renderPendingData();
         renderData(data.students);
+
+        if (data.classesList) {
+          const classSelect = document.getElementById('newStudentClass');
+          classSelect.innerHTML = '<option value="">-- Sila Pilih --</option>' + data.classesList.map(c => `<option value="${c}">${c}</option>`).join('');
+        }
+        if (data.dormsList) {
+          const dormSelect = document.getElementById('newStudentDorm');
+          dormSelect.innerHTML = '<option value="">-- Sila Pilih --</option>' + data.dormsList.map(d => `<option value="${d}">${d}</option>`).join('');
+        }
       } catch (err) { alert("Ralat memuat data: " + err.message); }
       document.getElementById('loader').style.display = 'none';
     }
@@ -1097,13 +1123,13 @@
       if (!currentHistoryStudent) return;
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
-      
+
       doc.setFontSize(14);
       doc.text("Lampiran Senarai Salah Laku", 14, 20);
-      
+
       doc.setFontSize(10);
       doc.text("Nama Pelajar : " + currentHistoryStudent, 14, 28);
-      
+
       let student = allStudents.find(s => s.name === currentHistoryStudent);
       if (student) {
         doc.text("Kelas : " + (student.classroom || "-") + "   |   Dorm : " + (student.block || "-"), 14, 34);
@@ -1127,8 +1153,8 @@
         let d = new Date(log.timestamp);
         let timeStr = d.toLocaleDateString('ms-MY') + " " + d.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' });
         return [
-          index + 1, 
-          timeStr, 
+          index + 1,
+          timeStr,
           log.reason || '-'
         ];
       });
@@ -1138,16 +1164,16 @@
         head: [['No', 'Tarikh & Masa', 'Sebab / Catatan']],
         body: tableData,
         theme: 'grid',
-        styles: { 
-          fontSize: 10, 
-          textColor: [0, 0, 0], 
-          lineColor: [180, 180, 180], 
+        styles: {
+          fontSize: 10,
+          textColor: [0, 0, 0],
+          lineColor: [180, 180, 180],
           lineWidth: 0.1,
           cellPadding: 2,
           valign: 'middle'
         },
-        headStyles: { 
-          fillColor: [240, 240, 240], 
+        headStyles: {
+          fillColor: [240, 240, 240],
           textColor: [0, 0, 0],
           fontStyle: 'bold'
         },
@@ -1272,6 +1298,7 @@
     function bukaModalTambah() {
       document.getElementById('newStudentName').value = '';
       document.getElementById('newStudentClass').value = '';
+      document.getElementById('newStudentGender').value = 'Lelaki';
       document.getElementById('newStudentDorm').value = '';
       tambahModal.show();
     }
@@ -1387,6 +1414,10 @@
       // Setup forms
       document.getElementById('disc_date').value = new Date().toISOString().split('T')[0];
       document.getElementById('disc_points').value = '';
+      document.querySelectorAll('.point-btn').forEach(btn => {
+        btn.classList.remove('active', 'btn-primary', 'text-white');
+        btn.classList.add('btn-outline-primary');
+      });
       document.getElementById('disc_reason').value = '';
       document.getElementById('disc_cameraInput').value = '';
       disc_selectedStudents.clear();
@@ -1430,6 +1461,20 @@
           </div>
         `;
       });
+    }
+
+    function setDiscPoints(val) {
+      document.getElementById('disc_points').value = val;
+      const btns = document.querySelectorAll('.point-btn');
+      btns.forEach(btn => {
+        btn.classList.remove('active', 'btn-primary', 'text-white');
+        btn.classList.add('btn-outline-primary');
+      });
+      const activeBtn = Array.from(btns).find(b => b.innerText == val);
+      if(activeBtn) {
+        activeBtn.classList.remove('btn-outline-primary');
+        activeBtn.classList.add('active', 'btn-primary', 'text-white');
+      }
     }
 
     function toggleDiscStudent(name, isChecked) {
