@@ -202,6 +202,11 @@
 
     <!-- Main Menu View -->
     <div id="mainMenuView" class="container mt-5">
+      <div class="text-center mb-5">
+        <h2 class="fw-bold text-dark text-uppercase" style="letter-spacing: 1px;">
+          WELCOME, <span id="welcomeNameText" class="text-primary">WARDEN</span>
+        </h2>
+      </div>
       <div class="row g-4 justify-content-center">
         <div class="col-12 col-md-6 col-lg-4">
           <div class="card h-100 shadow-sm border-0 text-center p-4" onclick="bukaKeberadaan()"
@@ -749,7 +754,7 @@
     // ==============================================================
     // MASUKKAN URL WEB APP API ANDA DI BAWAH INI
     // ==============================================================
-    const API_URL = "https://script.google.com/macros/s/AKfycbyjXnG_iC5-FzbGzTRyvpyKtwEYrHBb4Erdw8GNrrJICFUXeSPKrlKGJPvodZ3O4Wwp/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbwT3lEXEYNMrT3tSPZfitrGn8rOMzgon1rlBwq1SqvpT1YF8zAaWXkklhy5w4lFkBLE/exec";
 
     const WARDEN_NAMES = {
       "warden1": "NIK MUHAMMAD HAZIM BIN NIK ROHIMI",
@@ -1446,6 +1451,14 @@
     // ==========================================
     function paparMenuUtama() {
       document.getElementById('mainMenuView').style.display = 'block';
+      
+      const welcomeEl = document.getElementById('welcomeNameText');
+      if (welcomeEl) {
+        welcomeEl.innerText = (typeof WARDEN_NAMES !== 'undefined' && WARDEN_NAMES[userEmail]) 
+          ? WARDEN_NAMES[userEmail] 
+          : userEmail;
+      }
+
       document.getElementById('attendanceView').style.display = 'none';
       document.getElementById('disciplineView').style.display = 'none';
       document.getElementById('reportView').style.display = 'none';
@@ -1704,7 +1717,7 @@
           let timeStr = d.toLocaleDateString('ms-MY') + " " + d.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' });
 
           let wardenName = WARDEN_NAMES[log.warden] || log.warden || '-';
-          
+
           html += `
             <tr>
               <td>${index + 1}</td>
