@@ -120,7 +120,8 @@ function getAppInitData(username) {
         points: mData[i][3],
         reason: mData[i][4],
         imageUrl: mData[i][5],
-        warden: mData[i][6]
+        warden: mData[i][6],
+        tindakan: mData[i][7] || ""
       });
     }
   }
@@ -306,11 +307,12 @@ function recordBehavior(payload) {
   if (!sheet) return { status: "error", message: "Sheet Students tidak dijumpai" };
   if (!sheetLogs) {
     sheetLogs = ss.insertSheet("MeritLogs");
-    sheetLogs.appendRow(["Timestamp", "Nama Murid", "Jenis", "Mata", "Catatan", "Gambar", "Warden"]);
+    sheetLogs.appendRow(["Timestamp", "Nama Murid", "Jenis", "Mata", "Catatan", "Gambar", "Warden", "Tindakan"]);
   }
   
   var names = JSON.parse(payload.studentNames);
   var points = parseInt(payload.points) || 0;
+  var tindakan = payload.tindakan || "";
   
   var imgUrl = "";
   if (payload.imageFile && payload.imageFile.trim() !== "") {
@@ -337,13 +339,13 @@ function recordBehavior(payload) {
       
       sheet.getRange(i + 1, 9).setValue(newPoints);
       
-      logRows.push([now, currentName, payload.type, points, payload.reason, imgUrl, payload.username]);
+      logRows.push([now, currentName, payload.type, points, payload.reason, imgUrl, payload.username, tindakan]);
     }
   }
   
   if (logRows.length > 0) {
-    if(sheetLogs.getLastRow() === 0) sheetLogs.appendRow(["Timestamp", "Nama Murid", "Jenis", "Mata", "Catatan", "Gambar", "Warden"]);
-    sheetLogs.getRange(sheetLogs.getLastRow() + 1, 1, logRows.length, 7).setValues(logRows);
+    if(sheetLogs.getLastRow() === 0) sheetLogs.appendRow(["Timestamp", "Nama Murid", "Jenis", "Mata", "Catatan", "Gambar", "Warden", "Tindakan"]);
+    sheetLogs.getRange(sheetLogs.getLastRow() + 1, 1, logRows.length, 8).setValues(logRows);
   }
   
   return { status: "berjaya", data: "Rekod disiplin disimpan" };

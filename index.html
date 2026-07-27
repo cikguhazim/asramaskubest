@@ -236,6 +236,14 @@
           </div>
         </div>
         <div class="col-12 col-md-6 col-lg-4">
+          <div class="card h-100 shadow-sm border-0 text-center p-4" onclick="bukaPenjanaLaporan()"
+            style="cursor:pointer; transition: transform 0.2s;">
+            <i class="fas fa-file-signature fa-4x text-warning mb-3"></i>
+            <h4 class="text-dark">Penjana Laporan</h4>
+            <p class="text-muted small">Cetak Laporan Tindakan Warden</p>
+          </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-4">
           <a href="https://docs.google.com/spreadsheets/d/1oY-LbRwZ0z74lpSQm5rKHgEXw3Hn0nbwawbeVY9je0o/edit?gid=471973262#gid=471973262"
             target="_blank" class="text-decoration-none">
             <div class="card h-100 shadow-sm border-0 text-center p-4"
@@ -370,16 +378,26 @@
           <label class="form-label fw-bold">Mata (1 - 10)</label>
           <input type="hidden" id="disc_points" value="">
           <div class="d-flex flex-wrap gap-2" id="disc_points_container">
-            <button type="button" class="btn btn-outline-primary point-btn flex-fill" onclick="setDiscPoints(1)">1</button>
-            <button type="button" class="btn btn-outline-primary point-btn flex-fill" onclick="setDiscPoints(2)">2</button>
-            <button type="button" class="btn btn-outline-primary point-btn flex-fill" onclick="setDiscPoints(3)">3</button>
-            <button type="button" class="btn btn-outline-primary point-btn flex-fill" onclick="setDiscPoints(4)">4</button>
-            <button type="button" class="btn btn-outline-primary point-btn flex-fill" onclick="setDiscPoints(5)">5</button>
-            <button type="button" class="btn btn-outline-primary point-btn flex-fill" onclick="setDiscPoints(6)">6</button>
-            <button type="button" class="btn btn-outline-primary point-btn flex-fill" onclick="setDiscPoints(7)">7</button>
-            <button type="button" class="btn btn-outline-primary point-btn flex-fill" onclick="setDiscPoints(8)">8</button>
-            <button type="button" class="btn btn-outline-primary point-btn flex-fill" onclick="setDiscPoints(9)">9</button>
-            <button type="button" class="btn btn-outline-primary point-btn flex-fill" onclick="setDiscPoints(10)">10</button>
+            <button type="button" class="btn btn-outline-primary point-btn flex-fill"
+              onclick="setDiscPoints(1)">1</button>
+            <button type="button" class="btn btn-outline-primary point-btn flex-fill"
+              onclick="setDiscPoints(2)">2</button>
+            <button type="button" class="btn btn-outline-primary point-btn flex-fill"
+              onclick="setDiscPoints(3)">3</button>
+            <button type="button" class="btn btn-outline-primary point-btn flex-fill"
+              onclick="setDiscPoints(4)">4</button>
+            <button type="button" class="btn btn-outline-primary point-btn flex-fill"
+              onclick="setDiscPoints(5)">5</button>
+            <button type="button" class="btn btn-outline-primary point-btn flex-fill"
+              onclick="setDiscPoints(6)">6</button>
+            <button type="button" class="btn btn-outline-primary point-btn flex-fill"
+              onclick="setDiscPoints(7)">7</button>
+            <button type="button" class="btn btn-outline-primary point-btn flex-fill"
+              onclick="setDiscPoints(8)">8</button>
+            <button type="button" class="btn btn-outline-primary point-btn flex-fill"
+              onclick="setDiscPoints(9)">9</button>
+            <button type="button" class="btn btn-outline-primary point-btn flex-fill"
+              onclick="setDiscPoints(10)">10</button>
           </div>
         </div>
 
@@ -387,6 +405,12 @@
           <label class="form-label fw-bold">Catatan / Sebab</label>
           <textarea class="form-control" id="disc_reason" rows="3" required
             placeholder="Cth: Tolong angkat barang / Bising selepas lampu tutup"></textarea>
+        </div>
+
+        <div class="mb-3" id="disc_tindakan_group" style="display:none;">
+          <label class="form-label fw-bold">Tindakan / Hukuman</label>
+          <textarea class="form-control" id="disc_tindakan" rows="2"
+            placeholder="Cth: Amaran Lisan / Denda cuci tandas"></textarea>
         </div>
 
         <div class="mb-4">
@@ -501,6 +525,53 @@
       </div>
     </div>
   </div>
+  </div>
+
+  <!-- Penjana Laporan View -->
+  <div id="penjanaLaporanView" style="display:none;" class="container mt-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h4 class="fw-bold m-0"><i class="fas fa-file-signature text-warning me-2"></i> Laporan Tindakan Warden</h4>
+      <button class="btn btn-danger" onclick="cetakLaporanTindakanWarden()"><i class="fas fa-file-pdf"></i> Cetak
+        PDF</button>
+    </div>
+
+    <div class="card p-3 mb-3 border-0 shadow-sm">
+      <div class="d-flex gap-2 flex-wrap mb-3">
+        <select id="laporanTindakanMonth" class="form-select w-auto fw-bold text-primary border-primary"
+          onchange="renderLaporanTindakan()">
+          <option value="all">Semua Masa</option>
+          <option value="1">Januari</option>
+          <option value="2">Februari</option>
+          <option value="3">Mac</option>
+          <option value="4">April</option>
+          <option value="5">Mei</option>
+          <option value="6">Jun</option>
+          <option value="7">Julai</option>
+          <option value="8">Ogos</option>
+          <option value="9">September</option>
+          <option value="10">Oktober</option>
+          <option value="11">November</option>
+          <option value="12">Disember</option>
+        </select>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th style="width: 50px">No</th>
+              <th>Tarikh</th>
+              <th>Nama Murid</th>
+              <th>Kelas / Dorm</th>
+              <th>Salah Laku</th>
+              <th>Tindakan / Hukuman</th>
+              <th>Warden</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-laporanTindakan"></tbody>
+        </table>
+      </div>
+    </div>
   </div>
 
   <!-- Modal Sejarah Pelajar Individu -->
@@ -678,7 +749,7 @@
     // ==============================================================
     // MASUKKAN URL WEB APP API ANDA DI BAWAH INI
     // ==============================================================
-    const API_URL = "https://script.google.com/macros/s/AKfycbx1CubNYdYxePCBMFeCtqyZlNQbLhRKMWZiBSDPQsI86q3_WFLD3v7k3www5zgh4srM/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbyjXnG_iC5-FzbGzTRyvpyKtwEYrHBb4Erdw8GNrrJICFUXeSPKrlKGJPvodZ3O4Wwp/exec";
 
     let allStudents = [];
     let allPending = [];
@@ -1367,6 +1438,7 @@
       document.getElementById('attendanceView').style.display = 'none';
       document.getElementById('disciplineView').style.display = 'none';
       document.getElementById('reportView').style.display = 'none';
+      document.getElementById('penjanaLaporanView').style.display = 'none';
       document.getElementById('btnBackMenu').style.display = 'none';
     }
 
@@ -1375,6 +1447,7 @@
       document.getElementById('attendanceView').style.display = 'block';
       document.getElementById('disciplineView').style.display = 'none';
       document.getElementById('reportView').style.display = 'none';
+      document.getElementById('penjanaLaporanView').style.display = 'none';
 
       if (userRole === 'warden') {
         document.getElementById('btnBackMenu').style.display = 'block';
@@ -1390,6 +1463,7 @@
       document.getElementById('attendanceView').style.display = 'none';
       document.getElementById('disciplineView').style.display = 'none';
       document.getElementById('reportView').style.display = 'block';
+      document.getElementById('penjanaLaporanView').style.display = 'none';
       document.getElementById('btnBackMenu').style.display = 'block';
 
       renderReportIndividu();
@@ -1399,6 +1473,8 @@
       document.getElementById('mainMenuView').style.display = 'none';
       document.getElementById('attendanceView').style.display = 'none';
       document.getElementById('disciplineView').style.display = 'block';
+      document.getElementById('reportView').style.display = 'none';
+      document.getElementById('penjanaLaporanView').style.display = 'none';
       document.getElementById('btnBackMenu').style.display = 'block';
 
       document.getElementById('disc_type').value = jenis;
@@ -1408,9 +1484,11 @@
       if (jenis === 'Merit') {
         title.innerHTML = '<i class="fas fa-star text-success me-2"></i> Rekod Amalan Baik';
         btn.className = 'btn btn-lg w-100 text-white btn-success';
+        document.getElementById('disc_tindakan_group').style.display = 'none';
       } else {
         title.innerHTML = '<i class="fas fa-exclamation-triangle text-danger me-2"></i> Rekod Salah Laku';
         btn.className = 'btn btn-lg w-100 text-white btn-danger';
+        document.getElementById('disc_tindakan_group').style.display = 'block';
       }
 
       // Setup forms
@@ -1421,6 +1499,7 @@
         btn.classList.add('btn-outline-primary');
       });
       document.getElementById('disc_reason').value = '';
+      document.getElementById('disc_tindakan').value = '';
       document.getElementById('disc_cameraInput').value = '';
       disc_selectedStudents.clear();
       document.getElementById('disc_imageFile').value = '';
@@ -1473,7 +1552,7 @@
         btn.classList.add('btn-outline-primary');
       });
       const activeBtn = Array.from(btns).find(b => b.innerText == val);
-      if(activeBtn) {
+      if (activeBtn) {
         activeBtn.classList.remove('btn-outline-primary');
         activeBtn.classList.add('active', 'btn-primary', 'text-white');
       }
@@ -1517,6 +1596,7 @@
       const targetType = document.getElementById('disc_targetType').value;
       let points = parseInt(document.getElementById('disc_points').value);
       const reason = document.getElementById('disc_reason').value.trim();
+      const tindakan = document.getElementById('disc_tindakan').value.trim();
       const imageBase64 = document.getElementById('disc_imageFile').value;
       const customDate = document.getElementById('disc_date').value;
 
@@ -1550,6 +1630,7 @@
           type: type,
           points: points,
           reason: reason,
+          tindakan: type === 'Demerit' ? tindakan : '',
           imageFile: imageBase64,
           customDate: customDate,
           username: userEmail
@@ -1575,6 +1656,131 @@
     // ==========================================
     // FUNGSI LAPORAN (REPORT RENDERING)
     // ==========================================
+    function bukaPenjanaLaporan() {
+      document.getElementById('mainMenuView').style.display = 'none';
+      document.getElementById('attendanceView').style.display = 'none';
+      document.getElementById('disciplineView').style.display = 'none';
+      document.getElementById('reportView').style.display = 'none';
+      document.getElementById('penjanaLaporanView').style.display = 'block';
+      document.getElementById('btnBackMenu').style.display = 'block';
+
+      renderLaporanTindakan();
+    }
+
+    function renderLaporanTindakan() {
+      const tbody = document.getElementById('tbody-laporanTindakan');
+      const monthFilter = document.getElementById('laporanTindakanMonth').value;
+
+      let filteredLogs = allMeritLogs.filter(log => log.type === 'Demerit');
+
+      if (monthFilter !== "all") {
+        filteredLogs = filteredLogs.filter(log => {
+          let d = new Date(log.timestamp);
+          return (d.getMonth() + 1).toString() === monthFilter;
+        });
+      }
+
+      let sortedLogs = [...filteredLogs].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+      let html = '';
+      if (sortedLogs.length === 0) {
+        html = '<tr><td colspan="7" class="text-center text-muted py-4">Tiada rekod tindakan dijumpai.</td></tr>';
+      } else {
+        sortedLogs.forEach((log, index) => {
+          let student = allStudents.find(s => s.name === log.name);
+          let classDorm = student ? `${student.classroom || '-'} / ${student.block || '-'}` : '-';
+          let d = new Date(log.timestamp);
+          let timeStr = d.toLocaleDateString('ms-MY') + " " + d.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' });
+
+          html += `
+            <tr>
+              <td>${index + 1}</td>
+              <td class="small text-muted">${timeStr}</td>
+              <td class="fw-bold">${log.name}</td>
+              <td>${classDorm}</td>
+              <td>${log.reason || '-'}</td>
+              <td class="text-danger fw-bold">${log.tindakan || '-'}</td>
+              <td class="small text-muted">${log.warden || '-'}</td>
+            </tr>
+          `;
+        });
+      }
+      tbody.innerHTML = html;
+    }
+
+    function cetakLaporanTindakanWarden() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF('landscape');
+
+      doc.setFontSize(14);
+      doc.text("Laporan Tindakan Warden", 14, 20);
+
+      const monthFilter = document.getElementById('laporanTindakanMonth');
+      let monthText = monthFilter.options[monthFilter.selectedIndex].text;
+
+      doc.setFontSize(10);
+      doc.text("Bulan : " + monthText, 14, 28);
+      doc.text("Tarikh Cetakan : " + new Date().toLocaleDateString('ms-MY'), 14, 34);
+
+      let filteredLogs = allMeritLogs.filter(log => log.type === 'Demerit');
+      if (monthFilter.value !== "all") {
+        filteredLogs = filteredLogs.filter(log => {
+          let d = new Date(log.timestamp);
+          return (d.getMonth() + 1).toString() === monthFilter.value;
+        });
+      }
+
+      let sortedLogs = [...filteredLogs].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+      const tableData = sortedLogs.map((log, index) => {
+        let student = allStudents.find(s => s.name === log.name);
+        let classDorm = student ? `${student.classroom || '-'} / ${student.block || '-'}` : '-';
+        let d = new Date(log.timestamp);
+        let timeStr = d.toLocaleDateString('ms-MY') + " " + d.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' });
+
+        return [
+          index + 1,
+          timeStr,
+          log.name,
+          classDorm,
+          log.reason || '-',
+          log.tindakan || '-',
+          log.warden || '-'
+        ];
+      });
+
+      doc.autoTable({
+        startY: 40,
+        head: [['No', 'Tarikh & Masa', 'Nama Murid', 'Kelas / Dorm', 'Salah Laku', 'Tindakan / Hukuman', 'Warden']],
+        body: tableData,
+        theme: 'grid',
+        styles: {
+          fontSize: 9,
+          textColor: [0, 0, 0],
+          lineColor: [180, 180, 180],
+          lineWidth: 0.1,
+          cellPadding: 3,
+          valign: 'middle'
+        },
+        headStyles: {
+          fillColor: [240, 240, 240],
+          textColor: [0, 0, 0],
+          fontStyle: 'bold'
+        },
+        columnStyles: {
+          0: { cellWidth: 10, halign: 'center' },
+          1: { cellWidth: 35 },
+          2: { cellWidth: 45 },
+          3: { cellWidth: 25 },
+          4: { cellWidth: 'auto' },
+          5: { cellWidth: 40, fontStyle: 'bold', textColor: [220, 53, 69] },
+          6: { cellWidth: 25 }
+        }
+      });
+
+      doc.save("Laporan_Tindakan_Warden.pdf");
+    }
+
     function renderReportIndividu() {
       const tbody = document.getElementById('tbody-individu');
       const searchTerm = document.getElementById('searchIndividu') ? document.getElementById('searchIndividu').value.toLowerCase() : "";
