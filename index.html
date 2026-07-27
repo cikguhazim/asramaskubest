@@ -751,6 +751,17 @@
     // ==============================================================
     const API_URL = "https://script.google.com/macros/s/AKfycbyjXnG_iC5-FzbGzTRyvpyKtwEYrHBb4Erdw8GNrrJICFUXeSPKrlKGJPvodZ3O4Wwp/exec";
 
+    const WARDEN_NAMES = {
+      "warden1": "NIK MUHAMMAD HAZIM BIN NIK ROHIMI",
+      "warden2": "MUHAMAD FIRDAUS BIN NOORIZAN",
+      "warden3": "NOR SYAFIQAH BINTI NOOR AZMI",
+      "warden4": "FATIN ALIA BINTI MOHD SUHAIMIN",
+      "warden5": "SITI NUR IZYANA BINTI CHE RAHIM",
+      "kwarden": "MUHAMMAD AZUWAN BIN KAMARUDDIN",
+      "pasrama": "SITI NUR FATIHAH BINTI MUSA",
+      "pengawal": "Pengawal Keselamatan"
+    };
+
     let allStudents = [];
     let allPending = [];
     let allMeritLogs = [];
@@ -1692,6 +1703,8 @@
           let d = new Date(log.timestamp);
           let timeStr = d.toLocaleDateString('ms-MY') + " " + d.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' });
 
+          let wardenName = WARDEN_NAMES[log.warden] || log.warden || '-';
+          
           html += `
             <tr>
               <td>${index + 1}</td>
@@ -1700,7 +1713,7 @@
               <td>${classDorm}</td>
               <td>${log.reason || '-'}</td>
               <td class="text-danger fw-bold">${log.tindakan || '-'}</td>
-              <td class="small text-muted">${log.warden || '-'}</td>
+              <td class="small text-muted">${wardenName}</td>
             </tr>
           `;
         });
@@ -1738,6 +1751,8 @@
         let d = new Date(log.timestamp);
         let timeStr = d.toLocaleDateString('ms-MY') + " " + d.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' });
 
+        let wardenName = WARDEN_NAMES[log.warden] || log.warden || '-';
+
         return [
           index + 1,
           timeStr,
@@ -1745,7 +1760,7 @@
           classDorm,
           log.reason || '-',
           log.tindakan || '-',
-          log.warden || '-'
+          wardenName
         ];
       });
 
@@ -1923,6 +1938,8 @@
           let imageLink = (log.imageUrl && log.imageUrl.trim() !== "")
             ? `<a href="${log.imageUrl}" target="_blank" class="badge bg-secondary text-decoration-none mt-2"><i class="fas fa-camera"></i> Gambar</a>` : '';
 
+          let wardenName = WARDEN_NAMES[log.warden] || log.warden || '-';
+
           html += `
             <div class="list-group-item py-3">
               <div class="d-flex w-100 justify-content-between align-items-center mb-1">
@@ -1930,7 +1947,7 @@
                 ${pointBadge}
               </div>
               <p class="mb-1 text-dark small">${log.reason}</p>
-              <small class="text-muted"><i class="far fa-clock"></i> ${timeStr} | Oleh: ${log.warden}</small>
+              <small class="text-muted"><i class="far fa-clock"></i> ${timeStr} | Oleh: ${wardenName}</small>
               <div>${imageLink}</div>
             </div>
           `;
@@ -1985,6 +2002,8 @@
         let imageLink = (log.imageUrl && log.imageUrl.trim() !== "")
           ? `<a href="${log.imageUrl}" target="_blank" class="badge bg-secondary text-decoration-none mt-2"><i class="fas fa-camera"></i> Gambar</a>` : '';
 
+        let wardenName = WARDEN_NAMES[log.warden] || log.warden || '-';
+
         html += `
           <div class="list-group-item list-group-item-action py-3">
             <div class="d-flex w-100 justify-content-between align-items-center mb-1">
@@ -1992,7 +2011,7 @@
               ${pointBadge}
             </div>
             <p class="mb-1 text-dark small">${log.reason}</p>
-            <small class="text-muted"><i class="far fa-clock"></i> ${timeStr} | Oleh: ${log.warden}</small>
+            <small class="text-muted"><i class="far fa-clock"></i> ${timeStr} | Oleh: ${wardenName}</small>
             <div>${imageLink}</div>
           </div>
         `;

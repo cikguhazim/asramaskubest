@@ -48,16 +48,21 @@ function doPost(e) {
 // 1. FUNGSI LOG MASUK
 // ==========================================
 var PENGGUNA = {
-  "warden1": { peranan: "warden", kataLaluan: "1234" },
-  "warden2": { peranan: "warden", kataLaluan: "1234" },
-  "pengawal": { peranan: "guard", kataLaluan: "0000" }
+  "warden1": { peranan: "warden", kataLaluan: "1234", namaPenuh: "NIK MUHAMMAD HAZIM BIN NIK ROHIMI" },
+  "warden2": { peranan: "warden", kataLaluan: "1234", namaPenuh: "MUHAMAD FIRDAUS BIN NOORIZAN" },
+  "warden3": { peranan: "warden", kataLaluan: "1234", namaPenuh: "NOR SYAFIQAH BINTI NOOR AZMI" },
+  "warden4": { peranan: "warden", kataLaluan: "1234", namaPenuh: "FATIN ALIA BINTI MOHD SUHAIMIN" },
+  "warden5": { peranan: "warden", kataLaluan: "1234", namaPenuh: "SITI NUR IZYANA BINTI CHE RAHIM" },
+  "kwarden": { peranan: "warden", kataLaluan: "1234", namaPenuh: "MUHAMMAD AZUWAN BIN KAMARUDDIN" },
+  "pasrama": { peranan: "warden", kataLaluan: "1234", namaPenuh: "SITI NUR FATIHAH BINTI MUSA" },
+  "pengawal": { peranan: "guard", kataLaluan: "1234", namaPenuh: "Pengawal Keselamatan" }
 };
 
 function sahkanLogMasuk(username, password) {
   var userKecil = String(username).toLowerCase().trim();
   if (PENGGUNA[userKecil]) {
     if (PENGGUNA[userKecil].kataLaluan === password) {
-      return { status: "berjaya", peranan: PENGGUNA[userKecil].peranan, username: userKecil };
+      return { status: "berjaya", peranan: PENGGUNA[userKecil].peranan, username: userKecil, namaPenuh: PENGGUNA[userKecil].namaPenuh };
     } else { return { status: "gagal", mesej: "Kata laluan salah!" }; }
   }
   return { status: "gagal", mesej: "ID Pengguna tidak wujud." };
@@ -171,9 +176,10 @@ function processEntry(payload, username) {
     if(sheetPending.getLastRow() === 0) {
        sheetPending.appendRow(["ID", "Timestamp", "Nama", "Action", "Reason", "Image", "GuardEmail"]);
     }
+    var fullName = PENGGUNA[username] ? PENGGUNA[username].namaPenuh : username;
     names.forEach(function(studentName) {
       var uniqueID = new Date().getTime() + "_" + Math.floor(Math.random() * 1000);
-      sheetPending.appendRow([uniqueID, timestamp, studentName, data.actionType, reasonText, imgUrl, username]);
+      sheetPending.appendRow([uniqueID, timestamp, studentName, data.actionType, reasonText, imgUrl, fullName]);
     });
     return { status: "berjaya", data: "Data dihantar. Menunggu pengesahan Warden." };
   }
@@ -329,6 +335,7 @@ function recordBehavior(payload) {
     now.setFullYear(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
   }
   
+  var fullName = PENGGUNA[payload.username] ? PENGGUNA[payload.username].namaPenuh : payload.username;
   var logRows = [];
   
   for (var i = 1; i < values.length; i++) {
@@ -339,7 +346,7 @@ function recordBehavior(payload) {
       
       sheet.getRange(i + 1, 9).setValue(newPoints);
       
-      logRows.push([now, currentName, payload.type, points, payload.reason, imgUrl, payload.username, tindakan]);
+      logRows.push([now, currentName, payload.type, points, payload.reason, imgUrl, fullName, tindakan]);
     }
   }
   
