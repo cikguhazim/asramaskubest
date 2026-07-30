@@ -2101,7 +2101,7 @@
         htmlHead = `<tr><th style="width: 50px">No</th><th>Tarikh</th><th>Nama Murid</th><th>Kelas / Dorm</th><th>Salah Laku</th><th>Tindakan / Hukuman</th><th>Warden</th></tr>`;
         filteredLogs = allMeritLogs.filter(log => log.type === 'Demerit');
       } else {
-        htmlHead = `<tr><th style="width: 50px">No</th><th>Tarikh</th><th>Bilangan Murid</th><th>-</th><th>Jenis Aktiviti</th><th>Warden</th></tr>`;
+        htmlHead = `<tr><th style="width: 50px">No</th><th>Tarikh</th><th>Bilangan Murid</th><th>Jenis Aktiviti</th><th>Warden</th></tr>`;
         filteredLogs = allAktivitiLogs.filter(log => log.type.includes(jenisLaporan));
       }
 
@@ -2157,7 +2157,6 @@
               <td>${index + 1}</td>
               <td class="small text-muted">${group.timeStr}</td>
               <td class="fw-bold text-primary">${group.students.length} Orang</td>
-              <td>-</td>
               <td>${group.type}</td>
               <td class="small text-muted">${group.wardenName}</td>
             </tr>`;
@@ -2258,7 +2257,7 @@
         groupArray.sort((a, b) => b.dateObj - a.dateObj);
 
         tableData = groupArray.map((group, index) => {
-          return [index + 1, group.timeStr, group.students.length + " Orang", "-", group.type, group.wardenName];
+          return [index + 1, group.timeStr, group.students.length + " Orang", group.type, group.wardenName];
         });
       }
 
@@ -2277,14 +2276,13 @@
           6: { cellWidth: 25 }
         };
       } else {
-        headHeaders = ['No', 'Tarikh & Masa', 'Bilangan Murid', '-', 'Jenis Aktiviti', 'Warden'];
+        headHeaders = ['No', 'Tarikh & Masa', 'Bilangan Murid', 'Jenis Aktiviti', 'Warden'];
         columnStyles = {
           0: { cellWidth: 10, halign: 'center' },
           1: { cellWidth: 40 },
           2: { cellWidth: 35 },
-          3: { cellWidth: 10 },
-          4: { cellWidth: 'auto' },
-          5: { cellWidth: 40 }
+          3: { cellWidth: 'auto' },
+          4: { cellWidth: 40 }
         };
       }
 
