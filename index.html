@@ -1896,7 +1896,7 @@
       container.innerHTML = '';
 
       allStudents.forEach(s => {
-        if (aktType.includes('Solat Berjemaah') && s.religion !== 'Islam') return;
+        if (aktType.includes('Solat Berjemaah') && s.religion.toLowerCase() !== 'islam') return;
 
         if (s.name.toLowerCase().includes(term) || (s.classroom && s.classroom.toLowerCase().includes(term))) {
           const div = document.createElement('div');
@@ -1986,12 +1986,12 @@
       if (targetType === 'Dorm') {
         const dorm = document.getElementById('akt_dormSelect').value;
         let filtered = allStudents.filter(s => s.block === dorm);
-        if (type.includes('Solat Berjemaah')) filtered = filtered.filter(s => s.religion === 'Islam');
+        if (type.includes('Solat Berjemaah')) filtered = filtered.filter(s => s.religion.toLowerCase() === 'islam');
         targetStudents = filtered.map(s => s.name);
       } else if (targetType === 'Kelas') {
         const kls = document.getElementById('akt_kelasSelect').value;
         let filtered = allStudents.filter(s => s.classroom === kls);
-        if (type.includes('Solat Berjemaah')) filtered = filtered.filter(s => s.religion === 'Islam');
+        if (type.includes('Solat Berjemaah')) filtered = filtered.filter(s => s.religion.toLowerCase() === 'islam');
         targetStudents = filtered.map(s => s.name);
       } else {
         targetStudents = Array.from(akt_selectedStudents);
