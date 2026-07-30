@@ -650,48 +650,69 @@
   </div>
 
   <!-- Penjana Laporan View -->
-  <div id="penjanaLaporanView" style="display:none;" class="container mt-3">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h4 class="fw-bold m-0" id="tajukPenjanaLaporan"><i class="fas fa-file-signature text-warning me-2"></i> Penjana
-        Laporan</h4>
-      <button class="btn btn-danger" onclick="cetakLaporanDinamik()"><i class="fas fa-file-pdf"></i> Cetak
-        PDF</button>
+  <div id="penjanaLaporanView" style="display:none;" class="container mt-4 animate__animated animate__fadeIn">
+    
+    <!-- Header Section -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+      <div class="d-flex align-items-center">
+        <div class="bg-primary bg-opacity-10 p-3 rounded-circle me-3 shadow-sm">
+          <i class="fas fa-file-signature text-primary fs-4"></i>
+        </div>
+        <div>
+          <h3 class="fw-bold m-0 text-dark" id="tajukPenjanaLaporan">Penjana Laporan</h3>
+          <p class="text-muted small m-0">Jana dan cetak laporan mengikut kategori dan bulan.</p>
+        </div>
+      </div>
+      <button class="btn btn-danger btn-lg shadow-sm px-4 rounded-pill fw-bold" onclick="cetakLaporanDinamik()">
+        <i class="fas fa-file-pdf me-2"></i>Cetak PDF
+      </button>
     </div>
 
-    <div class="card p-3 mb-3 border-0 shadow-sm">
-      <div class="d-flex gap-2 flex-wrap mb-3">
-        <select id="laporanJenis" class="form-select w-auto fw-bold text-dark border-dark"
-          onchange="renderLaporanDinamik()">
-          <option value="Disiplin">Laporan Tindakan Warden</option>
-          <option value="Solat Berjemaah">Laporan Rekod Solat Berjemaah</option>
-          <option value="Pelaksanaan Prep">Laporan Rekod Pelaksanaan Prep</option>
-          <option value="Bilik Khas">Laporan Rekod Penggunaan Bilik Khas</option>
-        </select>
-        <select id="laporanTindakanMonth" class="form-select w-auto fw-bold text-primary border-primary"
-          onchange="renderLaporanDinamik()">
-          <option value="all">Semua Masa</option>
-          <option value="1">Januari</option>
-          <option value="2">Februari</option>
-          <option value="3">Mac</option>
-          <option value="4">April</option>
-          <option value="5">Mei</option>
-          <option value="6">Jun</option>
-          <option value="7">Julai</option>
-          <option value="8">Ogos</option>
-          <option value="9">September</option>
-          <option value="10">Oktober</option>
-          <option value="11">November</option>
-          <option value="12">Disember</option>
-        </select>
+    <!-- Filter & Content Card -->
+    <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+      <!-- Filter Bar -->
+      <div class="card-header bg-white border-bottom p-4 d-flex gap-3 flex-wrap align-items-center">
+        <div class="input-group" style="max-width: 400px;">
+          <span class="input-group-text bg-light border-end-0"><i class="fas fa-filter text-muted"></i></span>
+          <select id="laporanJenis" class="form-select fw-semibold border-start-0 bg-light" onchange="renderLaporanDinamik()">
+            <option value="Disiplin">Laporan Tindakan Warden</option>
+            <option value="Solat Berjemaah">Laporan Rekod Solat Berjemaah</option>
+            <option value="Pelaksanaan Prep">Laporan Rekod Pelaksanaan Prep</option>
+            <option value="Bilik Khas: Makmal Komputer">Laporan Makmal Komputer</option>
+            <option value="Bilik Khas: Bilik Muzik">Laporan Bilik Muzik</option>
+          </select>
+        </div>
+        
+        <div class="input-group" style="max-width: 250px;">
+          <span class="input-group-text bg-light border-end-0"><i class="fas fa-calendar-alt text-muted"></i></span>
+          <select id="laporanTindakanMonth" class="form-select fw-semibold border-start-0 bg-light text-primary" onchange="renderLaporanDinamik()">
+            <option value="all">Semua Bulan</option>
+            <option value="1">Januari</option>
+            <option value="2">Februari</option>
+            <option value="3">Mac</option>
+            <option value="4">April</option>
+            <option value="5">Mei</option>
+            <option value="6">Jun</option>
+            <option value="7">Julai</option>
+            <option value="8">Ogos</option>
+            <option value="9">September</option>
+            <option value="10">Oktober</option>
+            <option value="11">November</option>
+            <option value="12">Disember</option>
+          </select>
+        </div>
       </div>
 
-      <div class="table-responsive">
-        <table class="table table-hover align-middle">
-          <thead class="table-light" id="thead-laporanDinamik">
-            <!-- Headers injected here -->
-          </thead>
-          <tbody id="tbody-laporanDinamik"></tbody>
-        </table>
+      <!-- Table Content -->
+      <div class="card-body p-0">
+        <div class="table-responsive" style="min-height: 400px;">
+          <table class="table table-hover align-middle m-0">
+            <thead class="table-light text-secondary text-uppercase" style="font-size: 0.85rem; letter-spacing: 0.5px;" id="thead-laporanDinamik">
+              <!-- Headers injected here -->
+            </thead>
+            <tbody id="tbody-laporanDinamik" class="border-top-0"></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
@@ -2091,7 +2112,7 @@
       const tbody = document.getElementById('tbody-laporanDinamik');
 
       const titleSelect = document.getElementById('laporanJenis');
-      document.getElementById('tajukPenjanaLaporan').innerHTML = '<i class="fas fa-file-signature text-warning me-2"></i> ' + titleSelect.options[titleSelect.selectedIndex].text;
+      document.getElementById('tajukPenjanaLaporan').innerText = titleSelect.options[titleSelect.selectedIndex].text;
 
       let htmlHead = '';
       let htmlBody = '';
