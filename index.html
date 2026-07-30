@@ -477,7 +477,7 @@
       <h4 id="aktivitiTitle" class="mb-4 text-center fw-bold text-primary"></h4>
       <form id="aktivitiForm">
         <input type="hidden" id="akt_type">
-        
+
         <div class="mb-3" id="akt_bilikKhas_group" style="display:none;">
           <label class="form-label fw-bold text-info">Pilih Bilik Khas</label>
           <select class="form-select border-info" id="akt_bilikKhas_select">
@@ -509,8 +509,10 @@
         <div class="mb-3" id="akt_individu_group" style="display:none;">
           <label class="form-label fw-bold">Nama Pelajar (Carian)</label>
           <div class="d-flex gap-2 mb-2">
-            <input type="text" id="akt_search" class="form-control" placeholder="Cari nama..." onkeyup="filterAktivitiStudents()">
-            <button type="button" class="btn btn-outline-primary" onclick="selectAllAktivitiStudents()" style="white-space: nowrap;">Pilih Semua</button>
+            <input type="text" id="akt_search" class="form-control" placeholder="Cari nama..."
+              onkeyup="filterAktivitiStudents()">
+            <button type="button" class="btn btn-outline-primary" onclick="selectAllAktivitiStudents()"
+              style="white-space: nowrap;">Pilih Semua</button>
           </div>
           <div id="akt_studentList" class="border rounded p-2"
             style="max-height: 200px; overflow-y: auto; background: #fafafa;">
@@ -650,14 +652,16 @@
   <!-- Penjana Laporan View -->
   <div id="penjanaLaporanView" style="display:none;" class="container mt-3">
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h4 class="fw-bold m-0" id="tajukPenjanaLaporan"><i class="fas fa-file-signature text-warning me-2"></i> Penjana Laporan</h4>
+      <h4 class="fw-bold m-0" id="tajukPenjanaLaporan"><i class="fas fa-file-signature text-warning me-2"></i> Penjana
+        Laporan</h4>
       <button class="btn btn-danger" onclick="cetakLaporanDinamik()"><i class="fas fa-file-pdf"></i> Cetak
         PDF</button>
     </div>
 
     <div class="card p-3 mb-3 border-0 shadow-sm">
       <div class="d-flex gap-2 flex-wrap mb-3">
-        <select id="laporanJenis" class="form-select w-auto fw-bold text-dark border-dark" onchange="renderLaporanDinamik()">
+        <select id="laporanJenis" class="form-select w-auto fw-bold text-dark border-dark"
+          onchange="renderLaporanDinamik()">
           <option value="Disiplin">Laporan Tindakan Warden</option>
           <option value="Solat Berjemaah">Laporan Rekod Solat Berjemaah</option>
           <option value="Pelaksanaan Prep">Laporan Rekod Pelaksanaan Prep</option>
@@ -874,7 +878,7 @@
     // ==============================================================
     // MASUKKAN URL WEB APP API ANDA DI BAWAH INI
     // ==============================================================
-    const API_URL = "https://script.google.com/macros/s/AKfycbwA8EcvtWhRnF1lxqFODYz-ArmEBdWFKx5RgGIy6r8PXJzyC5NheJ2SKtFQew_yoYYC/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbxYyn_kC9MgLaDhUZ-hDims180nupvNzOPDsI9lzOInLcedGCJOG1RnTV50uDlA8SyO/exec";
 
     const WARDEN_NAMES = {
       "warden1": "NIK MUHAMMAD HAZIM BIN NIK ROHIMI",
@@ -1828,7 +1832,7 @@
 
       document.getElementById('aktivitiTitle').innerText = "Rekod: " + jenisAktiviti;
       document.getElementById('akt_type').value = jenisAktiviti;
-      
+
       if (jenisAktiviti.includes('Bilik Khas')) {
         document.getElementById('akt_bilikKhas_group').style.display = 'block';
       } else {
@@ -1888,9 +1892,12 @@
     function filterAktivitiStudents() {
       const term = document.getElementById('akt_search').value.toLowerCase();
       const container = document.getElementById('akt_studentList');
+      const aktType = document.getElementById('akt_type').value;
       container.innerHTML = '';
 
       allStudents.forEach(s => {
+        if (aktType.includes('Solat Berjemaah') && s.religion !== 'Islam') return;
+
         if (s.name.toLowerCase().includes(term) || (s.classroom && s.classroom.toLowerCase().includes(term))) {
           const div = document.createElement('div');
           div.className = "form-check mb-1 border-bottom pb-1";
@@ -1922,10 +1929,10 @@
     function selectAllAktivitiStudents() {
       const container = document.getElementById('akt_studentList');
       const checkboxes = container.querySelectorAll('.form-check-input');
-      
+
       let allSelected = true;
       checkboxes.forEach(chk => { if (!chk.checked) allSelected = false; });
-      
+
       checkboxes.forEach(chk => {
         chk.checked = !allSelected;
         if (!allSelected) akt_selectedStudents.add(chk.value);
@@ -1978,10 +1985,14 @@
       let targetStudents = [];
       if (targetType === 'Dorm') {
         const dorm = document.getElementById('akt_dormSelect').value;
-        targetStudents = allStudents.filter(s => s.block === dorm).map(s => s.name);
+        let filtered = allStudents.filter(s => s.block === dorm);
+        if (type.includes('Solat Berjemaah')) filtered = filtered.filter(s => s.religion === 'Islam');
+        targetStudents = filtered.map(s => s.name);
       } else if (targetType === 'Kelas') {
         const kls = document.getElementById('akt_kelasSelect').value;
-        targetStudents = allStudents.filter(s => s.classroom === kls).map(s => s.name);
+        let filtered = allStudents.filter(s => s.classroom === kls);
+        if (type.includes('Solat Berjemaah')) filtered = filtered.filter(s => s.religion === 'Islam');
+        targetStudents = filtered.map(s => s.name);
       } else {
         targetStudents = Array.from(akt_selectedStudents);
       }
@@ -2046,7 +2057,7 @@
       const monthFilter = document.getElementById('laporanTindakanMonth').value;
       const thead = document.getElementById('thead-laporanDinamik');
       const tbody = document.getElementById('tbody-laporanDinamik');
-      
+
       const titleSelect = document.getElementById('laporanJenis');
       document.getElementById('tajukPenjanaLaporan').innerHTML = '<i class="fas fa-file-signature text-warning me-2"></i> ' + titleSelect.options[titleSelect.selectedIndex].text;
 
