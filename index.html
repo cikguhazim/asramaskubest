@@ -871,6 +871,36 @@
     </div>
   </div>
 
+  <div class="modal fade" id="aktivitiDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-info text-white">
+          <h5 class="modal-title"><i class="fas fa-users me-2"></i>Senarai Murid Aktiviti</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <h6 id="akt_detail_title" class="fw-bold mb-3"></h6>
+          <div class="table-responsive">
+            <table class="table table-hover table-sm">
+              <thead class="table-light">
+                <tr>
+                  <th>No</th>
+                  <th>Nama Murid</th>
+                  <th>Kelas / Dorm</th>
+                </tr>
+              </thead>
+              <tbody id="akt_detail_tbody">
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
@@ -897,7 +927,7 @@
     let allAktivitiLogs = [];
     let selectedStudents = new Set();
     let disc_selectedStudents = new Set();
-    let actionModal, detailsModal, offcanvasLog, tambahModal, myPieChart;
+    let actionModal, detailsModal, offcanvasLog, tambahModal, myPieChart, aktivitiDetailsModal;
     let userRole = "";
     let userEmail = "";
 
@@ -905,6 +935,7 @@
       actionModal = new bootstrap.Modal(document.getElementById('actionModal'));
       detailsModal = new bootstrap.Modal(document.getElementById('detailsModal'));
       tambahModal = new bootstrap.Modal(document.getElementById('tambahPelajarModal'));
+      aktivitiDetailsModal = new bootstrap.Modal(document.getElementById('aktivitiDetailsModal'));
       offcanvasLog = new bootstrap.Offcanvas(document.getElementById('offcanvasLog'));
       setCurrentDateTime();
     };
@@ -2070,7 +2101,7 @@
         htmlHead = `<tr><th style="width: 50px">No</th><th>Tarikh</th><th>Nama Murid</th><th>Kelas / Dorm</th><th>Salah Laku</th><th>Tindakan / Hukuman</th><th>Warden</th></tr>`;
         filteredLogs = allMeritLogs.filter(log => log.type === 'Demerit');
       } else {
-        htmlHead = `<tr><th style="width: 50px">No</th><th>Tarikh</th><th>Nama Murid</th><th>Kelas / Dorm</th><th>Jenis Aktiviti</th><th>Warden</th></tr>`;
+        htmlHead = `<tr><th style="width: 50px">No</th><th>Tarikh</th><th>Bilangan Murid</th><th>-</th><th>Jenis Aktiviti</th><th>Warden</th></tr>`;
         filteredLogs = allAktivitiLogs.filter(log => log.type.includes(jenisLaporan));
       }
 
@@ -2086,22 +2117,76 @@
       if (sortedLogs.length === 0) {
         htmlBody = `<tr><td colspan="7" class="text-center text-muted py-4">Tiada rekod dijumpai.</td></tr>`;
       } else {
-        sortedLogs.forEach((log, index) => {
-          let student = allStudents.find(s => s.name === log.name);
-          let classDorm = student ? `${student.classroom || '-'} / ${student.block || '-'}` : '-';
-          let d = new Date(log.timestamp);
-          let timeStr = d.toLocaleDateString('ms-MY') + " " + d.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' });
-          let wardenName = WARDEN_NAMES[log.warden] || log.warden || '-';
+        if (jenisLaporan === 'Disiplin') {
+          sortedLogs.forEach((log, index) => {
+            let student = allStudents.find(s => s.name === log.name);
+            let classDorm = student ? `${student.classroom || '-'} / ${student.block || '-'}` : '-';
+            let d = new Date(log.timestamp);
+            let timeStr = d.toLocaleDateString('ms-MY') + " " + d.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' });
+            let wardenName = WARDEN_NAMES[log.warden] || log.warden || '-';
 
-          if (jenisLaporan === 'Disiplin') {
             htmlBody += `<tr><td>${index + 1}</td><td class="small text-muted">${timeStr}</td><td class="fw-bold">${log.name}</td><td>${classDorm}</td><td>${log.reason || '-'}</td><td class="text-danger fw-bold">${log.tindakan || '-'}</td><td class="small text-muted">${wardenName}</td></tr>`;
-          } else {
-            htmlBody += `<tr><td>${index + 1}</td><td class="small text-muted">${timeStr}</td><td class="fw-bold">${log.name}</td><td>${classDorm}</td><td>${log.type || '-'}</td><td class="small text-muted">${wardenName}</td></tr>`;
-          }
-        });
+          });
+        } else {
+          // GROUP ACTIVITY LOGS BY SESSION
+          let groupedLogs = {};
+          sortedLogs.forEach(log => {
+            let d = new Date(log.timestamp);
+            let timeStr = d.toLocaleDateString('ms-MY') + " " + d.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' });
+            let wardenName = WARDEN_NAMES[log.warden] || log.warden || '-';
+            let key = timeStr + "|" + log.type + "|" + wardenName;
+            
+            if (!groupedLogs[key]) {
+              groupedLogs[key] = {
+                timeStr: timeStr,
+                dateObj: d,
+                type: log.type,
+                wardenName: wardenName,
+                students: []
+              };
+            }
+            groupedLogs[key].students.push(log.name);
+          });
+
+          let groupArray = Object.values(groupedLogs);
+          groupArray.sort((a, b) => b.dateObj - a.dateObj);
+
+          groupArray.forEach((group, index) => {
+            let groupKey = encodeURIComponent(JSON.stringify(group));
+            htmlBody += `<tr style="cursor: pointer;" onclick="showAktivitiDetails('${groupKey}')" class="table-hover-row">
+              <td>${index + 1}</td>
+              <td class="small text-muted">${group.timeStr}</td>
+              <td class="fw-bold text-primary">${group.students.length} Orang</td>
+              <td>-</td>
+              <td>${group.type}</td>
+              <td class="small text-muted">${group.wardenName}</td>
+            </tr>`;
+          });
+        }
       }
       thead.innerHTML = htmlHead;
       tbody.innerHTML = htmlBody;
+    }
+
+    function showAktivitiDetails(groupKeyEncoded) {
+      const group = JSON.parse(decodeURIComponent(groupKeyEncoded));
+      document.getElementById('akt_detail_title').innerText = `${group.type} (${group.timeStr}) - ${group.wardenName}`;
+      
+      const tbody = document.getElementById('akt_detail_tbody');
+      let html = '';
+      
+      group.students.forEach((studentName, index) => {
+        let student = allStudents.find(s => s.name === studentName);
+        let classDorm = student ? `${student.classroom || '-'} / ${student.block || '-'}` : '-';
+        html += `<tr>
+          <td>${index + 1}</td>
+          <td class="fw-bold">${studentName}</td>
+          <td>${classDorm}</td>
+        </tr>`;
+      });
+      
+      tbody.innerHTML = html;
+      aktivitiDetailsModal.show();
     }
 
     function cetakLaporanDinamik() {
@@ -2138,19 +2223,44 @@
 
       let sortedLogs = [...filteredLogs].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
-      const tableData = sortedLogs.map((log, index) => {
-        let student = allStudents.find(s => s.name === log.name);
-        let classDorm = student ? `${student.classroom || '-'} / ${student.block || '-'}` : '-';
-        let d = new Date(log.timestamp);
-        let timeStr = d.toLocaleDateString('ms-MY') + " " + d.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' });
-        let wardenName = WARDEN_NAMES[log.warden] || log.warden || '-';
+      let tableData = [];
+      if (jenisLaporan === 'Disiplin') {
+        tableData = sortedLogs.map((log, index) => {
+          let student = allStudents.find(s => s.name === log.name);
+          let classDorm = student ? `${student.classroom || '-'} / ${student.block || '-'}` : '-';
+          let d = new Date(log.timestamp);
+          let timeStr = d.toLocaleDateString('ms-MY') + " " + d.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' });
+          let wardenName = WARDEN_NAMES[log.warden] || log.warden || '-';
 
-        if (jenisLaporan === 'Disiplin') {
           return [index + 1, timeStr, log.name, classDorm, log.reason || '-', log.tindakan || '-', wardenName];
-        } else {
-          return [index + 1, timeStr, log.name, classDorm, log.type || '-', wardenName];
-        }
-      });
+        });
+      } else {
+        let groupedLogs = {};
+        sortedLogs.forEach(log => {
+          let d = new Date(log.timestamp);
+          let timeStr = d.toLocaleDateString('ms-MY') + " " + d.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' });
+          let wardenName = WARDEN_NAMES[log.warden] || log.warden || '-';
+          let key = timeStr + "|" + log.type + "|" + wardenName;
+          
+          if (!groupedLogs[key]) {
+            groupedLogs[key] = {
+              timeStr: timeStr,
+              dateObj: d,
+              type: log.type,
+              wardenName: wardenName,
+              students: []
+            };
+          }
+          groupedLogs[key].students.push(log.name);
+        });
+
+        let groupArray = Object.values(groupedLogs);
+        groupArray.sort((a, b) => b.dateObj - a.dateObj);
+
+        tableData = groupArray.map((group, index) => {
+          return [index + 1, group.timeStr, group.students.length + " Orang", "-", group.type, group.wardenName];
+        });
+      }
 
       let headHeaders = [];
       let columnStyles = {};
@@ -2167,12 +2277,12 @@
           6: { cellWidth: 25 }
         };
       } else {
-        headHeaders = ['No', 'Tarikh & Masa', 'Nama Murid', 'Kelas / Dorm', 'Jenis Aktiviti', 'Warden'];
+        headHeaders = ['No', 'Tarikh & Masa', 'Bilangan Murid', '-', 'Jenis Aktiviti', 'Warden'];
         columnStyles = {
           0: { cellWidth: 10, halign: 'center' },
           1: { cellWidth: 40 },
-          2: { cellWidth: 55 },
-          3: { cellWidth: 30 },
+          2: { cellWidth: 35 },
+          3: { cellWidth: 10 },
           4: { cellWidth: 'auto' },
           5: { cellWidth: 40 }
         };
