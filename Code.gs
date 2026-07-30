@@ -152,7 +152,23 @@ function getAppInitData(username) {
     }
   }
 
-  return { status: "berjaya", data: { role: role, pending: pending, students: students, meritLogs: meritLogs, classesList: classesList, dormsList: dormsList } };
+  var aktivitiLogsSheet = ss.getSheetByName("AktivitiLogs");
+  var aktivitiLogs = [];
+  if (aktivitiLogsSheet) {
+    var aData = aktivitiLogsSheet.getDataRange().getValues();
+    for (var i = 1; i < aData.length; i++) {
+      if(!aData[i][0]) continue;
+      aktivitiLogs.push({
+        timestamp: aData[i][0],
+        type: aData[i][1],
+        name: aData[i][2],
+        imageUrl: aData[i][3],
+        warden: aData[i][4]
+      });
+    }
+  }
+
+  return { status: "berjaya", data: { role: role, pending: pending, students: students, meritLogs: meritLogs, aktivitiLogs: aktivitiLogs, classesList: classesList, dormsList: dormsList } };
 }
 
 // ==========================================
