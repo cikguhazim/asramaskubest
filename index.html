@@ -844,6 +844,13 @@
               </select>
             </div>
             <div class="mb-3">
+              <label class="form-label">Agama</label>
+              <select class="form-select" id="newStudentReligion" required>
+                <option value="Islam">Islam</option>
+                <option value="Bukan Islam">Bukan Islam</option>
+              </select>
+            </div>
+            <div class="mb-3">
               <label class="form-label">Bilik Dorm</label>
               <select class="form-select" id="newStudentDorm" required>
                 <option value="">-- Sila Pilih --</option>
@@ -1503,6 +1510,7 @@
       document.getElementById('newStudentName').value = '';
       document.getElementById('newStudentClass').value = '';
       document.getElementById('newStudentGender').value = 'Lelaki';
+      document.getElementById('newStudentReligion').value = 'Islam';
       document.getElementById('newStudentDorm').value = '';
       tambahModal.show();
     }
@@ -1511,9 +1519,10 @@
       const nama = document.getElementById('newStudentName').value.trim();
       const kelas = document.getElementById('newStudentClass').value.trim();
       const gender = document.getElementById('newStudentGender').value;
+      const religion = document.getElementById('newStudentReligion').value;
       const dorm = document.getElementById('newStudentDorm').value.trim();
 
-      if (!nama || !kelas || !gender || !dorm) { alert("Sila isi semua maklumat."); return; }
+      if (!nama || !kelas || !gender || !religion || !dorm) { alert("Sila isi semua maklumat."); return; }
 
       document.getElementById('savingToast').style.display = 'block';
       tambahModal.hide();
@@ -1524,6 +1533,7 @@
           name: nama,
           classroom: kelas,
           gender: gender,
+          religion: religion,
           block: dorm,
           username: userEmail
         });

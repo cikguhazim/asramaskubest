@@ -88,11 +88,12 @@ function getAppInitData(username) {
       block: sData[i][1],     
       classroom: sData[i][2], 
       gender: sData[i][3] || "Lelaki",
-      status: sData[i][4] || "Masuk", 
-      timestamp: sData[i][5] || "",   
-      reason: sData[i][6] || "-",     
-      imageUrl: sData[i][7] || "",
-      meritPoints: sData[i][8] || 0
+      religion: sData[i][4] || "Islam",
+      status: sData[i][5] || "Masuk", 
+      timestamp: sData[i][6] || "",   
+      reason: sData[i][7] || "-",     
+      imageUrl: sData[i][8] || "",
+      meritPoints: sData[i][9] || 0
     });
   }
 
@@ -211,17 +212,17 @@ function processEntry(payload, username) {
     var currentName = dataRow[i][0];
     
     if (names.includes(currentName)) {
-      sheet.getRange(i + 1, 5).setValue(data.actionType); 
-      sheet.getRange(i + 1, 6).setValue(timestamp);       
-      sheet.getRange(i + 1, 7).setValue(reasonText);      
+      sheet.getRange(i + 1, 6).setValue(data.actionType); 
+      sheet.getRange(i + 1, 7).setValue(timestamp);       
+      sheet.getRange(i + 1, 8).setValue(reasonText);      
       
       if (imgUrl !== "") {
-         sheet.getRange(i + 1, 8).setValue(imgUrl); 
+         sheet.getRange(i + 1, 9).setValue(imgUrl); 
       } else if (data.actionType === 'Masuk') {
-         sheet.getRange(i + 1, 8).setValue(""); 
+         sheet.getRange(i + 1, 9).setValue(""); 
       }
 
-      var finalImageLog = (imgUrl !== "") ? imgUrl : (data.actionType === 'Masuk' ? "" : (dataRow[i][7] || ""));
+      var finalImageLog = (imgUrl !== "") ? imgUrl : (data.actionType === 'Masuk' ? "" : (dataRow[i][8] || ""));
       var logDate = new Date(data.customDate + "T" + data.customTime);
       newLogRows.push([logDate, currentName, data.actionType, reasonText, finalImageLog]);
     }
@@ -248,10 +249,10 @@ function resolvePending(id, isApproved, username) {
         var sData = sheet.getDataRange().getValues();
         for (var j = 1; j < sData.length; j++) {
           if(sData[j][0] == pData[i][2]) {
-             sheet.getRange(j + 1, 5).setValue(pData[i][3]);
-             sheet.getRange(j + 1, 6).setValue(pData[i][1]);
-             sheet.getRange(j + 1, 7).setValue(pData[i][4]);
-             if(pData[i][5]) sheet.getRange(j + 1, 8).setValue(pData[i][5]); 
+             sheet.getRange(j + 1, 6).setValue(pData[i][3]);
+             sheet.getRange(j + 1, 7).setValue(pData[i][1]);
+             sheet.getRange(j + 1, 8).setValue(pData[i][4]);
+             if(pData[i][5]) sheet.getRange(j + 1, 9).setValue(pData[i][5]); 
              
              var sheetLogs = ss.getSheetByName(TAB_LOGS);
              if(sheetLogs) sheetLogs.appendRow([new Date(pData[i][1]), pData[i][2], pData[i][3], pData[i][4], pData[i][5]]);
@@ -282,6 +283,7 @@ function addStudent(payload) {
     payload.block, 
     payload.classroom, 
     payload.gender,
+    payload.religion || "Islam",
     "Masuk", 
     "", 
     "-", 
@@ -359,10 +361,10 @@ function recordBehavior(payload) {
   for (var i = 1; i < values.length; i++) {
     var currentName = values[i][0];
     if (names.includes(currentName)) {
-      var currentPoints = parseInt(values[i][8]) || 0;
+      var currentPoints = parseInt(values[i][9]) || 0;
       var newPoints = currentPoints + points;
       
-      sheet.getRange(i + 1, 9).setValue(newPoints);
+      sheet.getRange(i + 1, 10).setValue(newPoints);
       
       logRows.push([now, currentName, payload.type, points, payload.reason, imgUrl, fullName, tindakan]);
     }
