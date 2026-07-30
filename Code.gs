@@ -36,6 +36,8 @@ function doPost(e) {
       result = removeStudent(payload);
     } else if (action === "recordBehavior") {
       result = recordBehavior(payload);
+    } else if (action === "recordActivity") {
+      result = recordActivity(payload);
     }
 
     return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
@@ -387,4 +389,46 @@ function saveImageToDrive(base64Data, fileName) {
   } catch (e) { 
     throw new Error("Gagal simpan ke Drive: " + e.message); 
   }
+}
+
+// ==========================================
+// 7. FUNGSI REKOD AKTIVITI
+// ==========================================
+function recordActivity(payload) {
+  var ss = SpreadsheetApp.openById(SHEET_ID);
+  var sheetLogs = ss.getSheetByName("AktivitiLogs");
+  
+  if (!sheetLogs) {
+    sheetLogs = ss.insertSheet("AktivitiLogs");
+    sheetLogs.appendRow(["Timestamp", "Jenis Aktiviti", "Nama Murid", "Gambar", "Warden"]);
+  }
+  
+  var names = JSON.parse(payload.studentNames);
+  
+  var imgUrl = "";
+  if (payload.imageFile && payload.imageFile.trim() !== "") {
+     var randomText = Math.floor(Math.random() * 10000);
+     imgUrl = saveImageToDrive(payload.imageFile, "Aktiviti_" + randomText + ".jpg");
+  }
+
+  var now = new Date();
+  if (payload.date) {
+    var dateParts = payload.date.split('-');
+    var timeParts = payload.time ? payload.time.split(':') : [0,0];
+    now.setFullYear(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
+    now.setHours(parseInt(timeParts[0]), parseInt(timeParts[1]), 0, 0);
+  }
+  
+  var fullName = PENGGUNA[payload.username] ? PENGGUNA[payload.username].namaPenuh : payload.username;
+  var logRows = [];
+  
+  for (var i = 0; i < names.length; i++) {
+    logRows.push([now, payload.type, names[i], imgUrl, fullName]);
+  }
+  
+  if (logRows.length > 0) {
+    sheetLogs.getRange(sheetLogs.getLastRow() + 1, 1, logRows.length, 5).setValues(logRows);
+  }
+  
+  return { status: "berjaya", data: "Rekod aktiviti disimpan" };
 }
