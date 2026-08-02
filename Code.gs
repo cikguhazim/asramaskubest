@@ -466,8 +466,10 @@ function savePDFToDrive(payload) {
     var folderMap = {
       "Laporan Harian": "1gBfeS1bsuoqnG5sewU4DbbJEYKyxdYnr",
       "Solat Berjemaah": "1PFVVQDjSP9fXfXaqpOGTeyf6NTGo8riJ",
-      "Makmal Komputer": "1obQMQ5N_l92mLCZQtMPujeCSz1KUlEeE",
-      "Bilik Muzik": "1ZZFixhe0ftgBNjURapLDKaBjFGEud54c"
+      "Pelaksanaan Prep": "1Sq4WLOmOQeQ24xb0PK7DCw9SMImPYtvV",
+      "Bilik Khas: Makmal Komputer": "1obQMQ5N_l92mLCZQtMPujeCSz1KUlEeE",
+      "Bilik Khas: Bilik Muzik": "1ZZFixhe0ftgBNjURapLDKaBjFGEud54c",
+      "Disiplin": "1-F7EoVu38GDG1WRc26pPIJqzXsVebQqu"
     };
 
     var folder;
