@@ -691,6 +691,9 @@
           <button class="btn btn-outline-primary rounded-pill btn-laporan-jenis fw-bold" data-val="Bilik Khas: Bilik Muzik" data-text="Laporan Bilik Muzik" onclick="setLaporanJenis(this)">
             <i class="fas fa-guitar me-1"></i> Bilik Muzik
           </button>
+          <button class="btn btn-outline-primary rounded-pill btn-laporan-jenis fw-bold" data-val="Laporan Harian" data-text="Laporan Harian" onclick="setLaporanJenis(this)">
+            <i class="fas fa-clipboard-list me-1"></i> Laporan Harian
+          </button>
         </div>
 
         <div class="input-group" style="max-width: 250px;">
@@ -714,8 +717,8 @@
         </div>
       </div>
 
-      <!-- Table Content -->
-      <div class="card-body p-0">
+      <!-- Standard Table Content -->
+      <div class="card-body p-0" id="laporanTableContainer">
         <div class="table-responsive" style="min-height: 400px;">
           <table class="table table-hover align-middle m-0">
             <thead class="table-light text-secondary text-uppercase" style="font-size: 0.85rem; letter-spacing: 0.5px;"
@@ -724,6 +727,55 @@
             </thead>
             <tbody id="tbody-laporanDinamik" class="border-top-0"></tbody>
           </table>
+        </div>
+      </div>
+
+      <!-- Laporan Harian Form -->
+      <div class="card-body p-4" id="laporanHarianContainer" style="display:none; min-height: 400px;">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Tarikh Laporan</label>
+            <input type="date" class="form-control" id="harianTarikh">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Jumlah Kehadiran Ke Sekolah</label>
+            <input type="number" class="form-control" id="harianKehadiranSekolah" placeholder="Cth: 95">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">PPM Bertugas Pagi (5.30pg-2.30ptg)</label>
+            <select class="form-select" id="harianPpmPagi" multiple size="4">
+              <!-- Options populated by JS -->
+            </select>
+            <small class="text-muted">Tahan CTRL/CMD untuk memilih lebih dari satu.</small>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">PPM Bertugas Petang (1.00tgh-10.00mlm)</label>
+            <select class="form-select" id="harianPpmPetang" multiple size="4">
+              <!-- Options populated by JS -->
+            </select>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">PPM Bertugas Office Hour (7.30pg-4.30ptg)</label>
+            <select class="form-select" id="harianPpmOffice" multiple size="4">
+              <!-- Options populated by JS -->
+            </select>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Warden Bertugas</label>
+            <select class="form-select" id="harianWarden" multiple size="4">
+              <!-- Options populated by JS -->
+            </select>
+          </div>
+          <div class="col-12 mb-4">
+            <label class="form-label fw-bold">Catatan / Laporan Disiplin</label>
+            <textarea class="form-control" id="harianCatatan" rows="4" placeholder="Masukkan catatan tambahan..."></textarea>
+          </div>
+        </div>
+        
+        <div class="d-flex justify-content-end gap-2">
+          <button class="btn btn-success fw-bold px-4 rounded-pill shadow-sm" onclick="salinLaporanHarian()">
+            <i class="fas fa-copy me-2"></i> Salin Teks
+          </button>
         </div>
       </div>
     </div>
@@ -2233,15 +2285,139 @@
       btnElement.classList.remove('btn-outline-primary');
       btnElement.classList.add('btn-primary');
       
-      renderLaporanDinamik();
+      const jenis = btnElement.getAttribute('data-val');
+      if (jenis === 'Laporan Harian') {
+        document.getElementById('laporanTableContainer').style.display = 'none';
+        document.getElementById('laporanHarianContainer').style.display = 'block';
+        document.getElementById('laporanTindakanMonth').parentElement.style.display = 'none';
+        document.getElementById('tajukPenjanaLaporan').innerText = "Laporan Harian";
+        populateHarianDropdowns();
+      } else {
+        document.getElementById('laporanTableContainer').style.display = 'block';
+        document.getElementById('laporanHarianContainer').style.display = 'none';
+        document.getElementById('laporanTindakanMonth').parentElement.style.display = 'flex';
+        renderLaporanDinamik();
+      }
+    }
+
+    function populateHarianDropdowns() {
+      if (!document.getElementById('harianTarikh').value) {
+        document.getElementById('harianTarikh').valueAsDate = new Date();
+      }
+      const selects = ['harianPpmPagi', 'harianPpmPetang', 'harianPpmOffice', 'harianWarden'];
+      if (document.getElementById('harianPpmPagi').options.length === 0) {
+        let optionsHtml = '';
+        for (const key in WARDEN_NAMES) {
+          optionsHtml += `<option value="${WARDEN_NAMES[key]}">${WARDEN_NAMES[key]}</option>`;
+        }
+        selects.forEach(id => {
+          document.getElementById(id).innerHTML = optionsHtml;
+        });
+      }
+    }
+
+    function generateLaporanHarianText() {
+      const days = ["AHAD", "ISNIN", "SELASA", "RABU", "KHAMIS", "JUMAAT", "SABTU"];
+      const dateVal = document.getElementById('harianTarikh').value;
+      let dateObj = dateVal ? new Date(dateVal) : new Date();
+      const hari = days[dateObj.getDay()];
+      const tarikh = dateObj.toLocaleDateString('ms-MY');
+
+      const getSelectedNames = (id) => {
+        const select = document.getElementById(id);
+        const selected = Array.from(select.selectedOptions).map(opt => "  -  " + opt.text.split(' ').map(w=>w.toUpperCase()).join(' '));
+        return selected.length > 0 ? selected.join('\n') : "  -  TIADA";
+      };
+      
+      const getWardenNames = (id) => {
+        const select = document.getElementById(id);
+        const selected = Array.from(select.selectedOptions).map(opt => "    • " + opt.text.split(' ').map(w=>w.toUpperCase()).join(' '));
+        return selected.length > 0 ? selected.join('\n') : "    • TIADA";
+      };
+
+      const ppmPagi = getSelectedNames('harianPpmPagi');
+      const ppmPetang = getSelectedNames('harianPpmPetang');
+      const ppmOffice = getSelectedNames('harianPpmOffice');
+      const warden = getWardenNames('harianWarden');
+
+      let counts = { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0, '6': 0, 'PK': 0 };
+      let jumlahMasuk = 0;
+      allStudents.forEach(s => {
+        if (s.status === 'Masuk') {
+          jumlahMasuk++;
+          let cls = (s.classroom || '').toUpperCase();
+          if (cls.includes('1')) counts['1']++;
+          else if (cls.includes('2')) counts['2']++;
+          else if (cls.includes('3')) counts['3']++;
+          else if (cls.includes('4')) counts['4']++;
+          else if (cls.includes('5')) counts['5']++;
+          else if (cls.includes('6')) counts['6']++;
+          else if (cls.includes('PK') || cls.includes('PENDIDIKAN KHAS')) counts['PK']++;
+        }
+      });
+
+      const catatan = document.getElementById('harianCatatan').value;
+      let catatanText = catatan ? `\nCATATAN / LAPORAN DISIPLIN:\n${catatan}\n` : '';
+
+      const kehadiranSek = document.getElementById('harianKehadiranSekolah').value || '0';
+
+      const text = `LAPORAN KEHADIRAN MURID ASRAMA
+HARI:${hari}
+TARIKH: ${tarikh}
+
+PPM BERTUGAS SHIFT
+PAGI (5.30pg-2.30ptg)   
+${ppmPagi}
+  
+PETANG(1.00tgh-10.00mlm) 
+${ppmPetang}
+     
+OFFICE HOUR (7.30pg-4.30ptg)
+${ppmOffice}
+ 
+WARDEN BERTUGAS
+${warden}
+${catatanText}
+Keberadaan Murid di Asrama :~
+THN 1: ${counts['1']}
+THN 2: ${counts['2']}
+THN 3: ${counts['3']}
+THN 4: ${counts['4']}
+THN 5: ${counts['5']}
+THN 6: ${counts['6']}
+Pk: ${counts['PK']}
+
+JUMLAH KESELURUHAN :${jumlahMasuk}
+JUMLAH KEHADIRAN KE SEKOLAH     : ${kehadiranSek}`;
+      return text;
+    }
+
+    function salinLaporanHarian() {
+      const text = generateLaporanHarianText();
+      const el = document.createElement('textarea');
+      el.value = text;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+      alert("Laporan berjaya disalin!");
     }
 
     function cetakLaporanDinamik() {
       const { jsPDF } = window.jspdf;
-      const doc = new jsPDF('landscape');
-
-      const tajukLaporan = document.getElementById('laporanJenisText').value;
       const jenisLaporan = document.getElementById('laporanJenis').value;
+
+      if (jenisLaporan === 'Laporan Harian') {
+        const doc = new jsPDF('portrait');
+        const text = generateLaporanHarianText();
+        doc.setFontSize(11);
+        doc.text(text, 14, 20);
+        doc.save("Laporan_Harian_" + new Date().toLocaleDateString('ms-MY') + ".pdf");
+        return;
+      }
+
+      const doc = new jsPDF('landscape');
+      const tajukLaporan = document.getElementById('laporanJenisText').value;
 
       doc.setFontSize(14);
       doc.text(tajukLaporan, 14, 20);
