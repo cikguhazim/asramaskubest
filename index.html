@@ -739,32 +739,24 @@
           </div>
           <div class="col-md-6 mb-3">
             <label class="form-label fw-bold">Jumlah Kehadiran Ke Sekolah</label>
-            <input type="number" class="form-control" id="harianKehadiranSekolah" placeholder="Cth: 95">
+            <input type="number" class="form-control bg-light" id="harianKehadiranSekolah" readonly>
+            <small class="text-muted">Dijana secara automatik (Pelajar Masuk)</small>
           </div>
           <div class="col-md-6 mb-3">
             <label class="form-label fw-bold">PPM Bertugas Pagi (5.30pg-2.30ptg)</label>
-            <select class="form-select" id="harianPpmPagi" multiple size="4">
-              <!-- Options populated by JS -->
-            </select>
-            <small class="text-muted">Tahan CTRL/CMD untuk memilih lebih dari satu.</small>
+            <div class="border rounded p-2 bg-light shadow-sm" style="max-height: 130px; overflow-y: auto;" id="harianPpmPagi"></div>
           </div>
           <div class="col-md-6 mb-3">
             <label class="form-label fw-bold">PPM Bertugas Petang (1.00tgh-10.00mlm)</label>
-            <select class="form-select" id="harianPpmPetang" multiple size="4">
-              <!-- Options populated by JS -->
-            </select>
+            <div class="border rounded p-2 bg-light shadow-sm" style="max-height: 130px; overflow-y: auto;" id="harianPpmPetang"></div>
           </div>
           <div class="col-md-6 mb-3">
             <label class="form-label fw-bold">PPM Bertugas Office Hour (7.30pg-4.30ptg)</label>
-            <select class="form-select" id="harianPpmOffice" multiple size="4">
-              <!-- Options populated by JS -->
-            </select>
+            <div class="border rounded p-2 bg-light shadow-sm" style="max-height: 130px; overflow-y: auto;" id="harianPpmOffice"></div>
           </div>
           <div class="col-md-6 mb-3">
             <label class="form-label fw-bold">Warden Bertugas</label>
-            <select class="form-select" id="harianWarden" multiple size="4">
-              <!-- Options populated by JS -->
-            </select>
+            <div class="border rounded p-2 bg-light shadow-sm" style="max-height: 130px; overflow-y: auto;" id="harianWarden"></div>
           </div>
           <div class="col-12 mb-4">
             <label class="form-label fw-bold">Catatan / Laporan Disiplin</label>
@@ -2304,14 +2296,27 @@
       if (!document.getElementById('harianTarikh').value) {
         document.getElementById('harianTarikh').valueAsDate = new Date();
       }
-      const selects = ['harianPpmPagi', 'harianPpmPetang', 'harianPpmOffice', 'harianWarden'];
-      if (document.getElementById('harianPpmPagi').options.length === 0) {
+      
+      let jumlahMasuk = 0;
+      allStudents.forEach(s => {
+        if (s.status === 'Masuk') jumlahMasuk++;
+      });
+      document.getElementById('harianKehadiranSekolah').value = jumlahMasuk;
+
+      const containers = ['harianPpmPagi', 'harianPpmPetang', 'harianPpmOffice', 'harianWarden'];
+      if (document.getElementById('harianPpmPagi').innerHTML.trim() === '') {
         let optionsHtml = '';
         for (const key in WARDEN_NAMES) {
-          optionsHtml += `<option value="${WARDEN_NAMES[key]}">${WARDEN_NAMES[key]}</option>`;
+          optionsHtml += `
+            <div class="form-check">
+              <input class="form-check-input border-secondary" type="checkbox" value="${WARDEN_NAMES[key]}" id="chk_${key}">
+              <label class="form-check-label" for="chk_${key}">${WARDEN_NAMES[key]}</label>
+            </div>
+          `;
         }
-        selects.forEach(id => {
-          document.getElementById(id).innerHTML = optionsHtml;
+        containers.forEach(id => {
+          let modifiedHtml = optionsHtml.replace(/chk_/g, 'chk_' + id + '_');
+          document.getElementById(id).innerHTML = modifiedHtml;
         });
       }
     }
@@ -2323,15 +2328,17 @@
       const hari = days[dateObj.getDay()];
       const tarikh = dateObj.toLocaleDateString('ms-MY');
 
-      const getSelectedNames = (id) => {
-        const select = document.getElementById(id);
-        const selected = Array.from(select.selectedOptions).map(opt => "  -  " + opt.text.split(' ').map(w=>w.toUpperCase()).join(' '));
+      const getSelectedNames = (containerId) => {
+        const container = document.getElementById(containerId);
+        const checkboxes = container.querySelectorAll('input[type="checkbox"]:checked');
+        const selected = Array.from(checkboxes).map(chk => "  -  " + chk.value.split(' ').map(w=>w.toUpperCase()).join(' '));
         return selected.length > 0 ? selected.join('\n') : "  -  TIADA";
       };
       
-      const getWardenNames = (id) => {
-        const select = document.getElementById(id);
-        const selected = Array.from(select.selectedOptions).map(opt => "    • " + opt.text.split(' ').map(w=>w.toUpperCase()).join(' '));
+      const getWardenNames = (containerId) => {
+        const container = document.getElementById(containerId);
+        const checkboxes = container.querySelectorAll('input[type="checkbox"]:checked');
+        const selected = Array.from(checkboxes).map(chk => "    • " + chk.value.split(' ').map(w=>w.toUpperCase()).join(' '));
         return selected.length > 0 ? selected.join('\n') : "    • TIADA";
       };
 
