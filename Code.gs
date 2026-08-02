@@ -38,6 +38,8 @@ function doPost(e) {
       result = recordBehavior(payload);
     } else if (action === "recordActivity") {
       result = recordActivity(payload);
+    } else if (action === "savePDFToDrive") {
+      result = savePDFToDrive(payload);
     }
 
     return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
@@ -449,4 +451,45 @@ function recordActivity(payload) {
   }
   
   return { status: "berjaya", data: "Rekod aktiviti disimpan" };
+}
+
+// ==========================================
+// 5. FUNGSI SIMPAN PDF KE GOOGLE DRIVE
+// ==========================================
+function savePDFToDrive(payload) {
+  try {
+    var base64Data = payload.base64;
+    var filename = payload.filename;
+    var reportType = payload.reportType; 
+    
+    // Mapping of report type to Google Drive Folder ID
+    var folderMap = {
+      "Laporan Harian": "1gBfeS1bsuoqnG5sewU4DbbJEYKyxdYnr",
+      "Solat Berjemaah": "1PFVVQDjSP9fXfXaqpOGTeyf6NTGo8riJ",
+      "Makmal Komputer": "1obQMQ5N_l92mLCZQtMPujeCSz1KUlEeE",
+      "Bilik Muzik": "1ZZFixhe0ftgBNjURapLDKaBjFGEud54c"
+    };
+
+    var folder;
+    var folderId = folderMap[reportType];
+    
+    if (folderId) {
+      folder = DriveApp.getFolderById(folderId);
+    } else {
+      folder = DriveApp.getRootFolder();
+    }
+    
+    // Clean base64 string if it contains data uri prefix
+    if (base64Data.indexOf(',') !== -1) {
+      base64Data = base64Data.split(',')[1];
+    }
+    
+    var decoded = Utilities.base64Decode(base64Data);
+    var blob = Utilities.newBlob(decoded, 'application/pdf', filename);
+    
+    var file = folder.createFile(blob);
+    return { status: "success", url: file.getUrl() };
+  } catch(err) {
+    return { status: "error", message: err.toString() };
+  }
 }

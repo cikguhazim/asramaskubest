@@ -663,9 +663,14 @@
           <p class="text-muted small m-0">Jana dan cetak laporan mengikut kategori dan bulan.</p>
         </div>
       </div>
-      <button class="btn btn-danger btn-lg shadow-sm px-4 rounded-pill fw-bold" onclick="cetakLaporanDinamik()">
-        <i class="fas fa-file-pdf me-2"></i>Cetak PDF
-      </button>
+      <div class="d-flex flex-column flex-sm-row gap-2 w-100">
+        <button class="btn btn-danger flex-fill shadow-sm rounded-pill fw-bold" onclick="cetakLaporanDinamik('download')">
+          <i class="fas fa-file-pdf me-2"></i>Cetak PDF
+        </button>
+        <button class="btn btn-primary flex-fill shadow-sm rounded-pill fw-bold" onclick="cetakLaporanDinamik('drive')" id="btnDriveReport">
+          <i class="fab fa-google-drive me-2"></i>Simpan ke Drive
+        </button>
+      </div>
     </div>
 
     <!-- Filter & Content Card -->
@@ -2412,8 +2417,9 @@ JUMLAH KEHADIRAN KE SEKOLAH     : ${data.kehadiranSekolah}`;
       alert("Laporan berjaya disalin!");
     }
 
-    function cetakLaporanDinamik() {
-      const { jsPDF } = window.jspdf;
+    function cetakLaporanDinamik(actionType = 'download') {
+      try {
+        const { jsPDF } = window.jspdf;
       const jenisLaporan = document.getElementById('laporanJenis').value;
 
       if (jenisLaporan === 'Laporan Harian') {
@@ -2439,10 +2445,10 @@ JUMLAH KEHADIRAN KE SEKOLAH     : ${data.kehadiranSekolah}`;
           startY: 50,
           head: [['Kategori Shift', 'Senarai Nama Bertugas']],
           body: [
-            ['PPM Shift Pagi (5.30pg - 2.30ptg)', data.ppmPagi.join('\\n')],
-            ['PPM Shift Petang (1.00tgh - 10.00mlm)', data.ppmPetang.join('\\n')],
-            ['PPM Office Hour (7.30pg - 4.30ptg)', data.ppmOffice.join('\\n')],
-            ['Warden Bertugas', data.warden.join('\\n')]
+            ['PPM Shift Pagi (5.30pg - 2.30ptg)', data.ppmPagi.join('\n')],
+            ['PPM Shift Petang (1.00tgh - 10.00mlm)', data.ppmPetang.join('\n')],
+            ['PPM Office Hour (7.30pg - 4.30ptg)', data.ppmOffice.join('\n')],
+            ['Warden Bertugas', data.warden.join('\n')]
           ],
           theme: 'grid',
           headStyles: { fillColor: [41, 128, 185], textColor: [255, 255, 255] },
@@ -2486,7 +2492,12 @@ JUMLAH KEHADIRAN KE SEKOLAH     : ${data.kehadiranSekolah}`;
           doc.text(splitCatatan, 14, currentY);
         }
 
-        doc.save("Laporan_Harian_" + data.tarikh.replace(/\\//g, '-') + ".pdf");
+        let pdfName = "Laporan_Harian_" + data.tarikh.replace(/\//g, '-') + ".pdf";
+        if (actionType === 'download') {
+          doc.save(pdfName);
+        } else if (actionType === 'drive') {
+          uploadPDFToDrive(doc, pdfName, jenisLaporan);
+        }
         return;
       }
 
@@ -2605,7 +2616,54 @@ JUMLAH KEHADIRAN KE SEKOLAH     : ${data.kehadiranSekolah}`;
       });
 
       let pdfName = tajukLaporan.replace(/[^a-zA-Z0-9]/g, '_') + ".pdf";
-      doc.save(pdfName);
+      if (actionType === 'download') {
+        doc.save(pdfName);
+      } else if (actionType === 'drive') {
+        uploadPDFToDrive(doc, pdfName, jenisLaporan);
+      }
+      
+      } catch (err) {
+        alert("RALAT JANA PDF: " + err.message);
+        console.error(err);
+      }
+    }
+
+    function uploadPDFToDrive(doc, pdfName, reportType) {
+      const btnDrive = document.getElementById('btnDriveReport');
+      const originalText = btnDrive.innerHTML;
+      btnDrive.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Menyimpan...';
+      btnDrive.disabled = true;
+
+      const base64Data = doc.output('datauristring');
+      
+      fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8',
+        },
+        body: JSON.stringify({
+          action: 'savePDFToDrive',
+          base64: base64Data,
+          filename: pdfName,
+          reportType: reportType
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        btnDrive.innerHTML = originalText;
+        btnDrive.disabled = false;
+        if (data.status === 'success') {
+          alert('PDF berjaya disimpan ke Google Drive!');
+          window.open(data.url, '_blank');
+        } else {
+          alert('Ralat menyimpan ke Google Drive: ' + data.message);
+        }
+      })
+      .catch(error => {
+        btnDrive.innerHTML = originalText;
+        btnDrive.disabled = false;
+        alert('Ralat sistem: ' + error.message);
+      });
     }
 
     function renderReportIndividu() {
