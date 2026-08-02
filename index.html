@@ -2321,31 +2321,19 @@
       }
     }
 
-    function generateLaporanHarianText() {
+    function getLaporanHarianData() {
       const days = ["AHAD", "ISNIN", "SELASA", "RABU", "KHAMIS", "JUMAAT", "SABTU"];
       const dateVal = document.getElementById('harianTarikh').value;
       let dateObj = dateVal ? new Date(dateVal) : new Date();
       const hari = days[dateObj.getDay()];
       const tarikh = dateObj.toLocaleDateString('ms-MY');
 
-      const getSelectedNames = (containerId) => {
+      const getSelectedList = (containerId) => {
         const container = document.getElementById(containerId);
         const checkboxes = container.querySelectorAll('input[type="checkbox"]:checked');
-        const selected = Array.from(checkboxes).map(chk => "  -  " + chk.value.split(' ').map(w=>w.toUpperCase()).join(' '));
-        return selected.length > 0 ? selected.join('\n') : "  -  TIADA";
+        const selected = Array.from(checkboxes).map(chk => chk.value.split(' ').map(w=>w.toUpperCase()).join(' '));
+        return selected.length > 0 ? selected : ["TIADA"];
       };
-      
-      const getWardenNames = (containerId) => {
-        const container = document.getElementById(containerId);
-        const checkboxes = container.querySelectorAll('input[type="checkbox"]:checked');
-        const selected = Array.from(checkboxes).map(chk => "    • " + chk.value.split(' ').map(w=>w.toUpperCase()).join(' '));
-        return selected.length > 0 ? selected.join('\n') : "    • TIADA";
-      };
-
-      const ppmPagi = getSelectedNames('harianPpmPagi');
-      const ppmPetang = getSelectedNames('harianPpmPetang');
-      const ppmOffice = getSelectedNames('harianPpmOffice');
-      const warden = getWardenNames('harianWarden');
 
       let counts = { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0, '6': 0, 'PK': 0 };
       let jumlahMasuk = 0;
@@ -2363,40 +2351,54 @@
         }
       });
 
-      const catatan = document.getElementById('harianCatatan').value;
-      let catatanText = catatan ? `\nCATATAN / LAPORAN DISIPLIN:\n${catatan}\n` : '';
+      return {
+        hari,
+        tarikh,
+        ppmPagi: getSelectedList('harianPpmPagi'),
+        ppmPetang: getSelectedList('harianPpmPetang'),
+        ppmOffice: getSelectedList('harianPpmOffice'),
+        warden: getSelectedList('harianWarden'),
+        catatan: document.getElementById('harianCatatan').value,
+        counts,
+        jumlahMasuk,
+        kehadiranSekolah: document.getElementById('harianKehadiranSekolah').value || '0'
+      };
+    }
 
-      const kehadiranSek = document.getElementById('harianKehadiranSekolah').value || '0';
+    function generateLaporanHarianText() {
+      const data = getLaporanHarianData();
+      
+      const formatList = (list, bullet) => list.map(item => `  ${bullet}  ${item}`).join('\n');
+      let catatanText = data.catatan ? `\nCATATAN / LAPORAN DISIPLIN:\n${data.catatan}\n` : '';
 
-      const text = `LAPORAN KEHADIRAN MURID ASRAMA
-HARI:${hari}
-TARIKH: ${tarikh}
+      return `LAPORAN KEHADIRAN MURID ASRAMA
+HARI:${data.hari}
+TARIKH: ${data.tarikh}
 
 PPM BERTUGAS SHIFT
 PAGI (5.30pg-2.30ptg)   
-${ppmPagi}
+${formatList(data.ppmPagi, '-')}
   
 PETANG(1.00tgh-10.00mlm) 
-${ppmPetang}
+${formatList(data.ppmPetang, '-')}
      
 OFFICE HOUR (7.30pg-4.30ptg)
-${ppmOffice}
+${formatList(data.ppmOffice, '-')}
  
 WARDEN BERTUGAS
-${warden}
+${formatList(data.warden, '•')}
 ${catatanText}
 Keberadaan Murid di Asrama :~
-THN 1: ${counts['1']}
-THN 2: ${counts['2']}
-THN 3: ${counts['3']}
-THN 4: ${counts['4']}
-THN 5: ${counts['5']}
-THN 6: ${counts['6']}
-Pk: ${counts['PK']}
+THN 1: ${data.counts['1']}
+THN 2: ${data.counts['2']}
+THN 3: ${data.counts['3']}
+THN 4: ${data.counts['4']}
+THN 5: ${data.counts['5']}
+THN 6: ${data.counts['6']}
+Pk: ${data.counts['PK']}
 
-JUMLAH KESELURUHAN :${jumlahMasuk}
-JUMLAH KEHADIRAN KE SEKOLAH     : ${kehadiranSek}`;
-      return text;
+JUMLAH KESELURUHAN :${data.jumlahMasuk}
+JUMLAH KEHADIRAN KE SEKOLAH     : ${data.kehadiranSekolah}`;
     }
 
     function salinLaporanHarian() {
@@ -2416,10 +2418,75 @@ JUMLAH KEHADIRAN KE SEKOLAH     : ${kehadiranSek}`;
 
       if (jenisLaporan === 'Laporan Harian') {
         const doc = new jsPDF('portrait');
-        const text = generateLaporanHarianText();
+        const data = getLaporanHarianData();
+        
+        doc.setFillColor(13, 110, 253);
+        doc.rect(0, 0, 210, 30, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(16);
+        doc.setFont("helvetica", "bold");
+        doc.text("LAPORAN HARIAN KEHADIRAN MURID", 105, 18, { align: "center" });
+        
+        doc.setTextColor(0, 0, 0);
         doc.setFontSize(11);
-        doc.text(text, 14, 20);
-        doc.save("Laporan_Harian_" + new Date().toLocaleDateString('ms-MY') + ".pdf");
+        doc.text(`Hari: ${data.hari}`, 14, 40);
+        doc.text(`Tarikh: ${data.tarikh}`, 150, 40);
+        
+        doc.setDrawColor(200, 200, 200);
+        doc.line(14, 45, 196, 45);
+
+        doc.autoTable({
+          startY: 50,
+          head: [['Kategori Shift', 'Senarai Nama Bertugas']],
+          body: [
+            ['PPM Shift Pagi (5.30pg - 2.30ptg)', data.ppmPagi.join('\\n')],
+            ['PPM Shift Petang (1.00tgh - 10.00mlm)', data.ppmPetang.join('\\n')],
+            ['PPM Office Hour (7.30pg - 4.30ptg)', data.ppmOffice.join('\\n')],
+            ['Warden Bertugas', data.warden.join('\\n')]
+          ],
+          theme: 'grid',
+          headStyles: { fillColor: [41, 128, 185], textColor: [255, 255, 255] },
+          styles: { fontSize: 10, cellPadding: 4, valign: 'middle' },
+          columnStyles: { 0: { fontStyle: 'bold', cellWidth: 80 } }
+        });
+
+        let currentY = doc.lastAutoTable.finalY + 10;
+        
+        doc.autoTable({
+          startY: currentY,
+          head: [['Keberadaan Murid', 'Jumlah']],
+          body: [
+            ['Tahun 1', data.counts['1']],
+            ['Tahun 2', data.counts['2']],
+            ['Tahun 3', data.counts['3']],
+            ['Tahun 4', data.counts['4']],
+            ['Tahun 5', data.counts['5']],
+            ['Tahun 6', data.counts['6']],
+            ['Pendidikan Khas (PK)', data.counts['PK']],
+            [{ content: 'JUMLAH KESELURUHAN (MASUK)', styles: { fontStyle: 'bold' } }, { content: data.jumlahMasuk, styles: { fontStyle: 'bold' } }],
+            [{ content: 'JUMLAH KEHADIRAN KE SEKOLAH', styles: { fontStyle: 'bold', textColor: [255,255,255], fillColor: [39, 174, 96] } }, { content: data.kehadiranSekolah, styles: { fontStyle: 'bold', textColor: [255,255,255], fillColor: [39, 174, 96] } }]
+          ],
+          theme: 'grid',
+          headStyles: { fillColor: [142, 68, 173], textColor: [255, 255, 255] },
+          styles: { fontSize: 10, cellPadding: 3 },
+          columnStyles: { 0: { cellWidth: 100 } }
+        });
+
+        currentY = doc.lastAutoTable.finalY + 10;
+
+        if (data.catatan) {
+          doc.setFontSize(11);
+          doc.setFont("helvetica", "bold");
+          doc.text("Catatan / Laporan Disiplin:", 14, currentY);
+          currentY += 6;
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(10);
+          
+          let splitCatatan = doc.splitTextToSize(data.catatan, 180);
+          doc.text(splitCatatan, 14, currentY);
+        }
+
+        doc.save("Laporan_Harian_" + data.tarikh.replace(/\\//g, '-') + ".pdf");
         return;
       }
 
