@@ -664,10 +664,12 @@
         </div>
       </div>
       <div class="d-flex flex-column flex-sm-row gap-2 w-100">
-        <button class="btn btn-danger flex-fill shadow-sm rounded-pill fw-bold" onclick="cetakLaporanDinamik('download')">
+        <button class="btn btn-danger flex-fill shadow-sm rounded-pill fw-bold"
+          onclick="cetakLaporanDinamik('download')">
           <i class="fas fa-file-pdf me-2"></i>Cetak PDF
         </button>
-        <button class="btn btn-primary flex-fill shadow-sm rounded-pill fw-bold" onclick="cetakLaporanDinamik('drive')" id="btnDriveReport">
+        <button class="btn btn-primary flex-fill shadow-sm rounded-pill fw-bold" onclick="cetakLaporanDinamik('drive')"
+          id="btnDriveReport">
           <i class="fab fa-google-drive me-2"></i>Simpan ke Drive
         </button>
       </div>
@@ -680,23 +682,29 @@
         <div class="d-flex flex-wrap gap-2 w-100 mb-2">
           <input type="hidden" id="laporanJenis" value="Disiplin">
           <input type="hidden" id="laporanJenisText" value="Laporan Tindakan Warden">
-          
-          <button class="btn btn-primary rounded-pill btn-laporan-jenis fw-bold" data-val="Disiplin" data-text="Laporan Tindakan Warden" onclick="setLaporanJenis(this)">
+
+          <button class="btn btn-primary rounded-pill btn-laporan-jenis fw-bold" data-val="Disiplin"
+            data-text="Laporan Tindakan Warden" onclick="setLaporanJenis(this)">
             <i class="fas fa-gavel me-1"></i> Disiplin
           </button>
-          <button class="btn btn-outline-primary rounded-pill btn-laporan-jenis fw-bold" data-val="Solat Berjemaah" data-text="Laporan Rekod Solat Berjemaah" onclick="setLaporanJenis(this)">
+          <button class="btn btn-outline-primary rounded-pill btn-laporan-jenis fw-bold" data-val="Solat Berjemaah"
+            data-text="Laporan Rekod Solat Berjemaah" onclick="setLaporanJenis(this)">
             <i class="fas fa-praying-hands me-1"></i> Solat Berjemaah
           </button>
-          <button class="btn btn-outline-primary rounded-pill btn-laporan-jenis fw-bold" data-val="Pelaksanaan Prep" data-text="Laporan Rekod Pelaksanaan Prep" onclick="setLaporanJenis(this)">
+          <button class="btn btn-outline-primary rounded-pill btn-laporan-jenis fw-bold" data-val="Pelaksanaan Prep"
+            data-text="Laporan Rekod Pelaksanaan Prep" onclick="setLaporanJenis(this)">
             <i class="fas fa-book-reader me-1"></i> Prep
           </button>
-          <button class="btn btn-outline-primary rounded-pill btn-laporan-jenis fw-bold" data-val="Bilik Khas: Makmal Komputer" data-text="Laporan Makmal Komputer" onclick="setLaporanJenis(this)">
+          <button class="btn btn-outline-primary rounded-pill btn-laporan-jenis fw-bold"
+            data-val="Bilik Khas: Makmal Komputer" data-text="Laporan Makmal Komputer" onclick="setLaporanJenis(this)">
             <i class="fas fa-desktop me-1"></i> Makmal Komputer
           </button>
-          <button class="btn btn-outline-primary rounded-pill btn-laporan-jenis fw-bold" data-val="Bilik Khas: Bilik Muzik" data-text="Laporan Bilik Muzik" onclick="setLaporanJenis(this)">
+          <button class="btn btn-outline-primary rounded-pill btn-laporan-jenis fw-bold"
+            data-val="Bilik Khas: Bilik Muzik" data-text="Laporan Bilik Muzik" onclick="setLaporanJenis(this)">
             <i class="fas fa-guitar me-1"></i> Bilik Muzik
           </button>
-          <button class="btn btn-outline-primary rounded-pill btn-laporan-jenis fw-bold" data-val="Laporan Harian" data-text="Laporan Harian" onclick="setLaporanJenis(this)">
+          <button class="btn btn-outline-primary rounded-pill btn-laporan-jenis fw-bold" data-val="Laporan Harian"
+            data-text="Laporan Harian" onclick="setLaporanJenis(this)">
             <i class="fas fa-clipboard-list me-1"></i> Laporan Harian
           </button>
         </div>
@@ -749,26 +757,31 @@
           </div>
           <div class="col-md-6 mb-3">
             <label class="form-label fw-bold">PPM Bertugas Pagi (5.30pg-2.30ptg)</label>
-            <div class="border rounded p-2 bg-light shadow-sm" style="max-height: 130px; overflow-y: auto;" id="harianPpmPagi"></div>
+            <div class="border rounded p-2 bg-light shadow-sm" style="max-height: 130px; overflow-y: auto;"
+              id="harianPpmPagi"></div>
           </div>
           <div class="col-md-6 mb-3">
             <label class="form-label fw-bold">PPM Bertugas Petang (1.00tgh-10.00mlm)</label>
-            <div class="border rounded p-2 bg-light shadow-sm" style="max-height: 130px; overflow-y: auto;" id="harianPpmPetang"></div>
+            <div class="border rounded p-2 bg-light shadow-sm" style="max-height: 130px; overflow-y: auto;"
+              id="harianPpmPetang"></div>
           </div>
           <div class="col-md-6 mb-3">
             <label class="form-label fw-bold">PPM Bertugas Office Hour (7.30pg-4.30ptg)</label>
-            <div class="border rounded p-2 bg-light shadow-sm" style="max-height: 130px; overflow-y: auto;" id="harianPpmOffice"></div>
+            <div class="border rounded p-2 bg-light shadow-sm" style="max-height: 130px; overflow-y: auto;"
+              id="harianPpmOffice"></div>
           </div>
           <div class="col-md-6 mb-3">
             <label class="form-label fw-bold">Warden Bertugas</label>
-            <div class="border rounded p-2 bg-light shadow-sm" style="max-height: 130px; overflow-y: auto;" id="harianWarden"></div>
+            <div class="border rounded p-2 bg-light shadow-sm" style="max-height: 130px; overflow-y: auto;"
+              id="harianWarden"></div>
           </div>
           <div class="col-12 mb-4">
             <label class="form-label fw-bold">Catatan / Laporan Disiplin</label>
-            <textarea class="form-control" id="harianCatatan" rows="4" placeholder="Masukkan catatan tambahan..."></textarea>
+            <textarea class="form-control" id="harianCatatan" rows="4"
+              placeholder="Masukkan catatan tambahan..."></textarea>
           </div>
         </div>
-        
+
         <div class="d-flex justify-content-end gap-2">
           <button class="btn btn-success fw-bold px-4 rounded-pill shadow-sm" onclick="salinLaporanHarian()">
             <i class="fas fa-copy me-2"></i> Salin Teks
@@ -990,7 +1003,7 @@
     // ==============================================================
     // MASUKKAN URL WEB APP API ANDA DI BAWAH INI
     // ==============================================================
-    const API_URL = "https://script.google.com/macros/s/AKfycbyzTSGvKzD8D2ehAYJa3XH0NFXfzfTwqoUrLhK0XR-HsjFYUQmYkojV_K2DEPi0LwWx/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbw2nJstu04YQorbgmSDxk2yKVGz1o0q_552lH5waoVgghy_SPtWk8fo7jGj14ypQXgr/exec";
 
     const WARDEN_NAMES = {
       "warden1": "NIK MUHAMMAD HAZIM BIN NIK ROHIMI",
@@ -2273,7 +2286,7 @@
     function setLaporanJenis(btnElement) {
       document.getElementById('laporanJenis').value = btnElement.getAttribute('data-val');
       document.getElementById('laporanJenisText').value = btnElement.getAttribute('data-text');
-      
+
       const buttons = document.querySelectorAll('.btn-laporan-jenis');
       buttons.forEach(btn => {
         btn.classList.remove('btn-primary');
@@ -2281,7 +2294,7 @@
       });
       btnElement.classList.remove('btn-outline-primary');
       btnElement.classList.add('btn-primary');
-      
+
       const jenis = btnElement.getAttribute('data-val');
       if (jenis === 'Laporan Harian') {
         document.getElementById('laporanTableContainer').style.display = 'none';
@@ -2301,7 +2314,7 @@
       if (!document.getElementById('harianTarikh').value) {
         document.getElementById('harianTarikh').valueAsDate = new Date();
       }
-      
+
       let jumlahMasuk = 0;
       allStudents.forEach(s => {
         if (s.status === 'Masuk') jumlahMasuk++;
@@ -2336,7 +2349,7 @@
       const getSelectedList = (containerId) => {
         const container = document.getElementById(containerId);
         const checkboxes = container.querySelectorAll('input[type="checkbox"]:checked');
-        const selected = Array.from(checkboxes).map(chk => chk.value.split(' ').map(w=>w.toUpperCase()).join(' '));
+        const selected = Array.from(checkboxes).map(chk => chk.value.split(' ').map(w => w.toUpperCase()).join(' '));
         return selected.length > 0 ? selected : ["TIADA"];
       };
 
@@ -2372,7 +2385,7 @@
 
     function generateLaporanHarianText() {
       const data = getLaporanHarianData();
-      
+
       const formatList = (list, bullet) => list.map(item => `  ${bullet}  ${item}`).join('\n');
       let catatanText = data.catatan ? `\nCATATAN / LAPORAN DISIPLIN:\n${data.catatan}\n` : '';
 
@@ -2420,208 +2433,212 @@ JUMLAH KEHADIRAN KE SEKOLAH     : ${data.kehadiranSekolah}`;
     function cetakLaporanDinamik(actionType = 'download') {
       try {
         const { jsPDF } = window.jspdf;
-      const jenisLaporan = document.getElementById('laporanJenis').value;
+        const jenisLaporan = document.getElementById('laporanJenis').value;
 
-      if (jenisLaporan === 'Laporan Harian') {
-        const doc = new jsPDF('portrait');
-        const data = getLaporanHarianData();
-        
-        doc.setFillColor(13, 110, 253);
-        doc.rect(0, 0, 210, 30, 'F');
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(16);
-        doc.setFont("helvetica", "bold");
-        doc.text("LAPORAN HARIAN KEHADIRAN MURID", 105, 18, { align: "center" });
-        
-        doc.setTextColor(0, 0, 0);
-        doc.setFontSize(11);
-        doc.text(`Hari: ${data.hari}`, 14, 40);
-        doc.text(`Tarikh: ${data.tarikh}`, 150, 40);
-        
-        doc.setDrawColor(200, 200, 200);
-        doc.line(14, 45, 196, 45);
+        if (jenisLaporan === 'Laporan Harian') {
+          const doc = new jsPDF('portrait');
+          const data = getLaporanHarianData();
 
-        doc.autoTable({
-          startY: 50,
-          head: [['Kategori Shift', 'Senarai Nama Bertugas']],
-          body: [
-            ['PPM Shift Pagi (5.30pg - 2.30ptg)', data.ppmPagi.join('\n')],
-            ['PPM Shift Petang (1.00tgh - 10.00mlm)', data.ppmPetang.join('\n')],
-            ['PPM Office Hour (7.30pg - 4.30ptg)', data.ppmOffice.join('\n')],
-            ['Warden Bertugas', data.warden.join('\n')]
-          ],
-          theme: 'grid',
-          headStyles: { fillColor: [41, 128, 185], textColor: [255, 255, 255] },
-          styles: { fontSize: 10, cellPadding: 4, valign: 'middle' },
-          columnStyles: { 0: { fontStyle: 'bold', cellWidth: 80 } }
-        });
-
-        let currentY = doc.lastAutoTable.finalY + 10;
-        
-        doc.autoTable({
-          startY: currentY,
-          head: [['Keberadaan Murid', 'Jumlah']],
-          body: [
-            ['Tahun 1', String(data.counts['1'])],
-            ['Tahun 2', String(data.counts['2'])],
-            ['Tahun 3', String(data.counts['3'])],
-            ['Tahun 4', String(data.counts['4'])],
-            ['Tahun 5', String(data.counts['5'])],
-            ['Tahun 6', String(data.counts['6'])],
-            ['Pendidikan Khas (PK)', String(data.counts['PK'])],
-            [{ content: 'JUMLAH KESELURUHAN (MASUK)', styles: { fontStyle: 'bold' } }, { content: String(data.jumlahMasuk), styles: { fontStyle: 'bold' } }],
-            [{ content: 'JUMLAH KEHADIRAN KE SEKOLAH', styles: { fontStyle: 'bold', textColor: [255,255,255], fillColor: [39, 174, 96] } }, { content: String(data.kehadiranSekolah), styles: { fontStyle: 'bold', textColor: [255,255,255], fillColor: [39, 174, 96] } }]
-          ],
-          theme: 'grid',
-          headStyles: { fillColor: [142, 68, 173], textColor: [255, 255, 255] },
-          styles: { fontSize: 10, cellPadding: 3 },
-          columnStyles: { 0: { cellWidth: 100 } }
-        });
-
-        currentY = doc.lastAutoTable.finalY + 10;
-
-        if (data.catatan) {
-          doc.setFontSize(11);
+          doc.setFillColor(13, 110, 253);
+          doc.rect(0, 0, 210, 30, 'F');
+          doc.setTextColor(255, 255, 255);
+          doc.setFontSize(16);
           doc.setFont("helvetica", "bold");
-          doc.text("Catatan / Laporan Disiplin:", 14, currentY);
-          currentY += 6;
-          doc.setFont("helvetica", "normal");
-          doc.setFontSize(10);
-          
-          let splitCatatan = doc.splitTextToSize(data.catatan, 180);
-          doc.text(splitCatatan, 14, currentY);
+          doc.text("LAPORAN HARIAN KEHADIRAN MURID", 105, 18, { align: "center" });
+
+          doc.setTextColor(0, 0, 0);
+          doc.setFontSize(11);
+          doc.text(`Hari: ${data.hari}`, 14, 40);
+          doc.text(`Tarikh: ${data.tarikh}`, 150, 40);
+
+          doc.setDrawColor(200, 200, 200);
+          doc.line(14, 45, 196, 45);
+
+          doc.autoTable({
+            startY: 50,
+            head: [['Kategori Shift', 'Senarai Nama Bertugas']],
+            body: [
+              ['PPM Shift Pagi (5.30pg - 2.30ptg)', data.ppmPagi.join('\n')],
+              ['PPM Shift Petang (1.00tgh - 10.00mlm)', data.ppmPetang.join('\n')],
+              ['PPM Office Hour (7.30pg - 4.30ptg)', data.ppmOffice.join('\n')],
+              ['Warden Bertugas', data.warden.join('\n')]
+            ],
+            theme: 'grid',
+            headStyles: { fillColor: [41, 128, 185], textColor: [255, 255, 255] },
+            styles: { fontSize: 10, cellPadding: 4, valign: 'middle' },
+            columnStyles: { 0: { fontStyle: 'bold', cellWidth: 80 } }
+          });
+
+          let currentY = doc.lastAutoTable.finalY + 10;
+
+          doc.autoTable({
+            startY: currentY,
+            head: [['Keberadaan Murid', 'Jumlah']],
+            body: [
+              ['Tahun 1', String(data.counts['1'])],
+              ['Tahun 2', String(data.counts['2'])],
+              ['Tahun 3', String(data.counts['3'])],
+              ['Tahun 4', String(data.counts['4'])],
+              ['Tahun 5', String(data.counts['5'])],
+              ['Tahun 6', String(data.counts['6'])],
+              ['Pendidikan Khas (PK)', String(data.counts['PK'])],
+              [{ content: 'JUMLAH KESELURUHAN (MASUK)', styles: { fontStyle: 'bold' } }, { content: String(data.jumlahMasuk), styles: { fontStyle: 'bold' } }],
+              [{ content: 'JUMLAH KEHADIRAN KE SEKOLAH', styles: { fontStyle: 'bold', textColor: [255, 255, 255], fillColor: [39, 174, 96] } }, { content: String(data.kehadiranSekolah), styles: { fontStyle: 'bold', textColor: [255, 255, 255], fillColor: [39, 174, 96] } }]
+            ],
+            theme: 'grid',
+            headStyles: { fillColor: [142, 68, 173], textColor: [255, 255, 255] },
+            styles: { fontSize: 10, cellPadding: 3 },
+            columnStyles: { 0: { cellWidth: 100 } }
+          });
+
+          currentY = doc.lastAutoTable.finalY + 10;
+
+          if (data.catatan) {
+            doc.setFontSize(11);
+            doc.setFont("helvetica", "bold");
+            doc.text("Catatan / Laporan Disiplin:", 14, currentY);
+            currentY += 6;
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(10);
+
+            let splitCatatan = doc.splitTextToSize(data.catatan, 180);
+            doc.text(splitCatatan, 14, currentY);
+          }
+
+          let pdfName = "Laporan_Harian_" + data.tarikh.replace(/\//g, '-') + ".pdf";
+          if (actionType === 'download') {
+            doc.save(pdfName);
+          } else if (actionType === 'drive') {
+            uploadPDFToDrive(doc, pdfName, jenisLaporan);
+          }
+          return;
         }
 
-        let pdfName = "Laporan_Harian_" + data.tarikh.replace(/\//g, '-') + ".pdf";
+        const doc = new jsPDF('landscape');
+        const tajukLaporan = document.getElementById('laporanJenisText').value;
+
+        doc.setFontSize(14);
+        doc.text(tajukLaporan, 14, 20);
+
+        const monthFilter = document.getElementById('laporanTindakanMonth');
+        let monthText = monthFilter.options[monthFilter.selectedIndex].text;
+
+        doc.setFontSize(10);
+        doc.text("Bulan : " + monthText, 14, 28);
+        doc.text("Tarikh Cetakan : " + new Date().toLocaleDateString('ms-MY'), 14, 34);
+
+        let filteredLogs = [];
+        if (jenisLaporan === 'Disiplin') {
+          filteredLogs = allMeritLogs.filter(log => log.type === 'Demerit');
+        } else {
+          filteredLogs = allAktivitiLogs.filter(log => log.type.includes(jenisLaporan));
+        }
+
+        if (monthFilter.value !== "all") {
+          filteredLogs = filteredLogs.filter(log => {
+            let d = new Date(log.timestamp);
+            return (d.getMonth() + 1).toString() === monthFilter.value;
+          });
+        }
+
+        let sortedLogs = [...filteredLogs].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+        let tableData = [];
+        if (jenisLaporan === 'Disiplin') {
+          tableData = sortedLogs.map((log, index) => {
+            let student = allStudents.find(s => s.name === log.name);
+            let classDorm = student ? `${student.classroom || '-'} / ${student.block || '-'}` : '-';
+            let d = new Date(log.timestamp);
+            let timeStr = d.toLocaleDateString('ms-MY') + " " + d.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' });
+            let wardenName = WARDEN_NAMES[log.warden] || log.warden || '-';
+
+            return [index + 1, timeStr, log.name, classDorm, log.reason || '-', log.tindakan || '-', wardenName];
+          });
+        } else {
+          let groupedLogs = {};
+          sortedLogs.forEach(log => {
+            let d = new Date(log.timestamp);
+            let timeStr = d.toLocaleDateString('ms-MY') + " " + d.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' });
+            let wardenName = WARDEN_NAMES[log.warden] || log.warden || '-';
+            let key = timeStr + "|" + log.type + "|" + wardenName;
+
+            if (!groupedLogs[key]) {
+              groupedLogs[key] = {
+                timeStr: timeStr,
+                dateObj: d,
+                type: log.type,
+                wardenName: wardenName,
+                students: []
+              };
+            }
+            groupedLogs[key].students.push(log.name);
+          });
+
+          let groupArray = Object.values(groupedLogs);
+          groupArray.sort((a, b) => b.dateObj - a.dateObj);
+
+          tableData = groupArray.map((group, index) => {
+            return [index + 1, group.timeStr, group.students.length + " Orang", group.type, group.wardenName];
+          });
+        }
+
+        let headHeaders = [];
+        let columnStyles = {};
+
+        if (jenisLaporan === 'Disiplin') {
+          headHeaders = ['No', 'Tarikh & Masa', 'Nama Murid', 'Kelas / Dorm', 'Salah Laku', 'Tindakan / Hukuman', 'Warden'];
+          columnStyles = {
+            0: { cellWidth: 10, halign: 'center' },
+            1: { cellWidth: 35 },
+            2: { cellWidth: 45 },
+            3: { cellWidth: 25 },
+            4: { cellWidth: 'auto' },
+            5: { cellWidth: 40, fontStyle: 'bold', textColor: [220, 53, 69] },
+            6: { cellWidth: 25 }
+          };
+        } else {
+          headHeaders = ['No', 'Tarikh & Masa', 'Bilangan Murid', 'Jenis Aktiviti', 'Warden'];
+          columnStyles = {
+            0: { cellWidth: 10, halign: 'center' },
+            1: { cellWidth: 40 },
+            2: { cellWidth: 35 },
+            3: { cellWidth: 'auto' },
+            4: { cellWidth: 40 }
+          };
+        }
+
+        doc.autoTable({
+          startY: 40,
+          head: [headHeaders],
+          body: tableData,
+          theme: 'grid',
+          styles: {
+            fontSize: 9,
+            textColor: [0, 0, 0],
+            lineColor: [180, 180, 180],
+            lineWidth: 0.1,
+            cellPadding: 3,
+            valign: 'middle'
+          },
+          headStyles: {
+            fillColor: [240, 240, 240],
+            textColor: [0, 0, 0],
+            fontStyle: 'bold'
+          },
+          columnStyles: columnStyles
+        });
+
+        let baseName = tajukLaporan.replace(/[^a-zA-Z0-9]/g, '_');
+        if (monthFilter.value !== "all") {
+          baseName += "_" + monthText.replace(/[^a-zA-Z0-9]/g, '_');
+        }
+        let pdfName = baseName + ".pdf";
         if (actionType === 'download') {
           doc.save(pdfName);
         } else if (actionType === 'drive') {
           uploadPDFToDrive(doc, pdfName, jenisLaporan);
         }
-        return;
-      }
 
-      const doc = new jsPDF('landscape');
-      const tajukLaporan = document.getElementById('laporanJenisText').value;
-
-      doc.setFontSize(14);
-      doc.text(tajukLaporan, 14, 20);
-
-      const monthFilter = document.getElementById('laporanTindakanMonth');
-      let monthText = monthFilter.options[monthFilter.selectedIndex].text;
-
-      doc.setFontSize(10);
-      doc.text("Bulan : " + monthText, 14, 28);
-      doc.text("Tarikh Cetakan : " + new Date().toLocaleDateString('ms-MY'), 14, 34);
-
-      let filteredLogs = [];
-      if (jenisLaporan === 'Disiplin') {
-        filteredLogs = allMeritLogs.filter(log => log.type === 'Demerit');
-      } else {
-        filteredLogs = allAktivitiLogs.filter(log => log.type.includes(jenisLaporan));
-      }
-
-      if (monthFilter.value !== "all") {
-        filteredLogs = filteredLogs.filter(log => {
-          let d = new Date(log.timestamp);
-          return (d.getMonth() + 1).toString() === monthFilter.value;
-        });
-      }
-
-      let sortedLogs = [...filteredLogs].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
-      let tableData = [];
-      if (jenisLaporan === 'Disiplin') {
-        tableData = sortedLogs.map((log, index) => {
-          let student = allStudents.find(s => s.name === log.name);
-          let classDorm = student ? `${student.classroom || '-'} / ${student.block || '-'}` : '-';
-          let d = new Date(log.timestamp);
-          let timeStr = d.toLocaleDateString('ms-MY') + " " + d.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' });
-          let wardenName = WARDEN_NAMES[log.warden] || log.warden || '-';
-
-          return [index + 1, timeStr, log.name, classDorm, log.reason || '-', log.tindakan || '-', wardenName];
-        });
-      } else {
-        let groupedLogs = {};
-        sortedLogs.forEach(log => {
-          let d = new Date(log.timestamp);
-          let timeStr = d.toLocaleDateString('ms-MY') + " " + d.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' });
-          let wardenName = WARDEN_NAMES[log.warden] || log.warden || '-';
-          let key = timeStr + "|" + log.type + "|" + wardenName;
-
-          if (!groupedLogs[key]) {
-            groupedLogs[key] = {
-              timeStr: timeStr,
-              dateObj: d,
-              type: log.type,
-              wardenName: wardenName,
-              students: []
-            };
-          }
-          groupedLogs[key].students.push(log.name);
-        });
-
-        let groupArray = Object.values(groupedLogs);
-        groupArray.sort((a, b) => b.dateObj - a.dateObj);
-
-        tableData = groupArray.map((group, index) => {
-          return [index + 1, group.timeStr, group.students.length + " Orang", group.type, group.wardenName];
-        });
-      }
-
-      let headHeaders = [];
-      let columnStyles = {};
-
-      if (jenisLaporan === 'Disiplin') {
-        headHeaders = ['No', 'Tarikh & Masa', 'Nama Murid', 'Kelas / Dorm', 'Salah Laku', 'Tindakan / Hukuman', 'Warden'];
-        columnStyles = {
-          0: { cellWidth: 10, halign: 'center' },
-          1: { cellWidth: 35 },
-          2: { cellWidth: 45 },
-          3: { cellWidth: 25 },
-          4: { cellWidth: 'auto' },
-          5: { cellWidth: 40, fontStyle: 'bold', textColor: [220, 53, 69] },
-          6: { cellWidth: 25 }
-        };
-      } else {
-        headHeaders = ['No', 'Tarikh & Masa', 'Bilangan Murid', 'Jenis Aktiviti', 'Warden'];
-        columnStyles = {
-          0: { cellWidth: 10, halign: 'center' },
-          1: { cellWidth: 40 },
-          2: { cellWidth: 35 },
-          3: { cellWidth: 'auto' },
-          4: { cellWidth: 40 }
-        };
-      }
-
-      doc.autoTable({
-        startY: 40,
-        head: [headHeaders],
-        body: tableData,
-        theme: 'grid',
-        styles: {
-          fontSize: 9,
-          textColor: [0, 0, 0],
-          lineColor: [180, 180, 180],
-          lineWidth: 0.1,
-          cellPadding: 3,
-          valign: 'middle'
-        },
-        headStyles: {
-          fillColor: [240, 240, 240],
-          textColor: [0, 0, 0],
-          fontStyle: 'bold'
-        },
-        columnStyles: columnStyles
-      });
-
-      let pdfName = tajukLaporan.replace(/[^a-zA-Z0-9]/g, '_') + ".pdf";
-      if (actionType === 'download') {
-        doc.save(pdfName);
-      } else if (actionType === 'drive') {
-        uploadPDFToDrive(doc, pdfName, jenisLaporan);
-      }
-      
       } catch (err) {
         alert("RALAT JANA PDF: " + err.message);
         console.error(err);
@@ -2635,7 +2652,7 @@ JUMLAH KEHADIRAN KE SEKOLAH     : ${data.kehadiranSekolah}`;
       btnDrive.disabled = true;
 
       const base64Data = doc.output('datauristring');
-      
+
       fetch(API_URL, {
         method: 'POST',
         headers: {
@@ -2648,22 +2665,22 @@ JUMLAH KEHADIRAN KE SEKOLAH     : ${data.kehadiranSekolah}`;
           reportType: reportType
         })
       })
-      .then(response => response.json())
-      .then(data => {
-        btnDrive.innerHTML = originalText;
-        btnDrive.disabled = false;
-        if (data.status === 'success') {
-          alert('PDF berjaya disimpan ke Google Drive!');
-          window.open(data.url, '_blank');
-        } else {
-          alert('Ralat menyimpan ke Google Drive: ' + data.message);
-        }
-      })
-      .catch(error => {
-        btnDrive.innerHTML = originalText;
-        btnDrive.disabled = false;
-        alert('Ralat sistem: ' + error.message);
-      });
+        .then(response => response.json())
+        .then(data => {
+          btnDrive.innerHTML = originalText;
+          btnDrive.disabled = false;
+          if (data.status === 'success') {
+            alert('PDF berjaya disimpan ke Google Drive!');
+            window.open(data.url, '_blank');
+          } else {
+            alert('Ralat menyimpan ke Google Drive: ' + data.message);
+          }
+        })
+        .catch(error => {
+          btnDrive.innerHTML = originalText;
+          btnDrive.disabled = false;
+          alert('Ralat sistem: ' + error.message);
+        });
     }
 
     function renderReportIndividu() {
