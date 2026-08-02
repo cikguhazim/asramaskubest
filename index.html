@@ -672,16 +672,25 @@
     <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
       <!-- Filter Bar -->
       <div class="card-header bg-white border-bottom p-4 d-flex gap-3 flex-wrap align-items-center">
-        <div class="input-group" style="max-width: 400px;">
-          <span class="input-group-text bg-light border-end-0"><i class="fas fa-filter text-muted"></i></span>
-          <select id="laporanJenis" class="form-select fw-semibold border-start-0 bg-light"
-            onchange="renderLaporanDinamik()">
-            <option value="Disiplin">Laporan Tindakan Warden</option>
-            <option value="Solat Berjemaah">Laporan Rekod Solat Berjemaah</option>
-            <option value="Pelaksanaan Prep">Laporan Rekod Pelaksanaan Prep</option>
-            <option value="Bilik Khas: Makmal Komputer">Laporan Makmal Komputer</option>
-            <option value="Bilik Khas: Bilik Muzik">Laporan Bilik Muzik</option>
-          </select>
+        <div class="d-flex flex-wrap gap-2 w-100 mb-2">
+          <input type="hidden" id="laporanJenis" value="Disiplin">
+          <input type="hidden" id="laporanJenisText" value="Laporan Tindakan Warden">
+          
+          <button class="btn btn-primary rounded-pill btn-laporan-jenis fw-bold" data-val="Disiplin" data-text="Laporan Tindakan Warden" onclick="setLaporanJenis(this)">
+            <i class="fas fa-gavel me-1"></i> Disiplin
+          </button>
+          <button class="btn btn-outline-primary rounded-pill btn-laporan-jenis fw-bold" data-val="Solat Berjemaah" data-text="Laporan Rekod Solat Berjemaah" onclick="setLaporanJenis(this)">
+            <i class="fas fa-praying-hands me-1"></i> Solat Berjemaah
+          </button>
+          <button class="btn btn-outline-primary rounded-pill btn-laporan-jenis fw-bold" data-val="Pelaksanaan Prep" data-text="Laporan Rekod Pelaksanaan Prep" onclick="setLaporanJenis(this)">
+            <i class="fas fa-book-reader me-1"></i> Prep
+          </button>
+          <button class="btn btn-outline-primary rounded-pill btn-laporan-jenis fw-bold" data-val="Bilik Khas: Makmal Komputer" data-text="Laporan Makmal Komputer" onclick="setLaporanJenis(this)">
+            <i class="fas fa-desktop me-1"></i> Makmal Komputer
+          </button>
+          <button class="btn btn-outline-primary rounded-pill btn-laporan-jenis fw-bold" data-val="Bilik Khas: Bilik Muzik" data-text="Laporan Bilik Muzik" onclick="setLaporanJenis(this)">
+            <i class="fas fa-guitar me-1"></i> Bilik Muzik
+          </button>
         </div>
 
         <div class="input-group" style="max-width: 250px;">
@@ -2110,12 +2119,12 @@
 
     function renderLaporanDinamik() {
       const jenisLaporan = document.getElementById('laporanJenis').value;
+      const titleText = document.getElementById('laporanJenisText').value;
       const monthFilter = document.getElementById('laporanTindakanMonth').value;
       const thead = document.getElementById('thead-laporanDinamik');
       const tbody = document.getElementById('tbody-laporanDinamik');
 
-      const titleSelect = document.getElementById('laporanJenis');
-      document.getElementById('tajukPenjanaLaporan').innerText = titleSelect.options[titleSelect.selectedIndex].text;
+      document.getElementById('tajukPenjanaLaporan').innerText = titleText;
 
       let htmlHead = '';
       let htmlBody = '';
@@ -2212,13 +2221,27 @@
       aktivitiDetailsModal.show();
     }
 
+    function setLaporanJenis(btnElement) {
+      document.getElementById('laporanJenis').value = btnElement.getAttribute('data-val');
+      document.getElementById('laporanJenisText').value = btnElement.getAttribute('data-text');
+      
+      const buttons = document.querySelectorAll('.btn-laporan-jenis');
+      buttons.forEach(btn => {
+        btn.classList.remove('btn-primary');
+        btn.classList.add('btn-outline-primary');
+      });
+      btnElement.classList.remove('btn-outline-primary');
+      btnElement.classList.add('btn-primary');
+      
+      renderLaporanDinamik();
+    }
+
     function cetakLaporanDinamik() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF('landscape');
 
-      const titleSelect = document.getElementById('laporanJenis');
-      const tajukLaporan = titleSelect.options[titleSelect.selectedIndex].text;
-      const jenisLaporan = titleSelect.value;
+      const tajukLaporan = document.getElementById('laporanJenisText').value;
+      const jenisLaporan = document.getElementById('laporanJenis').value;
 
       doc.setFontSize(14);
       doc.text(tajukLaporan, 14, 20);
