@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>E-Kehadiran Asrama</title>
+  <title>My Asrama</title>
   <link rel="icon" type="image/png" href="iconasrama.png">
   <link rel="apple-touch-icon" href="iconasrama.png">
 
@@ -174,7 +174,7 @@
     <div class="login-card">
       <img src="logosekolah.png" alt="Logo Sekolah" style="width: 100px; height: auto; margin-bottom: 15px;"
         onerror="this.style.display='none'">
-      <h3 class="mb-4 text-dark">E-Kehadiran Asrama</h3>
+      <h3 class="mb-4 text-dark">My Asrama</h3>
       <div id="loginError" class="alert alert-danger" style="display:none; font-size: 0.9rem;"></div>
       <input type="text" id="loginUsername" class="form-control mb-3" placeholder="ID Pengguna (e.g., warden1)">
       <input type="password" id="loginPass" class="form-control mb-4" placeholder="Kata Laluan">
@@ -1533,7 +1533,7 @@
       const doc = new jsPDF();
 
       doc.setFontSize(14);
-      doc.text("Laporan E-Kehadiran Asrama", 14, 20);
+      doc.text("Laporan My Asrama", 14, 20);
 
       doc.setFontSize(10);
       const statusFilter = document.getElementById('filterStatus').value;
