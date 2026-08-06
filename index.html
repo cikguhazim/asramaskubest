@@ -791,6 +791,35 @@
     </div>
   </div>
 
+  <div class="modal fade" id="dormStudentsModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header border-0 bg-primary text-white">
+          <h5 class="modal-title fw-bold" id="dormStudentsModalTitle">Senarai Murid</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light sticky-top">
+                <tr>
+                  <th style="width: 50px;">No</th>
+                  <th>Nama Murid</th>
+                  <th class="text-end">Mata</th>
+                </tr>
+              </thead>
+              <tbody id="dormStudentsContainer">
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-footer border-0 p-3 pt-0">
+          <button type="button" class="btn btn-secondary w-100 rounded-pill" data-bs-dismiss="modal">Tutup</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal Sejarah Pelajar Individu -->
   <div class="modal fade" id="studentHistoryModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
@@ -2779,14 +2808,64 @@ JUMLAH KEHADIRAN KE SEKOLAH     : ${data.kehadiranSekolah}`;
       sortedDorms.forEach((d, index) => {
         let badge = d.total >= 0 ? `<span class="badge bg-success fs-6">${d.total}</span>` : `<span class="badge bg-danger fs-6">${d.total}</span>`;
         html += `
-          <tr>
+          <tr onclick="viewDormStudents('${d.dorm}')" style="cursor:pointer;" title="Klik untuk lihat senarai murid" class="table-hover">
             <td>${index + 1}</td>
-            <td class="fw-bold fs-5">${d.dorm}</td>
+            <td class="fw-bold fs-5 text-primary">${d.dorm}</td>
             <td class="text-end">${badge}</td>
           </tr>
         `;
       });
       tbody.innerHTML = html;
+    }
+
+    function viewDormStudents(dormName) {
+      document.getElementById('dormStudentsModalTitle').innerText = "Senarai Murid: " + dormName;
+      const tbody = document.getElementById('dormStudentsContainer');
+      const monthFilter = document.getElementById('filterMonth') ? document.getElementById('filterMonth').value : "all";
+      const yearFilter = document.getElementById('filterYear') ? document.getElementById('filterYear').value : "all";
+      const genderFilter = document.getElementById('filterGender') ? document.getElementById('filterGender').value : "all";
+
+      let filteredStudents = allStudents.filter(s => s.block === dormName);
+      if (yearFilter !== "all") filteredStudents = filteredStudents.filter(s => s.classroom && s.classroom.match(new RegExp('\\b' + yearFilter + '\\b')));
+      if (genderFilter !== "all") filteredStudents = filteredStudents.filter(s => s.gender && s.gender.toLowerCase() === genderFilter.toLowerCase());
+
+      let studentData = [];
+      filteredStudents.forEach(s => {
+        let pts = 0;
+        if (monthFilter === "all") {
+          pts = s.meritPoints || 0;
+        } else {
+          let studentLogs = allMeritLogs.filter(log => {
+            if (log.name !== s.name) return false;
+            let d = new Date(log.timestamp);
+            return (d.getMonth() + 1).toString() === monthFilter;
+          });
+          studentLogs.forEach(l => { pts += (parseInt(l.points) || 0); });
+        }
+        studentData.push({ name: s.name, pts: pts });
+      });
+
+      studentData.sort((a, b) => b.pts - a.pts);
+
+      let html = '';
+      if (studentData.length === 0) {
+        html = '<tr><td colspan="3" class="text-center text-muted py-3">Tiada murid ditemui.</td></tr>';
+      } else {
+        studentData.forEach((s, index) => {
+          let badge = s.pts >= 0 ? `<span class="badge bg-success">${s.pts}</span>` : `<span class="badge bg-danger">${s.pts}</span>`;
+          html += `
+            <tr>
+              <td>${index + 1}</td>
+              <td class="fw-bold">${s.name}</td>
+              <td class="text-end">${badge}</td>
+            </tr>
+          `;
+        });
+      }
+      tbody.innerHTML = html;
+      
+      const modal = new bootstrap.Modal(document.getElementById('dormStudentsModal'));
+      modal.show();
     }
 
     let currentHistoryStudent = "";
