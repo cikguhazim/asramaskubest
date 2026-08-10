@@ -375,6 +375,12 @@
 
         <div class="mb-3" id="disc_individu_group">
           <label class="form-label fw-bold">Nama Pelajar (Carian)</label>
+          <div class="d-flex gap-2 mb-2 flex-wrap">
+            <button type="button" class="btn btn-sm btn-outline-success flex-fill" onclick="selectAllPresentStudents('all')">Hadir (Semua)</button>
+            <button type="button" class="btn btn-sm btn-outline-primary flex-fill" onclick="selectAllPresentStudents('Lelaki')">Hadir (Lelaki)</button>
+            <button type="button" class="btn btn-sm btn-outline-danger flex-fill" onclick="selectAllPresentStudents('Perempuan')">Hadir (Perempuan)</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary flex-fill" onclick="clearDisciplineSelection()">Nyahpilih</button>
+          </div>
           <input type="text" id="disc_search" class="form-control mb-2" placeholder="Cari nama..."
             onkeyup="filterDisciplineStudents()">
           <div id="disc_studentList" class="border rounded p-2"
@@ -1878,6 +1884,21 @@
       } else {
         disc_selectedStudents.delete(name);
       }
+    }
+
+    function selectAllPresentStudents(genderFilter) {
+      const presentStudents = allStudents.filter(s => s.status === "Masuk");
+      presentStudents.forEach(s => {
+        if (genderFilter === 'all' || (s.gender && s.gender.toLowerCase() === genderFilter.toLowerCase())) {
+          disc_selectedStudents.add(s.name);
+        }
+      });
+      filterDisciplineStudents();
+    }
+
+    function clearDisciplineSelection() {
+      disc_selectedStudents.clear();
+      filterDisciplineStudents();
     }
 
     function compressDiscImage() {
