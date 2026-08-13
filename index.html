@@ -1096,6 +1096,9 @@
             if (result.status === "error") throw new Error(result.message);
             return result.data !== undefined ? result.data : result;
           } catch (e) {
+            if (text.trim().startsWith('Sistem e-Asrama')) {
+              throw new Error("TETAPAN RALAT (PERMISSIONS): Sila pastikan 'Who has access' pada Google Apps Script ditetapkan kepada 'Anyone'. Jangan guna 'Anyone with Google account'. Sila Deploy 'New version' sekali lagi.");
+            }
             if (text.trim().startsWith('<')) {
               if (i < retries) {
                 console.warn(`Server returned HTML. Retrying... (${i + 1}/${retries})`);
