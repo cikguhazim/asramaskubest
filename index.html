@@ -3089,35 +3089,46 @@ JUMLAH KEHADIRAN KE SEKOLAH     : ${data.kehadiranSekolah}`;
     }
 
     let currentHistoryStudent = "";
-    async function viewStudentHistory(studentName) {
-      await fetchMeritLogs();
-      currentHistoryStudent = studentName;
+    let currentStudentLogs = [];
+    
+    async function viewStudentHistory(studentName, page = 1) {
+      if (currentHistoryStudent !== studentName || page === 1) {
+        await fetchMeritLogs();
+        currentHistoryStudent = studentName;
+        const monthFilter = document.getElementById('filterMonth') ? document.getElementById('filterMonth').value : "all";
+        
+        let studentLogs = allMeritLogs.filter(log => {
+          if (log.name !== studentName) return false;
+          if (monthFilter !== "all") {
+            let d = new Date(log.timestamp);
+            if ((d.getMonth() + 1).toString() !== monthFilter) return false;
+          }
+          return true;
+        });
+        currentStudentLogs = [...studentLogs].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      }
+      
       document.getElementById('studentHistoryModalTitle').innerText = "Rekod: " + studentName;
       const container = document.getElementById('studentHistoryContainer');
-      const monthFilter = document.getElementById('filterMonth') ? document.getElementById('filterMonth').value : "all";
-
-      let studentLogs = allMeritLogs.filter(log => {
-        if (log.name !== studentName) return false;
-        if (monthFilter !== "all") {
-          let d = new Date(log.timestamp);
-          if ((d.getMonth() + 1).toString() !== monthFilter) return false;
-        }
-        return true;
-      });
-
+      
       const btnPrint = document.getElementById('btnPrintSalahLaku');
       if (btnPrint) {
-        let hasSalahLaku = studentLogs.some(log => log.type === 'Demerit');
+        let hasSalahLaku = currentStudentLogs.some(log => log.type === 'Demerit');
         btnPrint.style.display = hasSalahLaku ? 'block' : 'none';
       }
 
-      if (!studentLogs || studentLogs.length === 0) {
+      if (!currentStudentLogs || currentStudentLogs.length === 0) {
         container.innerHTML = '<div class="text-center text-muted p-4"><i class="fas fa-folder-open fa-3x mb-2"></i><br>Tiada rekod disiplin setakat ini.</div>';
       } else {
-        let sortedLogs = [...studentLogs].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        const ITEMS_PER_PAGE = 10;
+        const totalPages = Math.ceil(currentStudentLogs.length / ITEMS_PER_PAGE);
+        const startIndex = (page - 1) * ITEMS_PER_PAGE;
+        const endIndex = startIndex + ITEMS_PER_PAGE;
+        const pageLogs = currentStudentLogs.slice(startIndex, endIndex);
+        
         let html = '<div class="list-group list-group-flush">';
 
-        sortedLogs.forEach(log => {
+        pageLogs.forEach(log => {
           let d = new Date(log.timestamp);
           let timeStr = d.toLocaleDateString('ms-MY') + " " + d.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' });
           let typeIcon = log.type === 'Merit' ? '<i class="fas fa-star text-success"></i>' : '<i class="fas fa-exclamation-triangle text-danger"></i>';
@@ -3140,10 +3151,29 @@ JUMLAH KEHADIRAN KE SEKOLAH     : ${data.kehadiranSekolah}`;
           `;
         });
         html += '</div>';
+
+        if (totalPages > 1) {
+          html += `<div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">`;
+          if (page > 1) {
+            html += `<button class="btn btn-sm btn-outline-primary" onclick="viewStudentHistory('${studentName}', ${page - 1})"><i class="fas fa-chevron-left"></i> Sblm</button>`;
+          } else {
+            html += `<div></div>`;
+          }
+          html += `<span class="text-muted small fw-bold">Halaman ${page} drpd ${totalPages}</span>`;
+          if (page < totalPages) {
+            html += `<button class="btn btn-sm btn-outline-primary" onclick="viewStudentHistory('${studentName}', ${page + 1})">Strusnya <i class="fas fa-chevron-right"></i></button>`;
+          } else {
+            html += `<div></div>`;
+          }
+          html += `</div>`;
+        }
+
         container.innerHTML = html;
       }
 
-      let myModal = new bootstrap.Modal(document.getElementById('studentHistoryModal'));
+      let modalEl = document.getElementById('studentHistoryModal');
+      let myModal = bootstrap.Modal.getInstance(modalEl);
+      if (!myModal) myModal = new bootstrap.Modal(modalEl);
       myModal.show();
     }
 
