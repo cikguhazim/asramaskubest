@@ -1005,6 +1005,57 @@
     </div>
   </div>
 
+  <div class="modal fade" id="editPelajarModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title"><i class="fas fa-user-edit me-2"></i>Kemaskini Pelajar</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="editPelajarForm">
+            <input type="hidden" id="editStudentDocId">
+            <input type="hidden" id="editStudentOriginalName">
+            <div class="mb-3">
+              <label class="form-label">Nama Penuh</label>
+              <input type="text" class="form-control" id="editStudentName" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Kelas</label>
+              <select class="form-select" id="editStudentClass" required>
+                <option value="">-- Sila Pilih --</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Jantina</label>
+              <select class="form-select" id="editStudentGender" required>
+                <option value="Lelaki">Lelaki</option>
+                <option value="Perempuan">Perempuan</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Agama</label>
+              <select class="form-select" id="editStudentReligion" required>
+                <option value="Islam">Islam</option>
+                <option value="Bukan Islam">Bukan Islam</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Bilik Dorm</label>
+              <select class="form-select" id="editStudentDorm" required>
+                <option value="">-- Sila Pilih --</option>
+              </select>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+          <button type="button" class="btn btn-primary" onclick="kemaskiniPelajar()"><i class="fas fa-save me-1"></i> Simpan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="modal fade" id="aktivitiDetailsModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-lg">
       <div class="modal-content">
@@ -1092,7 +1143,7 @@
     let isAktivitiLogsLoaded = false;
     let selectedStudents = new Set();
     let disc_selectedStudents = new Set();
-    let actionModal, detailsModal, offcanvasLog, tambahModal, myPieChart, aktivitiDetailsModal;
+    let actionModal, detailsModal, offcanvasLog, tambahModal, editModal, myPieChart, aktivitiDetailsModal;
     let userRole = "";
     let userEmail = "";
 
@@ -1100,6 +1151,7 @@
       actionModal = new bootstrap.Modal(document.getElementById('actionModal'));
       detailsModal = new bootstrap.Modal(document.getElementById('detailsModal'));
       tambahModal = new bootstrap.Modal(document.getElementById('tambahPelajarModal'));
+      editModal = new bootstrap.Modal(document.getElementById('editPelajarModal'));
       aktivitiDetailsModal = new bootstrap.Modal(document.getElementById('aktivitiDetailsModal'));
       offcanvasLog = new bootstrap.Offcanvas(document.getElementById('offcanvasLog'));
       setCurrentDateTime();
@@ -1233,10 +1285,12 @@
         if (classesList.length > 0) {
           const classSelect = document.getElementById('newStudentClass');
           classSelect.innerHTML = '<option value="">-- Sila Pilih --</option>' + classesList.map(c => `<option value="${c}">${c}</option>`).join('');
+          document.getElementById('editStudentClass').innerHTML = classSelect.innerHTML;
         }
         if (dormsList.length > 0) {
           const dormSelect = document.getElementById('newStudentDorm');
           dormSelect.innerHTML = '<option value="">-- Sila Pilih --</option>' + dormsList.map(d => `<option value="${d}">${d}</option>`).join('');
+          document.getElementById('editStudentDorm').innerHTML = dormSelect.innerHTML;
         }
       } catch (err) { alert("Ralat memuat data: " + err.message); }
       document.getElementById('loader').style.display = 'none';
@@ -1349,6 +1403,7 @@
             <div class="text-end ms-2">
               <span class="status-badge ${badgeCls} mb-2 d-inline-block">${s.status}</span><br>
               <button class="btn btn-sm btn-light border" onclick="showDetails('${s.name}'); event.stopPropagation();"><i class="fas fa-info-circle text-info"></i></button>
+              ${userRole === 'warden' ? `<button class="btn btn-sm btn-light border text-primary ms-1" onclick="bukaModalEdit('${s.name.replace(/'/g, "\\'")}'); event.stopPropagation();"><i class="fas fa-edit"></i></button>` : ''}
               ${userRole === 'warden' ? `<button class="btn btn-sm btn-light border text-danger ms-1" onclick="buangPelajar('${s.name.replace(/'/g, "\\'")}'); event.stopPropagation();"><i class="fas fa-trash-alt"></i></button>` : ''}
             </div>
           </div>
@@ -1893,6 +1948,55 @@
       } catch (err) {
         document.getElementById('savingToast').style.display = 'none';
         alert("Gagal memadam pelajar: " + err.message);
+      }
+    }
+
+    function bukaModalEdit(nama) {
+      const student = allStudents.find(s => s.name === nama);
+      if (!student) return;
+      document.getElementById('editStudentDocId').value = student.docId || '';
+      document.getElementById('editStudentOriginalName').value = student.name;
+      document.getElementById('editStudentName').value = student.name;
+      document.getElementById('editStudentClass').value = student.classroom;
+      document.getElementById('editStudentGender').value = student.gender || 'Lelaki';
+      document.getElementById('editStudentReligion').value = student.religion || 'Islam';
+      document.getElementById('editStudentDorm').value = student.block;
+      editModal.show();
+    }
+
+    async function kemaskiniPelajar() {
+      const docId = document.getElementById('editStudentDocId').value;
+      const nama = document.getElementById('editStudentName').value.trim();
+      const kelas = document.getElementById('editStudentClass').value.trim();
+      const gender = document.getElementById('editStudentGender').value;
+      const religion = document.getElementById('editStudentReligion').value;
+      const dorm = document.getElementById('editStudentDorm').value.trim();
+
+      if (!nama || !kelas || !gender || !religion || !dorm) { alert("Sila isi semua maklumat."); return; }
+
+      document.getElementById('savingToast').style.display = 'block';
+      editModal.hide();
+
+      try {
+        if (docId) {
+          await db.collection("students").doc(docId).update({
+            name: nama,
+            classroom: kelas,
+            gender: gender,
+            religion: religion,
+            block: dorm
+          });
+        }
+        
+        document.getElementById('savingToast').style.display = 'none';
+        var syncToast = document.getElementById('syncToast');
+        syncToast.innerHTML = '<i class="fas fa-check-circle text-success me-2"></i> Maklumat pelajar dikemaskini.';
+        syncToast.style.display = 'block'; setTimeout(() => { syncToast.style.display = 'none'; }, 4000);
+
+        loadDataServer();
+      } catch (err) {
+        document.getElementById('savingToast').style.display = 'none';
+        alert("Gagal mengemaskini pelajar: " + err.message);
       }
     }
 
