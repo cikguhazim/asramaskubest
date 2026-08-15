@@ -1927,7 +1927,8 @@
       filterList();
     }
 
-    function bukaLaporan() {
+    async function bukaLaporan() {
+      await fetchMeritLogs();
       document.getElementById('mainMenuView').style.display = 'none';
       document.getElementById('attendanceView').style.display = 'none';
       document.getElementById('disciplineView').style.display = 'none';
@@ -1938,6 +1939,8 @@
       document.getElementById('btnBackMenu').style.display = 'block';
 
       renderReportIndividu();
+      renderReportDorm();
+      renderReportSejarah(1);
     }
 
     async function bukaDisiplin(jenis) {
@@ -3177,7 +3180,7 @@ JUMLAH KEHADIRAN KE SEKOLAH     : ${data.kehadiranSekolah}`;
       myModal.show();
     }
 
-    function renderReportSejarah() {
+    function renderReportSejarah(page = 1) {
       const container = document.getElementById('historyLogContainer');
       const monthFilter = document.getElementById('filterMonth') ? document.getElementById('filterMonth').value : "all";
       const yearFilter = document.getElementById('filterYear') ? document.getElementById('filterYear').value : "all";
@@ -3207,9 +3210,15 @@ JUMLAH KEHADIRAN KE SEKOLAH     : ${data.kehadiranSekolah}`;
       }
 
       let sortedLogs = [...filteredLogs].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      
+      const ITEMS_PER_PAGE = 10;
+      const totalPages = Math.ceil(sortedLogs.length / ITEMS_PER_PAGE);
+      const startIndex = (page - 1) * ITEMS_PER_PAGE;
+      const endIndex = startIndex + ITEMS_PER_PAGE;
+      const pageLogs = sortedLogs.slice(startIndex, endIndex);
 
       let html = '<div class="list-group">';
-      sortedLogs.forEach(log => {
+      pageLogs.forEach(log => {
         let d = new Date(log.timestamp);
         let timeStr = d.toLocaleDateString('ms-MY') + " " + d.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' });
 
@@ -3234,6 +3243,23 @@ JUMLAH KEHADIRAN KE SEKOLAH     : ${data.kehadiranSekolah}`;
         `;
       });
       html += '</div>';
+
+      if (totalPages > 1) {
+        html += `<div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">`;
+        if (page > 1) {
+          html += `<button class="btn btn-sm btn-outline-primary" onclick="renderReportSejarah(${page - 1})"><i class="fas fa-chevron-left"></i> Sblm</button>`;
+        } else {
+          html += `<div></div>`;
+        }
+        html += `<span class="text-muted small fw-bold">Halaman ${page} drpd ${totalPages}</span>`;
+        if (page < totalPages) {
+          html += `<button class="btn btn-sm btn-outline-primary" onclick="renderReportSejarah(${page + 1})">Strusnya <i class="fas fa-chevron-right"></i></button>`;
+        } else {
+          html += `<div></div>`;
+        }
+        html += `</div>`;
+      }
+
       container.innerHTML = html;
     }
   </script>
