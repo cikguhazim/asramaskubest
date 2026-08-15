@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Migrasi Data Asrama ke Firebase</title>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: auto; }
+        .box { border: 1px solid #ccc; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        button { padding: 10px 20px; background: #0d6efd; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        #log { white-space: pre-wrap; background: #f4f4f4; padding: 10px; border-radius: 4px; max-height: 300px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+
+    <h2>Migrasi Data Asrama ke Firebase</h2>
+    
+    <div class="box">
+        <h3>Langkah 1: Pilih Fail Excel (.xlsx)</h3>
+        <p>Sila pilih fail <b>SISTEM KEBERADAAN MURID ASRAMA (V2).xlsx</b> dari komputer anda.</p>
+        <input type="file" id="excelFile" accept=".xlsx" />
+    </div>
+
+    <div class="box">
+        <h3>Langkah 2: Mulakan Migrasi</h3>
+        <button id="btnMigrate" disabled>Mula Migrasi</button>
+    </div>
+
+    <div class="box">
+        <h3>Log Migrasi</h3>
+        <div id="log">Sila pilih fail untuk bermula...</div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyB--QTKgeINzIU9s5F3wqBPQLHpNBwZPSI",
+            authDomain: "myasrama.firebaseapp.com",
+            projectId: "myasrama",
+            storageBucket: "myasrama.firebasestorage.app",
+            messagingSenderId: "202718885713",
+            appId: "1:202718885713:web:08b90d3f5697cf747c8570"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        const logDiv = document.getElementById('log');
+        const btnMigrate = document.getElementById('btnMigrate');
+        let workbook = null;
+
+        function logMsg(msg) {
+            logDiv.innerHTML += msg + "\n";
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        document.getElementById('excelFile').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            logMsg("Membaca fail " + file.name + "...");
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                workbook = XLSX.read(data, {type: 'array'});
+                logMsg("Fail sedia untuk dimigrasi. Sila klik 'Mula Migrasi'.");
+                btnMigrate.disabled = false;
+            };
+            reader.readAsArrayBuffer(file);
+        });
+
+        btnMigrate.addEventListener('click', async () => {
+            if (!workbook) return;
+            btnMigrate.disabled = true;
+            logMsg("Memulakan migrasi ke Firebase...");
+
+            try {
+                // Migrate Students
+                const sheetStudents = workbook.Sheets["Students"];
+                if (sheetStudents) {
+                    const data = XLSX.utils.sheet_to_json(sheetStudents, {header: 1});
+                    logMsg(`Menjumpai ${data.length - 1} rekod pelajar. Sedang memuat naik...`);
+                    
+                    const batch = db.batch();
+                    let count = 0;
+                    for (let i = 1; i < data.length; i++) {
+                        const row = data[i];
+                        if (!row[0]) continue; // skip empty name
+                        
+                        const ref = db.collection("students").doc();
+                        batch.set(ref, {
+                            name: row[0] || "",
+                            block: row[1] || "",
+                            classroom: row[2] || "",
+                            gender: row[3] || "",
+                            religion: row[4] || "",
+                            status: row[5] || "Masuk",
+                            timestamp: row[6] ? new Date(row[6]).toISOString() : new Date().toISOString(),
+                            reason: row[7] || "-",
+                            imageUrl: row[8] || "",
+                            meritPoints: parseInt(row[9]) || 0
+                        });
+                        count++;
+                        
+                        if (count % 400 === 0) {
+                            await batch.commit(); // Firestore limit is 500 per batch
+                            logMsg(`Memuat naik... (${count} rekod)`);
+                        }
+                    }
+                    if (count % 400 !== 0) await batch.commit();
+                    logMsg(`✅ Berjaya memuat naik ${count} pelajar.`);
+                }
+
+                // Migrate Classes
+                const sheetClasses = workbook.Sheets["Classes"];
+                if (sheetClasses) {
+                    const data = XLSX.utils.sheet_to_json(sheetClasses, {header: 1});
+                    const batch = db.batch();
+                    let count = 0;
+                    for (let i = 1; i < data.length; i++) {
+                        if (!data[i][0]) continue;
+                        const ref = db.collection("classes").doc();
+                        batch.set(ref, { name: data[i][0] });
+                        count++;
+                    }
+                    await batch.commit();
+                    logMsg(`✅ Berjaya memuat naik ${count} kelas.`);
+                }
+
+                // Migrate Dorms
+                const sheetDorms = workbook.Sheets["Dorms"];
+                if (sheetDorms) {
+                    const data = XLSX.utils.sheet_to_json(sheetDorms, {header: 1});
+                    const batch = db.batch();
+                    let count = 0;
+                    for (let i = 1; i < data.length; i++) {
+                        if (!data[i][0]) continue;
+                        const ref = db.collection("dorms").doc();
+                        batch.set(ref, { name: data[i][0] });
+                        count++;
+                    }
+                    await batch.commit();
+                    logMsg(`✅ Berjaya memuat naik ${count} dorm.`);
+                }
+
+                logMsg("🎉 MIGRASI SELESAI!");
+
+            } catch (err) {
+                logMsg("❌ Ralat berlaku: " + err.message);
+                console.error(err);
+            }
+            btnMigrate.disabled = false;
+        });
+    </script>
+</body>
+</html>
