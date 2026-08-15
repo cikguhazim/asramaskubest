@@ -56,6 +56,16 @@
             logDiv.scrollTop = logDiv.scrollHeight;
         }
 
+        function parseExcelDate(val) {
+            if (!val) return new Date().toISOString();
+            if (typeof val === 'number') {
+                return new Date(Math.round((val - 25569) * 86400 * 1000)).toISOString();
+            }
+            const d = new Date(val);
+            if (!isNaN(d.getTime())) return d.toISOString();
+            return new Date().toISOString();
+        }
+
         document.getElementById('excelFile').addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
@@ -77,13 +87,26 @@
             logMsg("Memulakan migrasi ke Firebase...");
 
             try {
+                // Wipe old data first
+                logMsg("Memadam data lama di Firebase (jika ada)...");
+                const collections = ["students", "classes", "dorms", "meritLogs", "aktivitiLogs"];
+                for (let col of collections) {
+                    const snap = await db.collection(col).get();
+                    if (!snap.empty) {
+                        const batchDelete = db.batch();
+                        snap.forEach(doc => batchDelete.delete(doc.ref));
+                        await batchDelete.commit();
+                        logMsg(`Koleksi ${col} dipadam.`);
+                    }
+                }
+
                 // Migrate Students
                 const sheetStudents = workbook.Sheets["Students"];
                 if (sheetStudents) {
                     const data = XLSX.utils.sheet_to_json(sheetStudents, {header: 1});
                     logMsg(`Menjumpai ${data.length - 1} rekod pelajar. Sedang memuat naik...`);
                     
-                    const batch = db.batch();
+                    let batch = db.batch();
                     let count = 0;
                     for (let i = 1; i < data.length; i++) {
                         const row = data[i];
@@ -97,7 +120,7 @@
                             gender: row[3] || "",
                             religion: row[4] || "",
                             status: row[5] || "Masuk",
-                            timestamp: row[6] ? new Date(row[6]).toISOString() : new Date().toISOString(),
+                            timestamp: parseExcelDate(row[6]),
                             reason: row[7] || "-",
                             imageUrl: row[8] || "",
                             meritPoints: parseInt(row[9]) || 0
@@ -106,6 +129,7 @@
                         
                         if (count % 400 === 0) {
                             await batch.commit(); // Firestore limit is 500 per batch
+                            batch = db.batch();
                             logMsg(`Memuat naik... (${count} rekod)`);
                         }
                     }
@@ -114,15 +138,15 @@
                 }
 
                 // Migrate Classes
-                const sheetClasses = workbook.Sheets["Classes"];
+                const sheetClasses = workbook.Sheets["SenaraiKelas"];
                 if (sheetClasses) {
                     const data = XLSX.utils.sheet_to_json(sheetClasses, {header: 1});
-                    const batch = db.batch();
+                    let batch = db.batch();
                     let count = 0;
                     for (let i = 1; i < data.length; i++) {
                         if (!data[i][0]) continue;
                         const ref = db.collection("classes").doc();
-                        batch.set(ref, { name: data[i][0] });
+                        batch.set(ref, { name: data[i][0], order: i });
                         count++;
                     }
                     await batch.commit();
@@ -130,19 +154,107 @@
                 }
 
                 // Migrate Dorms
-                const sheetDorms = workbook.Sheets["Dorms"];
+                const sheetDorms = workbook.Sheets["SenaraiNamaBilik"];
                 if (sheetDorms) {
                     const data = XLSX.utils.sheet_to_json(sheetDorms, {header: 1});
-                    const batch = db.batch();
+                    let batch = db.batch();
                     let count = 0;
                     for (let i = 1; i < data.length; i++) {
                         if (!data[i][0]) continue;
                         const ref = db.collection("dorms").doc();
-                        batch.set(ref, { name: data[i][0] });
+                        batch.set(ref, { name: data[i][0], order: i });
                         count++;
                     }
                     await batch.commit();
-                    logMsg(`✅ Berjaya memuat naik ${count} dorm.`);
+                    logMsg(`✅ Berjaya memuat naik ${count} bilik/dorm.`);
+                }
+
+                // Migrate Logs (Discipline)
+                const sheetLogs = workbook.Sheets["MeritLogs"];
+                if (sheetLogs) {
+                    const data = XLSX.utils.sheet_to_json(sheetLogs, {header: 1});
+                    logMsg(`Menjumpai ${data.length - 1} rekod disiplin. Sedang memuat naik...`);
+                    let batch = db.batch();
+                    let count = 0;
+                    let batchCount = 0;
+                    for (let i = 1; i < data.length; i++) {
+                        const row = data[i];
+                        if (!row[1]) continue;
+                        
+                        let imageUrl = row[5] || "";
+                        let warden = row[6] || "";
+                        let tindakan = row[7] || "";
+                        
+                        if (imageUrl && !imageUrl.startsWith("http") && !imageUrl.startsWith("data:")) {
+                            tindakan = warden;
+                            warden = imageUrl;
+                            imageUrl = "";
+                        }
+                        
+                        const ref = db.collection("meritLogs").doc();
+                        batch.set(ref, {
+                            timestamp: parseExcelDate(row[0]),
+                            name: row[1] || "",
+                            type: row[2] || "",
+                            points: parseInt(row[3]) || 0,
+                            reason: row[4] || "",
+                            imageUrl: imageUrl,
+                            warden: warden,
+                            tindakan: tindakan
+                        });
+                        count++;
+                        batchCount++;
+                        
+                        if (batchCount === 400) {
+                            await batch.commit();
+                            batch = db.batch();
+                            batchCount = 0;
+                            logMsg(`Memuat naik disiplin... (${count} rekod)`);
+                        }
+                    }
+                    if (batchCount > 0) await batch.commit();
+                    logMsg(`✅ Berjaya memuat naik ${count} rekod disiplin.`);
+                }
+
+                // Migrate AktivitiLogs
+                const sheetAktiviti = workbook.Sheets["AktivitiLogs"];
+                if (sheetAktiviti) {
+                    const data = XLSX.utils.sheet_to_json(sheetAktiviti, {header: 1});
+                    logMsg(`Menjumpai ${data.length - 1} rekod aktiviti. Sedang memuat naik...`);
+                    let batch = db.batch();
+                    let count = 0;
+                    let batchCount = 0;
+                    for (let i = 1; i < data.length; i++) {
+                        const row = data[i];
+                        if (!row[2]) continue; // Nama Murid
+                        
+                        let imageUrl = row[3] || "";
+                        let warden = row[4] || "";
+                        if (imageUrl && !imageUrl.startsWith("http") && !imageUrl.startsWith("data:")) {
+                            warden = imageUrl;
+                            imageUrl = "";
+                        }
+                        
+                        const ref = db.collection("aktivitiLogs").doc();
+                        batch.set(ref, {
+                            timestamp: parseExcelDate(row[0]),
+                            type: row[1] || "",
+                            name: row[2] || "",
+                            imageUrl: imageUrl,
+                            warden: warden
+                        });
+                        count++;
+                        batchCount++;
+                        
+                        if (batchCount === 400) {
+                            await batch.commit();
+                            batch = db.batch();
+                            batchCount = 0;
+                            logMsg(`Memuat naik aktiviti... (${count} rekod)`);
+                        }
+                    }
+                    if (batchCount > 0) await batch.commit();
+                    logMsg(`✅ Berjaya memuat naik ${count} rekod aktiviti.`);
                 }
 
                 logMsg("🎉 MIGRASI SELESAI!");

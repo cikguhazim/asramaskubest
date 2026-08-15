@@ -1217,8 +1217,15 @@
         allStudents = studentsSnap.docs.map(d => ({ docId: d.id, ...d.data() }));
         allPending = pendingSnap.docs.map(d => ({ docId: d.id, ...d.data() }));
 
-        const classesList = classesSnap.docs.map(d => d.data().name);
-        const dormsList = dormsSnap.docs.map(d => d.data().name);
+        const classesList = classesSnap.docs
+          .map(d => d.data())
+          .sort((a, b) => (a.order || 0) - (b.order || 0) || a.name.localeCompare(b.name, undefined, {numeric: true}))
+          .map(d => d.name);
+          
+        const dormsList = dormsSnap.docs
+          .map(d => d.data())
+          .sort((a, b) => (a.order || 0) - (b.order || 0) || a.name.localeCompare(b.name, undefined, {numeric: true}))
+          .map(d => d.name);
 
         renderPendingData();
         renderData(allStudents);
