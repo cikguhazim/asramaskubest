@@ -375,19 +375,25 @@
 
         <div class="mb-3" id="disc_individu_group">
           <label class="form-label fw-bold">Nama Pelajar (Carian)</label>
-          <div class="d-flex gap-2 mb-2 flex-wrap">
-            <button type="button" class="btn btn-sm btn-outline-success flex-fill"
-              onclick="selectAllPresentStudents('all')">Hadir (Semua)</button>
-            <button type="button" class="btn btn-sm btn-outline-primary flex-fill"
-              onclick="selectAllPresentStudents('Lelaki', 'Islam')">Islam (L)</button>
-            <button type="button" class="btn btn-sm btn-outline-danger flex-fill"
-              onclick="selectAllPresentStudents('Perempuan', 'Islam')">Islam (P)</button>
-            <button type="button" class="btn btn-sm btn-outline-primary flex-fill"
-              onclick="selectAllPresentStudents('Lelaki', 'Bukan Islam')">Bukan Islam (L)</button>
-            <button type="button" class="btn btn-sm btn-outline-danger flex-fill"
-              onclick="selectAllPresentStudents('Perempuan', 'Bukan Islam')">Bukan Islam (P)</button>
-            <button type="button" class="btn btn-sm btn-outline-secondary flex-fill w-100"
-              onclick="clearDisciplineSelection()">Nyahpilih Semua</button>
+          <div class="dropdown mb-2">
+            <button class="btn btn-sm btn-outline-primary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown">
+              <i class="fas fa-users me-1"></i> Pilih Pukal (Pelajar Hadir)
+            </button>
+            <ul class="dropdown-menu w-100 shadow-sm">
+              <li><a class="dropdown-item fw-bold text-success" href="#" onclick="selectAllPresentStudents('all')">✅ Pilih Semua (Hadir)</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><h6 class="dropdown-header text-primary">Mengikut Jantina</h6></li>
+              <li><a class="dropdown-item" href="#" onclick="selectAllPresentStudents('Lelaki')">Pilih Semua Lelaki</a></li>
+              <li><a class="dropdown-item" href="#" onclick="selectAllPresentStudents('Perempuan')">Pilih Semua Perempuan</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><h6 class="dropdown-header text-primary">Mengikut Jantina & Agama</h6></li>
+              <li><a class="dropdown-item" href="#" onclick="selectAllPresentStudents('Lelaki', 'Islam')">Lelaki (Islam)</a></li>
+              <li><a class="dropdown-item" href="#" onclick="selectAllPresentStudents('Perempuan', 'Islam')">Perempuan (Islam)</a></li>
+              <li><a class="dropdown-item" href="#" onclick="selectAllPresentStudents('Lelaki', 'Bukan Islam')">Lelaki (Bukan Islam)</a></li>
+              <li><a class="dropdown-item" href="#" onclick="selectAllPresentStudents('Perempuan', 'Bukan Islam')">Perempuan (Bukan Islam)</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item text-danger fw-bold" href="#" onclick="clearDisciplineSelection()"><i class="fas fa-times me-1"></i> Nyahpilih Semua</a></li>
+            </ul>
           </div>
           <input type="text" id="disc_search" class="form-control mb-2" placeholder="Cari nama..."
             onkeyup="filterDisciplineStudents()">
@@ -1116,43 +1122,62 @@
       document.getElementById('customTime').value = now.toISOString().slice(11, 16);
     }
 
-    async function callServer(actionData, retries = 2) {
-      for (let i = 0; i <= retries; i++) {
-        try {
-          const response = await fetch(API_URL, {
-            method: 'POST',
-            body: JSON.stringify(actionData),
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' }
-          });
-
-          const text = await response.text();
-          try {
-            const result = JSON.parse(text);
-            if (result.status === "error") throw new Error(result.message);
-            return result.data !== undefined ? result.data : result;
-          } catch (e) {
-            if (text.trim().startsWith('Sistem e-Asrama')) {
-              throw new Error("TETAPAN RALAT (PERMISSIONS): Sila pastikan 'Who has access' pada Google Apps Script ditetapkan kepada 'Anyone'. Jangan guna 'Anyone with Google account'. Sila Deploy 'New version' sekali lagi.");
-            }
-            if (text.trim().startsWith('<')) {
-              if (i < retries) {
-                console.warn(`Server returned HTML. Retrying... (${i + 1}/${retries})`);
-                await new Promise(resolve => setTimeout(resolve, 1500));
-                continue;
+    function callServer(actionData, retries = 2) {
+      return new Promise((resolve, reject) => {
+        const attempt = (retryCount) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open("POST", API_URL, true);
+          xhr.setRequestHeader("Content-Type", "text/plain;charset=utf-8");
+          xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+              if (xhr.status === 200) {
+                const text = xhr.responseText;
+                if (!text || text.trim() === "") {
+                  if (retryCount < retries) {
+                    console.warn(`Empty response. Retrying... (${retryCount + 1}/${retries})`);
+                    setTimeout(() => attempt(retryCount + 1), 1500);
+                  } else {
+                    reject(new Error("Pelayan Google Apps Script mengembalikan respons kosong (Empty Response). Sila cuba lagi atau gunakan peranti / browser Chrome."));
+                  }
+                  return;
+                }
+                try {
+                  const result = JSON.parse(text);
+                  if (result.status === "error") reject(new Error(result.message));
+                  else resolve(result.data !== undefined ? result.data : result);
+                } catch (e) {
+                  if (text.trim().startsWith('Sistem e-Asrama')) {
+                    reject(new Error("TETAPAN RALAT: Pastikan 'Who has access' ditetapkan kepada 'Anyone'. Deploy 'New version'."));
+                  } else if (text.trim().startsWith('<')) {
+                    if (retryCount < retries) {
+                      setTimeout(() => attempt(retryCount + 1), 1500);
+                    } else {
+                      reject(new Error("Pelayan (Google) sibuk atau ralat rangkaian. Sila cuba lagi."));
+                    }
+                  } else {
+                    reject(new Error(`JSON Parse error: ${e.message}`));
+                  }
+                }
+              } else {
+                if (retryCount < retries) {
+                  setTimeout(() => attempt(retryCount + 1), 1500);
+                } else {
+                  reject(new Error("HTTP Error: " + xhr.status));
+                }
               }
-              throw new Error("Pelayan (Google) sibuk atau ralat rangkaian. Sila cuba sekali lagi.");
             }
-            throw e;
-          }
-        } catch (fetchError) {
-          if (i < retries && fetchError.message.includes("cuba sekali lagi") === false) {
-            console.warn(`Fetch error. Retrying... (${i + 1}/${retries})`);
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            continue;
-          }
-          throw fetchError;
-        }
-      }
+          };
+          xhr.onerror = function () {
+            if (retryCount < retries) {
+              setTimeout(() => attempt(retryCount + 1), 1500);
+            } else {
+              reject(new Error("Network Error. Pastikan internet anda stabil."));
+            }
+          };
+          xhr.send(JSON.stringify(actionData));
+        };
+        attempt(0);
+      });
     }
 
     async function prosesLogMasuk() {
@@ -1559,7 +1584,7 @@
         let imgUrl = "";
         if (imageBase64) {
           const imgRes = await callServer({ action: "saveImageToDrive", base64Data: imageBase64, fileName: `Hadir_${Date.now()}.jpg` });
-          if (imgRes.status === "berjaya") imgUrl = imgRes.data;
+          imgUrl = typeof imgRes === "string" ? imgRes : (imgRes.data || "");
         }
 
         const batch = db.batch();
@@ -2122,7 +2147,7 @@
         let imgUrl = "";
         if (imageBase64) {
           const imgRes = await callServer({ action: "saveImageToDrive", base64Data: imageBase64, fileName: `Disiplin_${Date.now()}.jpg` });
-          if (imgRes.status === "berjaya") imgUrl = imgRes.data;
+          imgUrl = typeof imgRes === "string" ? imgRes : (imgRes.data || "");
         }
 
         const batch = db.batch();
@@ -2378,7 +2403,7 @@
         let imgUrl = "";
         if (imageBase64) {
           const imgRes = await callServer({ action: "saveImageToDrive", base64Data: imageBase64, fileName: `Aktiviti_${Date.now()}.jpg` });
-          if (imgRes.status === "berjaya") imgUrl = imgRes.data;
+          imgUrl = typeof imgRes === "string" ? imgRes : (imgRes.data || "");
         }
 
         const batch = db.batch();
