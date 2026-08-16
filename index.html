@@ -379,11 +379,15 @@
             <button type="button" class="btn btn-sm btn-outline-success flex-fill"
               onclick="selectAllPresentStudents('all')">Hadir (Semua)</button>
             <button type="button" class="btn btn-sm btn-outline-primary flex-fill"
-              onclick="selectAllPresentStudents('Lelaki')">Hadir (Lelaki)</button>
+              onclick="selectAllPresentStudents('Lelaki', 'Islam')">Islam (L)</button>
             <button type="button" class="btn btn-sm btn-outline-danger flex-fill"
-              onclick="selectAllPresentStudents('Perempuan')">Hadir (Perempuan)</button>
-            <button type="button" class="btn btn-sm btn-outline-secondary flex-fill"
-              onclick="clearDisciplineSelection()">Nyahpilih</button>
+              onclick="selectAllPresentStudents('Perempuan', 'Islam')">Islam (P)</button>
+            <button type="button" class="btn btn-sm btn-outline-primary flex-fill"
+              onclick="selectAllPresentStudents('Lelaki', 'Bukan Islam')">Bukan Islam (L)</button>
+            <button type="button" class="btn btn-sm btn-outline-danger flex-fill"
+              onclick="selectAllPresentStudents('Perempuan', 'Bukan Islam')">Bukan Islam (P)</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary flex-fill w-100"
+              onclick="clearDisciplineSelection()">Nyahpilih Semua</button>
           </div>
           <input type="text" id="disc_search" class="form-control mb-2" placeholder="Cari nama..."
             onkeyup="filterDisciplineStudents()">
@@ -2040,10 +2044,12 @@
       }
     }
 
-    function selectAllPresentStudents(genderFilter) {
+    function selectAllPresentStudents(genderFilter, religionFilter = 'all') {
       const presentStudents = allStudents.filter(s => s.status === "Masuk");
       presentStudents.forEach(s => {
-        if (genderFilter === 'all' || (s.gender && s.gender.toLowerCase() === genderFilter.toLowerCase())) {
+        let genderMatch = genderFilter === 'all' || (s.gender && s.gender.toLowerCase() === genderFilter.toLowerCase());
+        let religionMatch = religionFilter === 'all' || (s.religion && s.religion.toLowerCase() === religionFilter.toLowerCase());
+        if (genderMatch && religionMatch) {
           disc_selectedStudents.add(s.name);
         }
       });
