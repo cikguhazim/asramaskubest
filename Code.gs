@@ -22,6 +22,8 @@ function doPost(e) {
     } else if (action === "saveImageToDrive") {
       var url = saveImageToDrive(payload.base64Data, payload.fileName);
       result = { status: "berjaya", data: url };
+    } else {
+      result = { status: "error", message: "Tindakan (action) tidak dikenali: " + action };
     }
 
     return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);

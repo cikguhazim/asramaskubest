@@ -927,10 +927,7 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <p class="mb-1 text-muted small">Jantina / Agama</p>
-          <p class="fw-bold"><span id="d_gender"></span> | <span id="d_religion"></span></p>
-
-          <p class="mb-1 text-muted small mt-3">Kelas / Blok (Dorm)</p>
+          <p class="mb-1 text-muted small">Kelas / Blok (Dorm)</p>
           <p class="fw-bold"><span id="d_class"></span> | <span id="d_block"></span></p>
 
           <p class="mb-1 text-muted small mt-3">Status Terkini</p>
@@ -1008,57 +1005,6 @@
     </div>
   </div>
 
-  <div class="modal fade" id="editPelajarModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header bg-primary text-white">
-          <h5 class="modal-title"><i class="fas fa-user-edit me-2"></i>Kemaskini Pelajar</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <form id="editPelajarForm">
-            <input type="hidden" id="editStudentDocId">
-            <input type="hidden" id="editStudentOriginalName">
-            <div class="mb-3">
-              <label class="form-label">Nama Penuh</label>
-              <input type="text" class="form-control" id="editStudentName" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Kelas</label>
-              <select class="form-select" id="editStudentClass" required>
-                <option value="">-- Sila Pilih --</option>
-              </select>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Jantina</label>
-              <select class="form-select" id="editStudentGender" required>
-                <option value="Lelaki">Lelaki</option>
-                <option value="Perempuan">Perempuan</option>
-              </select>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Agama</label>
-              <select class="form-select" id="editStudentReligion" required>
-                <option value="Islam">Islam</option>
-                <option value="Bukan Islam">Bukan Islam</option>
-              </select>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Bilik Dorm</label>
-              <select class="form-select" id="editStudentDorm" required>
-                <option value="">-- Sila Pilih --</option>
-              </select>
-            </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-          <button type="button" class="btn btn-primary" onclick="kemaskiniPelajar()"><i class="fas fa-save me-1"></i> Simpan</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <div class="modal fade" id="aktivitiDetailsModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-lg">
       <div class="modal-content">
@@ -1092,7 +1038,7 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-  
+
   <!-- Firebase Compat SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -1114,7 +1060,7 @@
     const db = firebase.firestore();
 
     // API URL untuk Google Drive file saving SAHAJA (PDF/Imej Bukti)
-    const API_URL = "https://script.google.com/macros/s/AKfycbzl-bARDz7mfruacALsfVg5n0qub_GU5bF_2uDQy4c5GmhEyB0einKIHUhXBHXs5bnk/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbwLCsBYSKCe-cJgi7dqd1kwHG1PyzSGD-xwXNK4w3UtppgyDJ72lr_HoCLe511TOqej/exec";
 
     const PENGGUNA = {
       "warden1": { peranan: "warden", kataLaluan: "1234", namaPenuh: "NIK MUHAMMAD HAZIM BIN NIK ROHIMI" },
@@ -1146,7 +1092,7 @@
     let isAktivitiLogsLoaded = false;
     let selectedStudents = new Set();
     let disc_selectedStudents = new Set();
-    let actionModal, detailsModal, offcanvasLog, tambahModal, editModal, myPieChart, aktivitiDetailsModal;
+    let actionModal, detailsModal, offcanvasLog, tambahModal, myPieChart, aktivitiDetailsModal;
     let userRole = "";
     let userEmail = "";
 
@@ -1154,7 +1100,6 @@
       actionModal = new bootstrap.Modal(document.getElementById('actionModal'));
       detailsModal = new bootstrap.Modal(document.getElementById('detailsModal'));
       tambahModal = new bootstrap.Modal(document.getElementById('tambahPelajarModal'));
-      editModal = new bootstrap.Modal(document.getElementById('editPelajarModal'));
       aktivitiDetailsModal = new bootstrap.Modal(document.getElementById('aktivitiDetailsModal'));
       offcanvasLog = new bootstrap.Offcanvas(document.getElementById('offcanvasLog'));
       setCurrentDateTime();
@@ -1217,9 +1162,9 @@
 
       try {
         if (PENGGUNA[uname] && PENGGUNA[uname].kataLaluan === pass) {
-          userRole = PENGGUNA[uname].peranan; 
+          userRole = PENGGUNA[uname].peranan;
           userEmail = uname;
-          
+
           document.getElementById('loginScreen').style.display = 'none';
           document.getElementById('mainDashboard').style.display = 'block';
 
@@ -1272,15 +1217,8 @@
         allStudents = studentsSnap.docs.map(d => ({ docId: d.id, ...d.data() }));
         allPending = pendingSnap.docs.map(d => ({ docId: d.id, ...d.data() }));
 
-        const classesList = classesSnap.docs
-          .map(d => d.data())
-          .sort((a, b) => (a.order || 0) - (b.order || 0) || a.name.localeCompare(b.name, undefined, {numeric: true}))
-          .map(d => d.name);
-          
-        const dormsList = dormsSnap.docs
-          .map(d => d.data())
-          .sort((a, b) => (a.order || 0) - (b.order || 0) || a.name.localeCompare(b.name, undefined, {numeric: true}))
-          .map(d => d.name);
+        const classesList = classesSnap.docs.map(d => d.data().name);
+        const dormsList = dormsSnap.docs.map(d => d.data().name);
 
         renderPendingData();
         renderData(allStudents);
@@ -1288,12 +1226,10 @@
         if (classesList.length > 0) {
           const classSelect = document.getElementById('newStudentClass');
           classSelect.innerHTML = '<option value="">-- Sila Pilih --</option>' + classesList.map(c => `<option value="${c}">${c}</option>`).join('');
-          document.getElementById('editStudentClass').innerHTML = classSelect.innerHTML;
         }
         if (dormsList.length > 0) {
           const dormSelect = document.getElementById('newStudentDorm');
           dormSelect.innerHTML = '<option value="">-- Sila Pilih --</option>' + dormsList.map(d => `<option value="${d}">${d}</option>`).join('');
-          document.getElementById('editStudentDorm').innerHTML = dormSelect.innerHTML;
         }
       } catch (err) { alert("Ralat memuat data: " + err.message); }
       document.getElementById('loader').style.display = 'none';
@@ -1406,7 +1342,6 @@
             <div class="text-end ms-2">
               <span class="status-badge ${badgeCls} mb-2 d-inline-block">${s.status}</span><br>
               <button class="btn btn-sm btn-light border" onclick="showDetails('${s.name}'); event.stopPropagation();"><i class="fas fa-info-circle text-info"></i></button>
-              ${userRole === 'warden' ? `<button class="btn btn-sm btn-light border text-primary ms-1" onclick="bukaModalEdit('${s.name.replace(/'/g, "\\'")}'); event.stopPropagation();"><i class="fas fa-edit"></i></button>` : ''}
               ${userRole === 'warden' ? `<button class="btn btn-sm btn-light border text-danger ms-1" onclick="buangPelajar('${s.name.replace(/'/g, "\\'")}'); event.stopPropagation();"><i class="fas fa-trash-alt"></i></button>` : ''}
             </div>
           </div>
@@ -1482,8 +1417,6 @@
       let s = allStudents.find(x => x.name === name);
       if (!s) return;
       document.getElementById('d_name').innerText = s.name;
-      document.getElementById('d_gender').innerText = s.gender || '-';
-      document.getElementById('d_religion').innerText = s.religion || '-';
       document.getElementById('d_class').innerText = s.classroom;
       document.getElementById('d_block').innerText = s.block;
 
@@ -1663,7 +1596,7 @@
         var syncToast = document.getElementById('syncToast');
         syncToast.innerHTML = '<i class="fas fa-check-circle text-success me-2"></i> Berjaya dikemaskini.';
         syncToast.style.display = 'block'; setTimeout(() => { syncToast.style.display = 'none'; }, 4000);
-        
+
         loadDataServer();
       } catch (err) {
         alert("Gagal menghantar rekod: " + err.message);
@@ -1697,7 +1630,7 @@
         var syncToast = document.getElementById('syncToast');
         syncToast.innerHTML = '<i class="fas fa-info-circle text-info me-2"></i> Rekod ' + (isApproved ? 'disahkan' : 'ditolak');
         syncToast.style.display = 'block'; setTimeout(() => { syncToast.style.display = 'none'; }, 4000);
-        
+
         loadDataServer();
       } catch (err) {
         document.getElementById('savingToast').style.display = 'none';
@@ -1956,55 +1889,6 @@
       }
     }
 
-    function bukaModalEdit(nama) {
-      const student = allStudents.find(s => s.name === nama);
-      if (!student) return;
-      document.getElementById('editStudentDocId').value = student.docId || '';
-      document.getElementById('editStudentOriginalName').value = student.name;
-      document.getElementById('editStudentName').value = student.name;
-      document.getElementById('editStudentClass').value = student.classroom;
-      document.getElementById('editStudentGender').value = student.gender || 'Lelaki';
-      document.getElementById('editStudentReligion').value = student.religion || 'Islam';
-      document.getElementById('editStudentDorm').value = student.block;
-      editModal.show();
-    }
-
-    async function kemaskiniPelajar() {
-      const docId = document.getElementById('editStudentDocId').value;
-      const nama = document.getElementById('editStudentName').value.trim();
-      const kelas = document.getElementById('editStudentClass').value.trim();
-      const gender = document.getElementById('editStudentGender').value;
-      const religion = document.getElementById('editStudentReligion').value;
-      const dorm = document.getElementById('editStudentDorm').value.trim();
-
-      if (!nama || !kelas || !gender || !religion || !dorm) { alert("Sila isi semua maklumat."); return; }
-
-      document.getElementById('savingToast').style.display = 'block';
-      editModal.hide();
-
-      try {
-        if (docId) {
-          await db.collection("students").doc(docId).update({
-            name: nama,
-            classroom: kelas,
-            gender: gender,
-            religion: religion,
-            block: dorm
-          });
-        }
-        
-        document.getElementById('savingToast').style.display = 'none';
-        var syncToast = document.getElementById('syncToast');
-        syncToast.innerHTML = '<i class="fas fa-check-circle text-success me-2"></i> Maklumat pelajar dikemaskini.';
-        syncToast.style.display = 'block'; setTimeout(() => { syncToast.style.display = 'none'; }, 4000);
-
-        loadDataServer();
-      } catch (err) {
-        document.getElementById('savingToast').style.display = 'none';
-        alert("Gagal mengemaskini pelajar: " + err.message);
-      }
-    }
-
     // ==========================================
     // FUNGSI ROUTING & REKOD DISIPLIN
     // ==========================================
@@ -2043,8 +1927,7 @@
       filterList();
     }
 
-    async function bukaLaporan() {
-      await fetchMeritLogs();
+    function bukaLaporan() {
       document.getElementById('mainMenuView').style.display = 'none';
       document.getElementById('attendanceView').style.display = 'none';
       document.getElementById('disciplineView').style.display = 'none';
@@ -2055,8 +1938,6 @@
       document.getElementById('btnBackMenu').style.display = 'block';
 
       renderReportIndividu();
-      renderReportDorm();
-      renderReportSejarah(1);
     }
 
     async function bukaDisiplin(jenis) {
@@ -3208,46 +3089,35 @@ JUMLAH KEHADIRAN KE SEKOLAH     : ${data.kehadiranSekolah}`;
     }
 
     let currentHistoryStudent = "";
-    let currentStudentLogs = [];
-    
-    async function viewStudentHistory(studentName, page = 1) {
-      if (currentHistoryStudent !== studentName || page === 1) {
-        await fetchMeritLogs();
-        currentHistoryStudent = studentName;
-        const monthFilter = document.getElementById('filterMonth') ? document.getElementById('filterMonth').value : "all";
-        
-        let studentLogs = allMeritLogs.filter(log => {
-          if (log.name !== studentName) return false;
-          if (monthFilter !== "all") {
-            let d = new Date(log.timestamp);
-            if ((d.getMonth() + 1).toString() !== monthFilter) return false;
-          }
-          return true;
-        });
-        currentStudentLogs = [...studentLogs].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-      }
-      
+    async function viewStudentHistory(studentName) {
+      await fetchMeritLogs();
+      currentHistoryStudent = studentName;
       document.getElementById('studentHistoryModalTitle').innerText = "Rekod: " + studentName;
       const container = document.getElementById('studentHistoryContainer');
-      
+      const monthFilter = document.getElementById('filterMonth') ? document.getElementById('filterMonth').value : "all";
+
+      let studentLogs = allMeritLogs.filter(log => {
+        if (log.name !== studentName) return false;
+        if (monthFilter !== "all") {
+          let d = new Date(log.timestamp);
+          if ((d.getMonth() + 1).toString() !== monthFilter) return false;
+        }
+        return true;
+      });
+
       const btnPrint = document.getElementById('btnPrintSalahLaku');
       if (btnPrint) {
-        let hasSalahLaku = currentStudentLogs.some(log => log.type === 'Demerit');
+        let hasSalahLaku = studentLogs.some(log => log.type === 'Demerit');
         btnPrint.style.display = hasSalahLaku ? 'block' : 'none';
       }
 
-      if (!currentStudentLogs || currentStudentLogs.length === 0) {
+      if (!studentLogs || studentLogs.length === 0) {
         container.innerHTML = '<div class="text-center text-muted p-4"><i class="fas fa-folder-open fa-3x mb-2"></i><br>Tiada rekod disiplin setakat ini.</div>';
       } else {
-        const ITEMS_PER_PAGE = 10;
-        const totalPages = Math.ceil(currentStudentLogs.length / ITEMS_PER_PAGE);
-        const startIndex = (page - 1) * ITEMS_PER_PAGE;
-        const endIndex = startIndex + ITEMS_PER_PAGE;
-        const pageLogs = currentStudentLogs.slice(startIndex, endIndex);
-        
+        let sortedLogs = [...studentLogs].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
         let html = '<div class="list-group list-group-flush">';
 
-        pageLogs.forEach(log => {
+        sortedLogs.forEach(log => {
           let d = new Date(log.timestamp);
           let timeStr = d.toLocaleDateString('ms-MY') + " " + d.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' });
           let typeIcon = log.type === 'Merit' ? '<i class="fas fa-star text-success"></i>' : '<i class="fas fa-exclamation-triangle text-danger"></i>';
@@ -3270,34 +3140,14 @@ JUMLAH KEHADIRAN KE SEKOLAH     : ${data.kehadiranSekolah}`;
           `;
         });
         html += '</div>';
-
-        if (totalPages > 1) {
-          html += `<div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">`;
-          if (page > 1) {
-            html += `<button type="button" class="btn btn-sm btn-outline-primary" onclick="viewStudentHistory('${studentName}', ${page - 1})"><i class="fas fa-chevron-left"></i> Sblm</button>`;
-          } else {
-            html += `<div></div>`;
-          }
-          html += `<span class="text-muted small fw-bold">Halaman ${page} drpd ${totalPages}</span>`;
-          if (page < totalPages) {
-            html += `<button type="button" class="btn btn-sm btn-outline-primary" onclick="viewStudentHistory('${studentName}', ${page + 1})">Strusnya <i class="fas fa-chevron-right"></i></button>`;
-          } else {
-            html += `<div></div>`;
-          }
-          html += `</div>`;
-        }
-
         container.innerHTML = html;
       }
 
-      let modalEl = document.getElementById('studentHistoryModal');
-      let myModal = bootstrap.Modal.getInstance(modalEl);
-      if (!myModal) myModal = new bootstrap.Modal(modalEl);
+      let myModal = new bootstrap.Modal(document.getElementById('studentHistoryModal'));
       myModal.show();
     }
 
-    function renderReportSejarah(page = 1) {
-      page = Number(page) || 1;
+    function renderReportSejarah() {
       const container = document.getElementById('historyLogContainer');
       const monthFilter = document.getElementById('filterMonth') ? document.getElementById('filterMonth').value : "all";
       const yearFilter = document.getElementById('filterYear') ? document.getElementById('filterYear').value : "all";
@@ -3327,15 +3177,9 @@ JUMLAH KEHADIRAN KE SEKOLAH     : ${data.kehadiranSekolah}`;
       }
 
       let sortedLogs = [...filteredLogs].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-      
-      const ITEMS_PER_PAGE = 10;
-      const totalPages = Math.ceil(sortedLogs.length / ITEMS_PER_PAGE);
-      const startIndex = (page - 1) * ITEMS_PER_PAGE;
-      const endIndex = startIndex + ITEMS_PER_PAGE;
-      const pageLogs = sortedLogs.slice(startIndex, endIndex);
 
       let html = '<div class="list-group">';
-      pageLogs.forEach(log => {
+      sortedLogs.forEach(log => {
         let d = new Date(log.timestamp);
         let timeStr = d.toLocaleDateString('ms-MY') + " " + d.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' });
 
@@ -3360,23 +3204,6 @@ JUMLAH KEHADIRAN KE SEKOLAH     : ${data.kehadiranSekolah}`;
         `;
       });
       html += '</div>';
-
-      if (totalPages > 1) {
-        html += `<div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">`;
-        if (page > 1) {
-          html += `<button type="button" class="btn btn-sm btn-outline-primary" onclick="renderReportSejarah(${Number(page) - 1})"><i class="fas fa-chevron-left"></i> Sblm</button>`;
-        } else {
-          html += `<div></div>`;
-        }
-        html += `<span class="text-muted small fw-bold">Halaman ${page} drpd ${totalPages}</span>`;
-        if (page < totalPages) {
-          html += `<button type="button" class="btn btn-sm btn-outline-primary" onclick="renderReportSejarah(${Number(page) + 1})">Strusnya <i class="fas fa-chevron-right"></i></button>`;
-        } else {
-          html += `<div></div>`;
-        }
-        html += `</div>`;
-      }
-
       container.innerHTML = html;
     }
   </script>
