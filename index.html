@@ -927,7 +927,10 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <p class="mb-1 text-muted small">Kelas / Blok (Dorm)</p>
+          <p class="mb-1 text-muted small">Jantina / Agama</p>
+          <p class="fw-bold"><span id="d_gender"></span> | <span id="d_religion"></span></p>
+
+          <p class="mb-1 text-muted small mt-3">Kelas / Blok (Dorm)</p>
           <p class="fw-bold"><span id="d_class"></span> | <span id="d_block"></span></p>
 
           <p class="mb-1 text-muted small mt-3">Status Terkini</p>
@@ -1479,6 +1482,8 @@
       let s = allStudents.find(x => x.name === name);
       if (!s) return;
       document.getElementById('d_name').innerText = s.name;
+      document.getElementById('d_gender').innerText = s.gender || '-';
+      document.getElementById('d_religion').innerText = s.religion || '-';
       document.getElementById('d_class').innerText = s.classroom;
       document.getElementById('d_block').innerText = s.block;
 
