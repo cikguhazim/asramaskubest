@@ -375,25 +375,35 @@
 
         <div class="mb-3" id="disc_individu_group">
           <label class="form-label fw-bold">Nama Pelajar (Carian)</label>
-          <div class="dropdown mb-2">
-            <button class="btn btn-sm btn-outline-primary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown">
-              <i class="fas fa-users me-1"></i> Pilih Pukal (Pelajar Hadir)
-            </button>
-            <ul class="dropdown-menu w-100 shadow-sm">
-              <li><a class="dropdown-item fw-bold text-success" href="#" onclick="selectAllPresentStudents('all')">✅ Pilih Semua (Hadir)</a></li>
-              <li><hr class="dropdown-divider"></li>
-              <li><h6 class="dropdown-header text-primary">Mengikut Jantina</h6></li>
-              <li><a class="dropdown-item" href="#" onclick="selectAllPresentStudents('Lelaki')">Pilih Semua Lelaki</a></li>
-              <li><a class="dropdown-item" href="#" onclick="selectAllPresentStudents('Perempuan')">Pilih Semua Perempuan</a></li>
-              <li><hr class="dropdown-divider"></li>
-              <li><h6 class="dropdown-header text-primary">Mengikut Jantina & Agama</h6></li>
-              <li><a class="dropdown-item" href="#" onclick="selectAllPresentStudents('Lelaki', 'Islam')">Lelaki (Islam)</a></li>
-              <li><a class="dropdown-item" href="#" onclick="selectAllPresentStudents('Perempuan', 'Islam')">Perempuan (Islam)</a></li>
-              <li><a class="dropdown-item" href="#" onclick="selectAllPresentStudents('Lelaki', 'Bukan Islam')">Lelaki (Bukan Islam)</a></li>
-              <li><a class="dropdown-item" href="#" onclick="selectAllPresentStudents('Perempuan', 'Bukan Islam')">Perempuan (Bukan Islam)</a></li>
-              <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item text-danger fw-bold" href="#" onclick="clearDisciplineSelection()"><i class="fas fa-times me-1"></i> Nyahpilih Semua</a></li>
-            </ul>
+          <div class="border rounded p-2 mb-2" style="background-color: #f8f9fa;">
+            <p class="mb-1 small fw-bold text-muted">Penapis Pukal (Pelajar Hadir Sahaja)</p>
+            <div class="row g-1 mb-2">
+              <div class="col-4">
+                <select class="form-select form-select-sm" id="bulk_tahap">
+                  <option value="all">Semua Tahap</option>
+                  <option value="1">Tahap 1 (Ting. 1-3)</option>
+                  <option value="2">Tahap 2 (Ting. 4-6)</option>
+                </select>
+              </div>
+              <div class="col-4">
+                <select class="form-select form-select-sm" id="bulk_jantina">
+                  <option value="all">Semua Jantina</option>
+                  <option value="Lelaki">Lelaki</option>
+                  <option value="Perempuan">Perempuan</option>
+                </select>
+              </div>
+              <div class="col-4">
+                <select class="form-select form-select-sm" id="bulk_agama">
+                  <option value="all">Semua Agama</option>
+                  <option value="Islam">Islam</option>
+                  <option value="Bukan Islam">Bukan Islam</option>
+                </select>
+              </div>
+            </div>
+            <div class="d-flex gap-2">
+              <button type="button" class="btn btn-sm btn-primary flex-fill fw-bold" onclick="applyCustomBulkSelection()"><i class="fas fa-check-double me-1"></i> Pilih Pelajar</button>
+              <button type="button" class="btn btn-sm btn-outline-danger fw-bold" onclick="clearDisciplineSelection()"><i class="fas fa-times me-1"></i> Nyahpilih</button>
+            </div>
           </div>
           <input type="text" id="disc_search" class="form-control mb-2" placeholder="Cari nama..."
             onkeyup="filterDisciplineStudents()">
@@ -2069,12 +2079,27 @@
       }
     }
 
-    function selectAllPresentStudents(genderFilter, religionFilter = 'all') {
+    function applyCustomBulkSelection() {
+      const tahap = document.getElementById('bulk_tahap').value;
+      const gender = document.getElementById('bulk_jantina').value;
+      const religion = document.getElementById('bulk_agama').value;
+
       const presentStudents = allStudents.filter(s => s.status === "Masuk");
       presentStudents.forEach(s => {
-        let genderMatch = genderFilter === 'all' || (s.gender && s.gender.toLowerCase() === genderFilter.toLowerCase());
-        let religionMatch = religionFilter === 'all' || (s.religion && s.religion.toLowerCase() === religionFilter.toLowerCase());
-        if (genderMatch && religionMatch) {
+        let genderMatch = (gender === 'all' || (s.gender && s.gender.toLowerCase() === gender.toLowerCase()));
+        let religionMatch = (religion === 'all' || (s.religion && s.religion.toLowerCase() === religion.toLowerCase()));
+        
+        let tahapMatch = true;
+        if (tahap !== 'all' && s.classroom) {
+          const firstChar = String(s.classroom).trim().charAt(0);
+          if (tahap === '1') {
+            tahapMatch = ['1', '2', '3', 'P'].includes(firstChar); // Assuming P (Peralihan) is Tahap 1 if exists
+          } else if (tahap === '2') {
+            tahapMatch = ['4', '5', '6'].includes(firstChar);
+          }
+        }
+
+        if (genderMatch && religionMatch && tahapMatch) {
           disc_selectedStudents.add(s.name);
         }
       });
