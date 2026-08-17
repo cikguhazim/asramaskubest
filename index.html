@@ -17,6 +17,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 
   <style>
     /* ============================================================
@@ -4287,11 +4288,13 @@ JUMLAH KEHADIRAN KE SEKOLAH     : ${data.kehadiranSekolah}`;
           db.collection("classes").get(),
           db.collection("dorms").get()
         ]);
-        currentClassesDocs = cSnap.docs.map(d => ({ id: d.id, name: d.data().name }));
-        currentDormsDocs = dSnap.docs.map(d => ({ id: d.id, name: d.data().name }));
+        currentClassesDocs = cSnap.docs.map(d => ({ id: d.id, name: d.data().name, order: d.data().order || 9999 }));
+        currentDormsDocs = dSnap.docs.map(d => ({ id: d.id, name: d.data().name, order: d.data().order || 9999 }));
         
-        const classKeywordOrder = ['NILAM', 'DELIMA', 'MUTIARA', 'ZAMRUD'];
         currentClassesDocs.sort((a, b) => {
+          if (a.order !== 9999 || b.order !== 9999) return a.order - b.order;
+          
+          const classKeywordOrder = ['NILAM', 'DELIMA', 'MUTIARA', 'ZAMRUD'];
           const numA = parseInt(a.name) || 0;
           const numB = parseInt(b.name) || 0;
           if (numA !== numB) return numA - numB;
@@ -4303,8 +4306,10 @@ JUMLAH KEHADIRAN KE SEKOLAH     : ${data.kehadiranSekolah}`;
           return a.name.localeCompare(b.name, undefined, {numeric: true, sensitivity: 'base'});
         });
 
-        const dormExactOrder = ['ALAM (L)', 'BAYU (L)', 'CITRA (L)', 'DAMAI (L)', 'EMBUN (L)', 'ANGIN (P)', 'BULAN (P)', 'CAHAYA (P)', 'DANAU (P)', 'EMBUN (P)', 'FLORA (P)'];
         currentDormsDocs.sort((a, b) => {
+          if (a.order !== 9999 || b.order !== 9999) return a.order - b.order;
+
+          const dormExactOrder = ['ALAM (L)', 'BAYU (L)', 'CITRA (L)', 'DAMAI (L)', 'EMBUN (L)', 'ANGIN (P)', 'BULAN (P)', 'CAHAYA (P)', 'DANAU (P)', 'EMBUN (P)', 'FLORA (P)'];
           let idxA = dormExactOrder.findIndex(d => d.replace(/\s+/g, '').toUpperCase() === a.name.replace(/\s+/g, '').toUpperCase());
           let idxB = dormExactOrder.findIndex(d => d.replace(/\s+/g, '').toUpperCase() === b.name.replace(/\s+/g, '').toUpperCase());
           idxA = idxA === -1 ? 999 : idxA;
@@ -4317,6 +4322,7 @@ JUMLAH KEHADIRAN KE SEKOLAH     : ${data.kehadiranSekolah}`;
       }
     }
 
+    let kelasSortable = null;
     async function renderKelasSettingList() {
       await loadTetapanConfigs();
       const container = document.getElementById('kelasSettingList');
@@ -4324,15 +4330,38 @@ JUMLAH KEHADIRAN KE SEKOLAH     : ${data.kehadiranSekolah}`;
         container.innerHTML = '<div class="text-center text-muted small p-2">Tiada kelas didaftarkan.</div>';
         return;
       }
-      let html = '<ul class="list-group list-group-flush">';
+      let html = '<ul class="list-group list-group-flush" id="sortableKelasList">';
       currentClassesDocs.forEach(c => {
-        html += `<li class="list-group-item d-flex justify-content-between align-items-center py-1 px-2 border-0 border-bottom">
-          <span class="small fw-bold">${c.name}</span>
+        html += `<li class="list-group-item d-flex justify-content-between align-items-center py-1 px-2 border-0 border-bottom" data-id="${c.id}">
+          <div class="d-flex align-items-center">
+            <i class="fas fa-grip-vertical text-muted me-3" style="cursor: grab;"></i>
+            <span class="small fw-bold">${c.name}</span>
+          </div>
           <button class="btn btn-sm text-danger" onclick="padamKelas('${c.id}')"><i class="fas fa-trash-alt"></i></button>
         </li>`;
       });
       html += '</ul>';
       container.innerHTML = html;
+
+      const ul = document.getElementById('sortableKelasList');
+      if (kelasSortable) kelasSortable.destroy();
+      kelasSortable = Sortable.create(ul, {
+        animation: 150,
+        handle: '.fa-grip-vertical',
+        onEnd: async function () {
+          const items = ul.querySelectorAll('li');
+          let batch = db.batch();
+          items.forEach((item, index) => {
+            const id = item.getAttribute('data-id');
+            const ref = db.collection('classes').doc(id);
+            batch.update(ref, { order: index });
+          });
+          try {
+            await batch.commit();
+            loadDataServer(); // sync
+          } catch(err) { alert("Ralat susunan: " + err.message); }
+        }
+      });
     }
 
     async function tambahKelas() {
@@ -4357,6 +4386,7 @@ JUMLAH KEHADIRAN KE SEKOLAH     : ${data.kehadiranSekolah}`;
       } catch (err) { alert(err.message); }
     }
 
+    let dormSortable = null;
     async function renderDormSettingList() {
       await loadTetapanConfigs();
       const container = document.getElementById('dormSettingList');
@@ -4364,15 +4394,38 @@ JUMLAH KEHADIRAN KE SEKOLAH     : ${data.kehadiranSekolah}`;
         container.innerHTML = '<div class="text-center text-muted small p-2">Tiada bilik didaftarkan.</div>';
         return;
       }
-      let html = '<ul class="list-group list-group-flush">';
+      let html = '<ul class="list-group list-group-flush" id="sortableDormList">';
       currentDormsDocs.forEach(d => {
-        html += `<li class="list-group-item d-flex justify-content-between align-items-center py-1 px-2 border-0 border-bottom">
-          <span class="small fw-bold">${d.name}</span>
+        html += `<li class="list-group-item d-flex justify-content-between align-items-center py-1 px-2 border-0 border-bottom" data-id="${d.id}">
+          <div class="d-flex align-items-center">
+            <i class="fas fa-grip-vertical text-muted me-3" style="cursor: grab;"></i>
+            <span class="small fw-bold">${d.name}</span>
+          </div>
           <button class="btn btn-sm text-danger" onclick="padamDorm('${d.id}')"><i class="fas fa-trash-alt"></i></button>
         </li>`;
       });
       html += '</ul>';
       container.innerHTML = html;
+
+      const ul = document.getElementById('sortableDormList');
+      if (dormSortable) dormSortable.destroy();
+      dormSortable = Sortable.create(ul, {
+        animation: 150,
+        handle: '.fa-grip-vertical',
+        onEnd: async function () {
+          const items = ul.querySelectorAll('li');
+          let batch = db.batch();
+          items.forEach((item, index) => {
+            const id = item.getAttribute('data-id');
+            const ref = db.collection('dorms').doc(id);
+            batch.update(ref, { order: index });
+          });
+          try {
+            await batch.commit();
+            loadDataServer(); // sync
+          } catch(err) { alert("Ralat susunan: " + err.message); }
+        }
+      });
     }
 
     async function tambahDorm() {
@@ -4399,10 +4452,10 @@ JUMLAH KEHADIRAN KE SEKOLAH     : ${data.kehadiranSekolah}`;
 
     // -- Arkib Data --
     async function arkibDataExcel() {
-      if (!allStudents || allStudents.length === 0) {
-        alert("Tiada data untuk diarkib."); return;
-      }
       try {
+        if (!allStudents || allStudents.length === 0) {
+          alert("Tiada data untuk diarkib."); return;
+        }
         Swal.fire({ title: 'Menjana Arkib...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
         await fetchMeritLogs();
         await fetchAktivitiLogs();
@@ -4450,7 +4503,8 @@ JUMLAH KEHADIRAN KE SEKOLAH     : ${data.kehadiranSekolah}`;
         XLSX.writeFile(wb, "Arkib_Asrama_" + new Date().toISOString().split('T')[0] + ".xlsx");
         Swal.close();
       } catch (err) {
-        Swal.fire('Ralat', err.message, 'error');
+        alert("Arkib Error Failsafe: " + err.message + "\n" + err.stack);
+        if (typeof Swal !== 'undefined') Swal.fire('Ralat', err.message, 'error');
       }
     }
 
@@ -4464,67 +4518,72 @@ JUMLAH KEHADIRAN KE SEKOLAH     : ${data.kehadiranSekolah}`;
     }
 
     async function muatNaikExcel() {
-      const fileInput = document.getElementById('excelUploadInput');
-      if (!fileInput.files.length) { alert("Sila pilih fail Excel."); return; }
+      try {
+        const fileInput = document.getElementById('excelUploadInput');
+        if (!fileInput.files.length) { alert("Sila pilih fail Excel."); return; }
 
-      const file = fileInput.files[0];
-      const reader = new FileReader();
+        const file = fileInput.files[0];
+        const reader = new FileReader();
 
-      reader.onload = async (e) => {
-        try {
-          const data = new Uint8Array(e.target.result);
-          const workbook = XLSX.read(data, { type: 'array' });
-          const firstSheetName = workbook.SheetNames[0];
-          const worksheet = workbook.Sheets[firstSheetName];
-          const json = XLSX.utils.sheet_to_json(worksheet);
+        reader.onload = async (e) => {
+          try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const firstSheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[firstSheetName];
+            const json = XLSX.utils.sheet_to_json(worksheet);
 
-          if (json.length === 0) { alert("Fail Excel kosong."); return; }
+            if (json.length === 0) { alert("Fail Excel kosong."); return; }
 
-          Swal.fire({ title: 'Memuat Naik...', text: 'Sila tunggu...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            Swal.fire({ title: 'Memuat Naik...', text: 'Sila tunggu...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
-          let batch = db.batch();
-          let count = 0;
-          let addedNames = new Set();
-          allStudents.forEach(s => addedNames.add(s.name.toUpperCase()));
+            let batch = db.batch();
+            let count = 0;
+            let addedNames = new Set();
+            allStudents.forEach(s => addedNames.add(s.name.toUpperCase()));
 
-          for (let row of json) {
-            let nama = row["Nama"] ? String(row["Nama"]).trim().toUpperCase() : "";
-            if (!nama || addedNames.has(nama)) continue;
+            for (let row of json) {
+              let nama = row["Nama"] ? String(row["Nama"]).trim().toUpperCase() : "";
+              if (!nama || addedNames.has(nama)) continue;
 
-            let newStudent = {
-              name: nama,
-              classroom: row["Kelas"] ? String(row["Kelas"]).trim().toUpperCase() : "",
-              gender: row["Jantina"] ? String(row["Jantina"]).trim() : "Lelaki",
-              religion: row["Agama"] ? String(row["Agama"]).trim() : "Islam",
-              block: row["Bilik"] ? String(row["Bilik"]).trim().toUpperCase() : "",
-              status: "Masuk",
-              meritPoints: 0,
-              createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            };
+              let newStudent = {
+                name: nama,
+                classroom: row["Kelas"] ? String(row["Kelas"]).trim().toUpperCase() : "",
+                gender: row["Jantina"] ? String(row["Jantina"]).trim() : "Lelaki",
+                religion: row["Agama"] ? String(row["Agama"]).trim() : "Islam",
+                block: row["Bilik"] ? String(row["Bilik"]).trim().toUpperCase() : "",
+                status: "Masuk",
+                meritPoints: 0,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+              };
 
-            const ref = db.collection("students").doc();
-            batch.set(ref, newStudent);
-            count++;
-            addedNames.add(nama);
+              const ref = db.collection("students").doc();
+              batch.set(ref, newStudent);
+              count++;
+              addedNames.add(nama);
 
-            if (count % 450 === 0) {
-              await batch.commit();
-              batch = db.batch();
+              if (count % 450 === 0) {
+                await batch.commit();
+                batch = db.batch();
+              }
             }
-          }
 
-          if (count > 0 || (count % 450 !== 0)) {
-            await batch.commit();
-          }
+            if (count > 0 || (count % 450 !== 0)) {
+              await batch.commit();
+            }
 
-          fileInput.value = '';
-          await loadDataServer();
-          Swal.fire('Berjaya', count + ' pelajar telah ditambah.', 'success');
-        } catch (err) {
-          Swal.fire('Ralat', err.message, 'error');
-        }
-      };
-      reader.readAsArrayBuffer(file);
+            fileInput.value = '';
+            await loadDataServer();
+            Swal.fire('Berjaya', count + ' pelajar telah ditambah.', 'success');
+          } catch (err) {
+            alert("Muat Naik Error Failsafe: " + err.message + "\n" + err.stack);
+            if (typeof Swal !== 'undefined') Swal.fire('Ralat', err.message, 'error');
+          }
+        };
+        reader.readAsArrayBuffer(file);
+      } catch (err) {
+        alert("Muat Naik Init Error Failsafe: " + err.message + "\n" + err.stack);
+      }
     }
 
     let modalPadamInst = null;
