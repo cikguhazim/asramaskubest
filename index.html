@@ -4153,13 +4153,27 @@ JUMLAH KEHADIRAN KE SEKOLAH     : ${data.kehadiranSekolah}`;
       html += '</div>';
 
       if (totalPages > 1) {
-        html += `
-          <div class="d-flex justify-content-between align-items-center mt-3 p-2">
-            <button class="btn btn-sm btn-outline-primary" onclick="changeHistoryPage(-1)" ${currentHistoryPage === 1 ? 'disabled' : ''}>&larr; Sblm</button>
-            <span class="text-muted small">Muka ${currentHistoryPage} / ${totalPages}</span>
-            <button class="btn btn-sm btn-outline-primary" onclick="changeHistoryPage(1)" ${currentHistoryPage === totalPages ? 'disabled' : ''}>Seterus &rarr;</button>
-          </div>
-        `;
+        html += '<nav aria-label="Page navigation" class="mt-4"><ul class="pagination pagination-sm justify-content-center mb-0 shadow-sm">';
+        html += '<li class="page-item ' + (currentHistoryPage === 1 ? 'disabled' : '') + '"><a class="page-link text-dark" href="javascript:void(0)" onclick="changeHistoryPage(-1)">&lsaquo; Back</a></li>';
+        let startP = Math.max(1, currentHistoryPage - 2);
+        let endP = Math.min(totalPages, currentHistoryPage + 2);
+        if (startP > 1) {
+          html += '<li class="page-item"><a class="page-link text-dark" href="javascript:void(0)" onclick="goToHistoryPage(1)">1</a></li>';
+          if (startP > 2) html += '<li class="page-item disabled"><span class="page-link text-muted">...</span></li>';
+        }
+        for (let p = startP; p <= endP; p++) {
+          if (p === currentHistoryPage) {
+            html += '<li class="page-item active" aria-current="page"><span class="page-link bg-dark text-white border-dark">' + p + '</span></li>';
+          } else {
+            html += '<li class="page-item"><a class="page-link text-dark" href="javascript:void(0)" onclick="goToHistoryPage(' + p + ')">' + p + '</a></li>';
+          }
+        }
+        if (endP < totalPages) {
+          if (endP < totalPages - 1) html += '<li class="page-item disabled"><span class="page-link text-muted">...</span></li>';
+          html += '<li class="page-item"><a class="page-link text-dark" href="javascript:void(0)" onclick="goToHistoryPage(' + totalPages + ')">' + totalPages + '</a></li>';
+        }
+        html += '<li class="page-item ' + (currentHistoryPage === totalPages ? 'disabled' : '') + '"><a class="page-link text-dark" href="javascript:void(0)" onclick="changeHistoryPage(1)">Next &rsaquo;</a></li>';
+        html += '</ul></nav>';
       }
 
       container.innerHTML = html;
@@ -4169,11 +4183,17 @@ JUMLAH KEHADIRAN KE SEKOLAH     : ${data.kehadiranSekolah}`;
       currentHistoryPage += dir;
       renderStudentHistoryPage();
     }
+    
+    function goToHistoryPage(page) {
+      currentHistoryPage = page;
+      renderStudentHistoryPage();
+    }
 
     let currentSejarahPage = 1;
     let currentFilteredSejarahLogs = [];
 
-    function renderReportSejarah(resetPage = true) {
+    async function renderReportSejarah(resetPage = true) {
+      await fetchMeritLogs();
       const container = document.getElementById('historyLogContainer');
       const monthFilter = document.getElementById('filterMonth') ? document.getElementById('filterMonth').value : "all";
       const yearFilter = document.getElementById('filterYear') ? document.getElementById('filterYear').value : "all";
@@ -4240,13 +4260,27 @@ JUMLAH KEHADIRAN KE SEKOLAH     : ${data.kehadiranSekolah}`;
       html += '</div>';
 
       if (totalPages > 1) {
-        html += `
-          <div class="d-flex justify-content-between align-items-center mt-3 p-2 bg-white rounded shadow-sm border">
-            <button class="btn btn-sm btn-outline-primary" onclick="changeSejarahPage(-1)" ${currentSejarahPage === 1 ? 'disabled' : ''}>&larr; Sblm</button>
-            <span class="text-muted small">Muka ${currentSejarahPage} / ${totalPages}</span>
-            <button class="btn btn-sm btn-outline-primary" onclick="changeSejarahPage(1)" ${currentSejarahPage === totalPages ? 'disabled' : ''}>Seterus &rarr;</button>
-          </div>
-        `;
+        html += '<nav aria-label="Page navigation" class="mt-4"><ul class="pagination pagination-sm justify-content-center mb-0 shadow-sm">';
+        html += '<li class="page-item ' + (currentSejarahPage === 1 ? 'disabled' : '') + '"><a class="page-link text-dark" href="javascript:void(0)" onclick="changeSejarahPage(-1)">&lsaquo; Back</a></li>';
+        let startP = Math.max(1, currentSejarahPage - 2);
+        let endP = Math.min(totalPages, currentSejarahPage + 2);
+        if (startP > 1) {
+          html += '<li class="page-item"><a class="page-link text-dark" href="javascript:void(0)" onclick="goToSejarahPage(1)">1</a></li>';
+          if (startP > 2) html += '<li class="page-item disabled"><span class="page-link text-muted">...</span></li>';
+        }
+        for (let p = startP; p <= endP; p++) {
+          if (p === currentSejarahPage) {
+            html += '<li class="page-item active" aria-current="page"><span class="page-link bg-dark text-white border-dark">' + p + '</span></li>';
+          } else {
+            html += '<li class="page-item"><a class="page-link text-dark" href="javascript:void(0)" onclick="goToSejarahPage(' + p + ')">' + p + '</a></li>';
+          }
+        }
+        if (endP < totalPages) {
+          if (endP < totalPages - 1) html += '<li class="page-item disabled"><span class="page-link text-muted">...</span></li>';
+          html += '<li class="page-item"><a class="page-link text-dark" href="javascript:void(0)" onclick="goToSejarahPage(' + totalPages + ')">' + totalPages + '</a></li>';
+        }
+        html += '<li class="page-item ' + (currentSejarahPage === totalPages ? 'disabled' : '') + '"><a class="page-link text-dark" href="javascript:void(0)" onclick="changeSejarahPage(1)">Next &rsaquo;</a></li>';
+        html += '</ul></nav>';
       }
 
       container.innerHTML = html;
@@ -4254,6 +4288,11 @@ JUMLAH KEHADIRAN KE SEKOLAH     : ${data.kehadiranSekolah}`;
 
     function changeSejarahPage(dir) {
       currentSejarahPage += dir;
+      renderReportSejarah(false);
+    }
+
+    function goToSejarahPage(page) {
+      currentSejarahPage = page;
       renderReportSejarah(false);
     }
 
