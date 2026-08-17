@@ -1278,12 +1278,42 @@
 
         <div class="mb-3" id="akt_individu_group" style="display:none;">
           <label class="form-label">Nama Pelajar</label>
-          <div class="d-flex gap-2 mb-2">
-            <input type="text" id="akt_search" class="form-control" placeholder="🔍 Cari nama..."
-              onkeyup="filterAktivitiStudents()">
-            <button type="button" class="btn btn-outline-primary" onclick="selectAllAktivitiStudents()"
-              style="white-space: nowrap;">Pilih Semua</button>
+          <div class="bulk-filter-box">
+            <div class="bulk-label">Penapis Pukal — Pelajar Hadir Sahaja</div>
+            <div class="row g-1 mb-2">
+              <div class="col-4">
+                <select class="form-select form-select-sm" id="bulk_tahap_akt">
+                  <option value="all">Semua Tahap</option>
+                  <option value="1">Tahap 1 (1-3)</option>
+                  <option value="2">Tahap 2 (4-6)</option>
+                </select>
+              </div>
+              <div class="col-4">
+                <select class="form-select form-select-sm" id="bulk_jantina_akt">
+                  <option value="all">Semua Jantina</option>
+                  <option value="Lelaki">Lelaki</option>
+                  <option value="Perempuan">Perempuan</option>
+                </select>
+              </div>
+              <div class="col-4">
+                <select class="form-select form-select-sm" id="bulk_agama_akt">
+                  <option value="all">Semua Agama</option>
+                  <option value="Islam">Islam</option>
+                  <option value="Bukan Islam">Bukan Islam</option>
+                </select>
+              </div>
+            </div>
+            <div class="d-flex gap-2">
+              <button type="button" class="btn btn-sm btn-primary flex-fill fw-bold" onclick="applyCustomBulkSelectionAkt()">
+                <i class="fas fa-check-double me-1"></i> Pilih Pelajar
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-danger fw-bold" onclick="clearAktivitiSelection()">
+                <i class="fas fa-times me-1"></i> Nyahpilih
+              </button>
+            </div>
           </div>
+          <input type="text" id="akt_search" class="form-control mb-2" placeholder="🔍 Cari nama pelajar..."
+            onkeyup="filterAktivitiStudents()">
           <div id="akt_studentList" class="border rounded p-2"
             style="max-height: 200px; overflow-y: auto; background: #fafafa;">
             <!-- Student checkboxes injected here -->
@@ -3079,18 +3109,36 @@
       });
     }
 
-    function selectAllAktivitiStudents() {
-      const container = document.getElementById('akt_studentList');
-      const checkboxes = container.querySelectorAll('.form-check-input');
+    function applyCustomBulkSelectionAkt() {
+      const tahap = document.getElementById('bulk_tahap_akt').value;
+      const gender = document.getElementById('bulk_jantina_akt').value;
+      const religion = document.getElementById('bulk_agama_akt').value;
 
-      let allSelected = true;
-      checkboxes.forEach(chk => { if (!chk.checked) allSelected = false; });
+      const presentStudents = allStudents.filter(s => s.status === "Masuk");
+      presentStudents.forEach(s => {
+        let genderMatch = (gender === 'all' || (s.gender && s.gender.toLowerCase() === gender.toLowerCase()));
+        let religionMatch = (religion === 'all' || (s.religion && s.religion.toLowerCase() === religion.toLowerCase()));
+        
+        let tahapMatch = true;
+        if (tahap !== 'all' && s.classroom) {
+          const firstChar = String(s.classroom).trim().charAt(0);
+          if (tahap === '1') {
+            tahapMatch = ['1', '2', '3', 'P'].includes(firstChar);
+          } else if (tahap === '2') {
+            tahapMatch = ['4', '5', '6'].includes(firstChar);
+          }
+        }
 
-      checkboxes.forEach(chk => {
-        chk.checked = !allSelected;
-        if (!allSelected) akt_selectedStudents.add(chk.value);
-        else akt_selectedStudents.delete(chk.value);
+        if (genderMatch && religionMatch && tahapMatch) {
+          akt_selectedStudents.add(s.name);
+        }
       });
+      filterAktivitiStudents();
+    }
+
+    function clearAktivitiSelection() {
+      akt_selectedStudents.clear();
+      filterAktivitiStudents();
     }
 
     function compressAktImage() {
