@@ -1121,7 +1121,7 @@
       <div class="filter-bar">
         <div class="row g-2">
           <div class="col-12 col-md-4">
-            <input type="text" id="searchInput" class="form-control" placeholder="🔍  Cari nama, kelas, dorm..."
+            <input type="text" id="searchInput" class="form-control" placeholder="Cari nama, kelas, dorm..."
               onkeyup="filterList()">
           </div>
           <div class="col-12 col-md-4">
@@ -1238,7 +1238,7 @@
               </button>
             </div>
           </div>
-          <input type="text" id="disc_search" class="form-control mb-2" placeholder="🔍 Cari nama pelajar..."
+          <input type="text" id="disc_search" class="form-control mb-2" placeholder="Cari nama pelajar..."
             onkeyup="filterDisciplineStudents()">
           <div id="disc_studentList" class="border rounded p-2"
             style="max-height: 200px; overflow-y: auto; background: #fafafa;">
@@ -1399,7 +1399,7 @@
               </button>
             </div>
           </div>
-          <input type="text" id="akt_search" class="form-control mb-2" placeholder="🔍 Cari nama pelajar..."
+          <input type="text" id="akt_search" class="form-control mb-2" placeholder="Cari nama pelajar..."
             onkeyup="filterAktivitiStudents()">
           <div id="akt_studentList" class="border rounded p-2"
             style="max-height: 200px; overflow-y: auto; background: #fafafa;">
@@ -1479,16 +1479,16 @@
       <li class="nav-item" role="presentation">
         <button class="nav-link active" id="tab-individu" data-bs-toggle="tab"
           data-bs-target="#content-individu" type="button" role="tab" onclick="renderReportIndividu()">
-          🏆 Individu
+          <i class="fas fa-user-graduate me-1"></i> Individu
         </button>
       </li>
       <li class="nav-item" role="presentation">
         <button class="nav-link" id="tab-dorm" data-bs-toggle="tab" data-bs-target="#content-dorm" type="button"
-          role="tab" onclick="renderReportDorm()">🏠 Dorm</button>
+          role="tab" onclick="renderReportDorm()"><i class="fas fa-building me-1"></i> Dorm</button>
       </li>
       <li class="nav-item" role="presentation">
         <button class="nav-link" id="tab-sejarah" data-bs-toggle="tab" data-bs-target="#content-sejarah"
-          type="button" role="tab" onclick="renderReportSejarah()">📜 Sejarah</button>
+          type="button" role="tab" onclick="renderReportSejarah()"><i class="fas fa-history me-1"></i> Sejarah</button>
       </li>
     </ul>
 
@@ -1497,7 +1497,7 @@
       <div class="tab-pane fade show active" id="content-individu" role="tabpanel">
         <div class="mb-3">
           <input type="text" id="searchIndividu" class="form-control"
-            placeholder="🔍  Cari nama pelajar..." onkeyup="renderReportIndividu()">
+            placeholder="Cari nama pelajar..." onkeyup="renderReportIndividu()">
         </div>
         <div class="table-responsive">
           <table class="table table-hover align-middle">
