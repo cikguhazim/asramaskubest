@@ -1070,6 +1070,14 @@
                 </select>
               </div>
               <div class="col-6 col-md-4">
+                <label class="form-label small fw-bold mb-1">Status Keberadaan</label>
+                <select class="form-select form-select-sm" id="sn_status" onchange="renderSenaraiNama()">
+                  <option value="all">Semua Status</option>
+                  <option value="hadir">Hadir (Masuk)</option>
+                  <option value="tidak_hadir">Tidak Hadir (Keluar/Balik/Sakit)</option>
+                </select>
+              </div>
+              <div class="col-6 col-md-4">
                 <label class="form-label small fw-bold mb-1">Susunan</label>
                 <select class="form-select form-select-sm" id="sn_sort" onchange="renderSenaraiNama()">
                   <option value="az">A - Z</option>
@@ -2894,6 +2902,7 @@
       const agama = document.getElementById('sn_agama').value;
       const kelas = document.getElementById('sn_kelas').value;
       const dorm = document.getElementById('sn_dorm').value;
+      const statusKeberadaan = document.getElementById('sn_status').value;
       const sortOpt = document.getElementById('sn_sort').value;
       
       let filtered = allStudents.filter(s => {
@@ -2901,6 +2910,9 @@
         if (agama !== 'all' && s.religion !== agama) return false;
         if (kelas !== 'all' && s.classroom !== kelas) return false;
         if (dorm !== 'all' && s.block !== dorm) return false;
+        
+        if (statusKeberadaan === 'hadir' && s.status !== 'Masuk') return false;
+        if (statusKeberadaan === 'tidak_hadir' && s.status === 'Masuk') return false;
         
         if (tahap !== 'all' && s.classroom) {
           let firstChar = s.classroom.charAt(0);
@@ -2939,6 +2951,7 @@
             <div class="text-end">
               <small class="badge bg-light text-dark border">${s.gender || '-'}</small>
               <small class="badge bg-light text-dark border">${s.religion || '-'}</small>
+              <small class="badge ${s.status === 'Masuk' ? 'bg-success' : 'bg-danger'} ms-1">${s.status || 'Masuk'}</small>
             </div>
           </div>
         `;
