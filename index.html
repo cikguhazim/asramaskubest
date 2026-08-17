@@ -2140,37 +2140,36 @@
         allStudents = studentsSnap.docs.map(d => ({ docId: d.id, ...d.data() }));
         allPending = pendingSnap.docs.map(d => ({ docId: d.id, ...d.data() }));
 
-        let classesList = classesSnap.docs.map(d => d.data().name);
-        let dormsList = dormsSnap.docs.map(d => d.data().name);
+        let classesObjs = classesSnap.docs.map(d => ({ name: d.data().name, order: d.data().order !== undefined ? d.data().order : 9999 }));
+        let dormsObjs = dormsSnap.docs.map(d => ({ name: d.data().name, order: d.data().order !== undefined ? d.data().order : 9999 }));
 
-        const classKeywordOrder = ['NILAM', 'DELIMA', 'MUTIARA', 'ZAMRUD'];
-        classesList.sort((a, b) => {
-          const numA = parseInt(a) || 0;
-          const numB = parseInt(b) || 0;
+        classesObjs.sort((a, b) => {
+          if (a.order !== 9999 || b.order !== 9999) return a.order - b.order;
+          const classKeywordOrder = ['NILAM', 'DELIMA', 'MUTIARA', 'ZAMRUD'];
+          const numA = parseInt(a.name) || 0;
+          const numB = parseInt(b.name) || 0;
           if (numA !== numB) return numA - numB;
-          
-          const idxA = classKeywordOrder.findIndex(w => a.toUpperCase().includes(w));
-          const idxB = classKeywordOrder.findIndex(w => b.toUpperCase().includes(w));
-          
+          const idxA = classKeywordOrder.findIndex(w => a.name.toUpperCase().includes(w));
+          const idxB = classKeywordOrder.findIndex(w => b.name.toUpperCase().includes(w));
           const finalIdxA = idxA === -1 ? 999 : idxA;
           const finalIdxB = idxB === -1 ? 999 : idxB;
           if (finalIdxA !== finalIdxB) return finalIdxA - finalIdxB;
-          
-          return a.localeCompare(b, undefined, {numeric: true, sensitivity: 'base'});
+          return a.name.localeCompare(b.name, undefined, {numeric: true, sensitivity: 'base'});
         });
 
-        const dormExactOrder = [
-          'ALAM (L)', 'BAYU (L)', 'CITRA (L)', 'DAMAI (L)', 'EMBUN (L)',
-          'ANGIN (P)', 'BULAN (P)', 'CAHAYA (P)', 'DANAU (P)', 'EMBUN (P)', 'FLORA (P)'
-        ];
-        dormsList.sort((a, b) => {
-          let idxA = dormExactOrder.findIndex(d => d.replace(/\s+/g, '').toUpperCase() === a.replace(/\s+/g, '').toUpperCase());
-          let idxB = dormExactOrder.findIndex(d => d.replace(/\s+/g, '').toUpperCase() === b.replace(/\s+/g, '').toUpperCase());
+        dormsObjs.sort((a, b) => {
+          if (a.order !== 9999 || b.order !== 9999) return a.order - b.order;
+          const dormExactOrder = ['ALAM (L)', 'BAYU (L)', 'CITRA (L)', 'DAMAI (L)', 'EMBUN (L)', 'ANGIN (P)', 'BULAN (P)', 'CAHAYA (P)', 'DANAU (P)', 'EMBUN (P)', 'FLORA (P)'];
+          let idxA = dormExactOrder.findIndex(d => d.replace(/\s+/g, '').toUpperCase() === a.name.replace(/\s+/g, '').toUpperCase());
+          let idxB = dormExactOrder.findIndex(d => d.replace(/\s+/g, '').toUpperCase() === b.name.replace(/\s+/g, '').toUpperCase());
           idxA = idxA === -1 ? 999 : idxA;
           idxB = idxB === -1 ? 999 : idxB;
           if (idxA !== idxB) return idxA - idxB;
-          return a.localeCompare(b, undefined, {numeric: true, sensitivity: 'base'});
+          return a.name.localeCompare(b.name, undefined, {numeric: true, sensitivity: 'base'});
         });
+        
+        let classesList = classesObjs.map(c => c.name);
+        let dormsList = dormsObjs.map(d => d.name);
 
         renderPendingData();
         renderData(allStudents);
@@ -4288,8 +4287,8 @@ JUMLAH KEHADIRAN KE SEKOLAH     : ${data.kehadiranSekolah}`;
           db.collection("classes").get(),
           db.collection("dorms").get()
         ]);
-        currentClassesDocs = cSnap.docs.map(d => ({ id: d.id, name: d.data().name, order: d.data().order || 9999 }));
-        currentDormsDocs = dSnap.docs.map(d => ({ id: d.id, name: d.data().name, order: d.data().order || 9999 }));
+        currentClassesDocs = cSnap.docs.map(d => ({ id: d.id, name: d.data().name, order: d.data().order !== undefined ? d.data().order : 9999 }));
+        currentDormsDocs = dSnap.docs.map(d => ({ id: d.id, name: d.data().name, order: d.data().order !== undefined ? d.data().order : 9999 }));
         
         currentClassesDocs.sort((a, b) => {
           if (a.order !== 9999 || b.order !== 9999) return a.order - b.order;
