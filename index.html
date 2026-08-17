@@ -1026,76 +1026,80 @@
 
     <!-- Attendance View -->
     <div id="senaraiNamaView" style="display:none;" class="view-section">
-      <div class="container py-4">
-        <h4 class="fw-bold mb-4" style="color: #1e293b;"><i class="fas fa-list-ul me-2"></i> Senarai Nama Murid</h4>
-        
-        <div class="card border-0 shadow-sm mb-4">
-          <div class="card-body">
-            <h6 class="fw-bold mb-3"><i class="fas fa-filter"></i> Tapisan Lanjutan</h6>
-            <div class="row g-2">
-              <div class="col-6 col-md-4">
-                <label class="form-label small fw-bold mb-1">Tahap</label>
-                <select class="form-select form-select-sm" id="sn_tahap" onchange="renderSenaraiNama()">
-                  <option value="all">Semua Tahap</option>
-                  <option value="1">Tahap 1 (1-3)</option>
-                  <option value="2">Tahap 2 (4-6)</option>
-                </select>
-              </div>
-              <div class="col-6 col-md-4">
-                <label class="form-label small fw-bold mb-1">Jantina</label>
-                <select class="form-select form-select-sm" id="sn_jantina" onchange="renderSenaraiNama()">
-                  <option value="all">Semua Jantina</option>
-                  <option value="Lelaki">Lelaki</option>
-                  <option value="Perempuan">Perempuan</option>
-                </select>
-              </div>
-              <div class="col-6 col-md-4">
-                <label class="form-label small fw-bold mb-1">Agama</label>
-                <select class="form-select form-select-sm" id="sn_agama" onchange="renderSenaraiNama()">
-                  <option value="all">Semua Agama</option>
-                  <option value="Islam">Islam</option>
-                  <option value="Bukan Islam">Bukan Islam</option>
-                </select>
-              </div>
-              <div class="col-6 col-md-4">
-                <label class="form-label small fw-bold mb-1">Kelas</label>
-                <select class="form-select form-select-sm" id="sn_kelas" onchange="renderSenaraiNama()">
-                  <option value="all">Semua Kelas</option>
-                </select>
-              </div>
-              <div class="col-6 col-md-4">
-                <label class="form-label small fw-bold mb-1">Dorm</label>
-                <select class="form-select form-select-sm" id="sn_dorm" onchange="renderSenaraiNama()">
-                  <option value="all">Semua Dorm</option>
-                </select>
-              </div>
-              <div class="col-6 col-md-4">
-                <label class="form-label small fw-bold mb-1">Status Keberadaan</label>
-                <select class="form-select form-select-sm" id="sn_status" onchange="renderSenaraiNama()">
-                  <option value="all">Semua Status</option>
-                  <option value="hadir">Hadir (Masuk)</option>
-                  <option value="tidak_hadir">Tidak Hadir (Keluar/Balik/Sakit)</option>
-                </select>
-              </div>
-              <div class="col-6 col-md-4">
-                <label class="form-label small fw-bold mb-1">Susunan</label>
-                <select class="form-select form-select-sm" id="sn_sort" onchange="renderSenaraiNama()">
-                  <option value="az">A - Z</option>
-                  <option value="za">Z - A</option>
-                  <option value="kelas">Mengikut Kelas</option>
-                  <option value="dorm">Mengikut Dorm</option>
-                </select>
-              </div>
-            </div>
+
+      <!-- Header -->
+      <div class="section-header mb-3">
+        <div class="section-icon" style="background:#fef3c7;">
+          <i class="fas fa-list-ul" style="color:#b45309;"></i>
+        </div>
+        <div>
+          <h1 style="font-size:1.05rem;">Senarai Nama Murid</h1>
+          <p class="text-muted mb-0" style="font-size:0.75rem;">Paparan dan tapisan rekod murid</p>
+        </div>
+      </div>
+
+      <!-- Filter Bar -->
+      <div class="filter-bar mb-3">
+        <p class="mb-2" style="font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; color:var(--clr-text-secondary);"><i class="fas fa-sliders-h me-1"></i> Tapisan Lanjutan</p>
+        <div class="row g-2">
+          <div class="col-6">
+            <select class="form-select form-select-sm" id="sn_tahap" onchange="renderSenaraiNama()">
+              <option value="all">Semua Tahap</option>
+              <option value="1">Tahap 1 (1-3)</option>
+              <option value="2">Tahap 2 (4-6)</option>
+            </select>
+          </div>
+          <div class="col-6">
+            <select class="form-select form-select-sm" id="sn_jantina" onchange="renderSenaraiNama()">
+              <option value="all">Semua Jantina</option>
+              <option value="Lelaki">Lelaki</option>
+              <option value="Perempuan">Perempuan</option>
+            </select>
+          </div>
+          <div class="col-6">
+            <select class="form-select form-select-sm" id="sn_agama" onchange="renderSenaraiNama()">
+              <option value="all">Semua Agama</option>
+              <option value="Islam">Islam</option>
+              <option value="Bukan Islam">Bukan Islam</option>
+            </select>
+          </div>
+          <div class="col-6">
+            <select class="form-select form-select-sm" id="sn_kelas" onchange="renderSenaraiNama()">
+              <option value="all">Semua Kelas</option>
+            </select>
+          </div>
+          <div class="col-6">
+            <select class="form-select form-select-sm" id="sn_dorm" onchange="renderSenaraiNama()">
+              <option value="all">Semua Dorm</option>
+            </select>
+          </div>
+          <div class="col-6">
+            <select class="form-select form-select-sm" id="sn_status" onchange="renderSenaraiNama()">
+              <option value="all">Semua Status</option>
+              <option value="hadir">Hadir (Masuk)</option>
+              <option value="tidak_hadir">Tidak Hadir</option>
+            </select>
+          </div>
+          <div class="col-12">
+            <select class="form-select form-select-sm" id="sn_sort" onchange="renderSenaraiNama()">
+              <option value="az">Susunan: A - Z</option>
+              <option value="za">Susunan: Z - A</option>
+              <option value="kelas">Susunan: Mengikut Kelas</option>
+              <option value="dorm">Susunan: Mengikut Dorm</option>
+            </select>
           </div>
         </div>
-
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <span class="badge bg-primary fs-6" id="sn_count">Jumlah Pelajar: 0</span>
-        </div>
-
-        <div id="sn_list_container"></div>
       </div>
+
+      <!-- Summary bar -->
+      <div class="stat-card p-3 mb-3 d-flex align-items-center justify-content-between">
+        <span style="font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--clr-text-secondary);">Jumlah Murid</span>
+        <span class="fw-bold" id="sn_count" style="font-size:1.1rem; color:var(--clr-primary);">0</span>
+      </div>
+
+      <!-- List -->
+      <div id="sn_list_container"></div>
+
     </div>
 
     <div id="attendanceView" style="display:none;" class="view-section">
@@ -2932,26 +2936,35 @@
         filtered.sort((a,b) => (a.block||'').localeCompare(b.block||'') || a.name.localeCompare(b.name));
       }
       
-      document.getElementById('sn_count').innerText = `Jumlah Pelajar: ${filtered.length}`;
+      document.getElementById('sn_count').innerText = filtered.length;
       
       let container = document.getElementById('sn_list_container');
       if (filtered.length === 0) {
-        container.innerHTML = '<div class="text-center text-muted p-4"><i class="fas fa-folder-open fa-3x mb-2"></i><br>Tiada rekod dijumpai.</div>';
+        container.innerHTML = '<div class="text-center text-muted p-4"><i class="fas fa-folder-open fa-2x mb-2 d-block"></i><small>Tiada rekod dijumpai.</small></div>';
         return;
       }
       
-      let html = '<div class="list-group shadow-sm">';
-      filtered.forEach(s => {
+      let html = '<div class="list-group list-group-flush stat-card overflow-hidden">';
+      filtered.forEach((s, i) => {
+        const statusColor = s.status === 'Masuk' ? 'var(--clr-success)' : '#dc3545';
+        const statusDot = `<span style="width:8px;height:8px;border-radius:50%;background:${statusColor};display:inline-block;flex-shrink:0;"></span>`;
+        const statusLabel = s.status || 'Masuk';
+        const border = i < filtered.length - 1 ? 'border-bottom:1px solid var(--clr-border);' : '';
         html += `
-          <div class="list-group-item py-2 px-3 d-flex justify-content-between align-items-center">
-            <div>
-              <h6 class="mb-0 fw-bold text-dark">${s.name}</h6>
-              <small class="text-muted"><i class="fas fa-chalkboard-teacher me-1"></i>${s.classroom || '-'} <span class="mx-1">|</span> <i class="fas fa-bed me-1"></i>${s.block || '-'}</small>
+          <div class="list-group-item border-0 py-3 px-3 d-flex align-items-center gap-3" style="${border}background:transparent;">
+            <div class="flex-grow-1 min-width-0">
+              <div class="fw-600" style="font-size:0.88rem;color:var(--clr-text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.name}</div>
+              <div class="mt-1 d-flex flex-wrap gap-2" style="font-size:0.72rem;color:var(--clr-text-muted);">
+                <span><i class="fas fa-chalkboard-teacher me-1"></i>${s.classroom || '-'}</span>
+                <span><i class="fas fa-bed me-1"></i>${s.block || '-'}</span>
+              </div>
             </div>
-            <div class="text-end">
-              <small class="badge bg-light text-dark border">${s.gender || '-'}</small>
-              <small class="badge bg-light text-dark border">${s.religion || '-'}</small>
-              <small class="badge ${s.status === 'Masuk' ? 'bg-success' : 'bg-danger'} ms-1">${s.status || 'Masuk'}</small>
+            <div class="d-flex flex-column align-items-end gap-1 flex-shrink-0">
+              <div class="d-flex align-items-center gap-1">${statusDot}<span style="font-size:0.7rem;color:${statusColor};font-weight:600;">${statusLabel}</span></div>
+              <div class="d-flex gap-1">
+                <span class="badge rounded-pill" style="font-size:0.65rem;background:#f1f5f9;color:#475569;font-weight:500;">${s.gender || '-'}</span>
+                <span class="badge rounded-pill" style="font-size:0.65rem;background:#f1f5f9;color:#475569;font-weight:500;">${s.religion || '-'}</span>
+              </div>
             </div>
           </div>
         `;
