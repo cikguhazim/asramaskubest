@@ -448,14 +448,14 @@
     .student-card {
       background: var(--clr-surface);
       border-radius: var(--radius-md);
-      padding: 13px 14px;
+      padding: 12px 14px;
       margin-bottom: 8px;
       border: 1.5px solid var(--clr-border);
       cursor: pointer;
       transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
       display: flex;
-      align-items: center;
-      gap: 12px;
+      flex-direction: column;
+      gap: 8px;
       box-shadow: var(--shadow-sm);
     }
 
@@ -472,22 +472,26 @@
       box-shadow: 0 0 0 2px rgba(59,125,216,0.15);
     }
 
+    /* Top row: avatar + name + status badge */
+    .student-card .card-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
     .student-card .student-avatar {
-      width: 40px;
-      height: 40px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
-      background: var(--clr-primary-muted);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       font-weight: 700;
-      color: var(--clr-primary);
       flex-shrink: 0;
       text-transform: uppercase;
     }
-
-    .student-card .student-info { flex: 1; min-width: 0; }
 
     .student-card .student-name {
       font-weight: 600;
@@ -496,12 +500,24 @@
       overflow: hidden;
       text-overflow: ellipsis;
       color: var(--clr-text-primary);
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* Bottom row: meta + action buttons */
+    .student-card .card-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
     }
 
     .student-card .student-meta {
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       color: var(--clr-text-muted);
-      margin-top: 2px;
+      line-height: 1.5;
+      flex: 1;
+      min-width: 0;
     }
 
     .student-card .student-actions {
@@ -2370,16 +2386,25 @@
         const initials = s.name.trim().split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
         const avatarBg = s.status === 'Masuk' ? 'background:#dcfce7; color:#166534;' : (s.status === 'Keluar' ? 'background:#fee2e2; color:#991b1b;' : 'background:#fef3c7; color:#92400e;');
         div.innerHTML = `
-          <div class="student-avatar" style="${avatarBg}" onclick="toggleSelection('${s.name}')">${initials}</div>
-          <div class="student-info" onclick="toggleSelection('${s.name}')">
+          <div class="card-top" onclick="toggleSelection('${s.name}')">
+            <div class="student-avatar" style="${avatarBg}">${initials}</div>
             <div class="student-name">${s.name} ${attachIcon}</div>
-            <div class="student-meta"><i class="fas fa-door-open me-1"></i>${s.classroom} &bull; ${s.block} &bull; ${timeStr}${daysOutStr}</div>
-            <div class="mt-1">${meritBadge}</div>
+            <span class="status-badge ${badgeCls}" style="flex-shrink:0;">${s.status}</span>
           </div>
-          <div class="student-actions">
-            <span class="status-badge ${badgeCls}">${s.status}</span>
-            <button class="btn-card-action" onclick="showDetails('${s.name}'); event.stopPropagation();" title="Info"><i class="fas fa-info-circle"></i></button>
-            ${userRole === 'warden' ? `<button class="btn-card-action" style="color:#e74c3c;" onclick="buangPelajar('${s.name.replace(/'/g, "\\'")}'); event.stopPropagation();" title="Padam"><i class="fas fa-trash-alt"></i></button>` : ''}
+          <div class="card-bottom">
+            <div class="student-meta" onclick="toggleSelection('${s.name}')">
+              <span><i class="fas fa-chalkboard-teacher me-1"></i>${s.classroom}</span>
+              <span class="mx-1">&bull;</span>
+              <span><i class="fas fa-bed me-1"></i>${s.block}</span>
+              <br>
+              <span><i class="far fa-clock me-1"></i>${timeStr}</span>
+              ${daysOutStr}
+              <span class="ms-1">${meritBadge}</span>
+            </div>
+            <div class="student-actions">
+              <button class="btn-card-action" onclick="showDetails('${s.name}'); event.stopPropagation();" title="Info"><i class="fas fa-info-circle"></i></button>
+              ${userRole === 'warden' ? `<button class="btn-card-action" style="color:#e74c3c;" onclick="buangPelajar('${s.name.replace(/'/g, "\\'")}'); event.stopPropagation();" title="Padam"><i class="fas fa-trash-alt"></i></button>` : ''}
+            </div>
           </div>
         `;
         container.appendChild(div);
