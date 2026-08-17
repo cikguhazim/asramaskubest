@@ -965,6 +965,14 @@
           <div class="card-sub">Semak &amp; Kemaskini Status</div>
         </div>
 
+        <div class="menu-card" onclick="bukaSenaraiNama()">
+          <div class="icon-wrap" style="background:#fef3c7;">
+            <i class="fas fa-list-ul" style="color:#b45309;"></i>
+          </div>
+          <div class="card-label">Senarai Nama</div>
+          <div class="card-sub">Paparan Rekod Pelajar</div>
+        </div>
+
         <div class="menu-card" onclick="bukaDisiplin('Merit')">
           <div class="icon-wrap" style="background:#dcfce7;">
             <i class="fas fa-star" style="color:#166534;"></i>
@@ -1017,6 +1025,71 @@
     </div>
 
     <!-- Attendance View -->
+    <div id="senaraiNamaView" style="display:none;" class="view-section">
+      <div class="container py-4">
+        <h4 class="fw-bold mb-4" style="color: #1e293b;"><i class="fas fa-list-ul me-2"></i> Senarai Nama Pelajar</h4>
+        
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-body">
+            <h6 class="fw-bold mb-3"><i class="fas fa-filter"></i> Tapisan Lanjutan</h6>
+            <div class="row g-2">
+              <div class="col-6 col-md-4">
+                <label class="form-label small fw-bold mb-1">Tahap</label>
+                <select class="form-select form-select-sm" id="sn_tahap" onchange="renderSenaraiNama()">
+                  <option value="all">Semua Tahap</option>
+                  <option value="1">Tahap 1 (1-3)</option>
+                  <option value="2">Tahap 2 (4-6)</option>
+                </select>
+              </div>
+              <div class="col-6 col-md-4">
+                <label class="form-label small fw-bold mb-1">Jantina</label>
+                <select class="form-select form-select-sm" id="sn_jantina" onchange="renderSenaraiNama()">
+                  <option value="all">Semua Jantina</option>
+                  <option value="Lelaki">Lelaki</option>
+                  <option value="Perempuan">Perempuan</option>
+                </select>
+              </div>
+              <div class="col-6 col-md-4">
+                <label class="form-label small fw-bold mb-1">Agama</label>
+                <select class="form-select form-select-sm" id="sn_agama" onchange="renderSenaraiNama()">
+                  <option value="all">Semua Agama</option>
+                  <option value="Islam">Islam</option>
+                  <option value="Bukan Islam">Bukan Islam</option>
+                </select>
+              </div>
+              <div class="col-6 col-md-4">
+                <label class="form-label small fw-bold mb-1">Kelas</label>
+                <select class="form-select form-select-sm" id="sn_kelas" onchange="renderSenaraiNama()">
+                  <option value="all">Semua Kelas</option>
+                </select>
+              </div>
+              <div class="col-6 col-md-4">
+                <label class="form-label small fw-bold mb-1">Dorm</label>
+                <select class="form-select form-select-sm" id="sn_dorm" onchange="renderSenaraiNama()">
+                  <option value="all">Semua Dorm</option>
+                </select>
+              </div>
+              <div class="col-6 col-md-4">
+                <label class="form-label small fw-bold mb-1">Susunan</label>
+                <select class="form-select form-select-sm" id="sn_sort" onchange="renderSenaraiNama()">
+                  <option value="az">A - Z</option>
+                  <option value="za">Z - A</option>
+                  <option value="kelas">Mengikut Kelas</option>
+                  <option value="dorm">Mengikut Dorm</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <span class="badge bg-primary fs-6" id="sn_count">Jumlah Pelajar: 0</span>
+        </div>
+
+        <div id="sn_list_container"></div>
+      </div>
+    </div>
+
     <div id="attendanceView" style="display:none;" class="view-section">
 
       <div id="chartSection" class="stat-card p-3 mb-3" style="display:none;">
@@ -2769,6 +2842,113 @@
     }
 
     // ==========================================
+    // FUNGSI SENARAI NAMA
+    // ==========================================
+    function bukaSenaraiNama() {
+      document.getElementById('mainMenuView').style.display = 'none';
+      document.getElementById('attendanceView').style.display = 'none';
+      document.getElementById('disciplineView').style.display = 'none';
+      document.getElementById('reportView').style.display = 'none';
+      document.getElementById('penjanaLaporanView').style.display = 'none';
+      document.getElementById('tetapanView').style.display = 'none';
+      document.getElementById('aktivitiMenuView').style.display = 'none';
+      document.getElementById('aktivitiFormView').style.display = 'none';
+      document.getElementById('senaraiNamaView').style.display = 'block';
+      document.getElementById('btnBackMenu').style.display = 'block';
+
+      renderSenaraiNama();
+    }
+
+    function renderSenaraiNamaFilters() {
+      let kelasSet = new Set();
+      let dormSet = new Set();
+      allStudents.forEach(s => {
+        if (s.classroom) kelasSet.add(s.classroom);
+        if (s.block) dormSet.add(s.block);
+      });
+      
+      let filterKelas = document.getElementById('sn_kelas');
+      if (filterKelas && filterKelas.options.length <= 1) {
+        let kelasHtml = '<option value="all">Semua Kelas</option>';
+        Array.from(kelasSet).sort().forEach(k => {
+          kelasHtml += `<option value="${k}">${k}</option>`;
+        });
+        filterKelas.innerHTML = kelasHtml;
+      }
+      
+      let filterDorm = document.getElementById('sn_dorm');
+      if (filterDorm && filterDorm.options.length <= 1) {
+        let dormHtml = '<option value="all">Semua Dorm</option>';
+        Array.from(dormSet).sort().forEach(d => {
+          dormHtml += `<option value="${d}">${d}</option>`;
+        });
+        filterDorm.innerHTML = dormHtml;
+      }
+    }
+
+    function renderSenaraiNama() {
+      renderSenaraiNamaFilters();
+      
+      const tahap = document.getElementById('sn_tahap').value;
+      const jantina = document.getElementById('sn_jantina').value;
+      const agama = document.getElementById('sn_agama').value;
+      const kelas = document.getElementById('sn_kelas').value;
+      const dorm = document.getElementById('sn_dorm').value;
+      const sortOpt = document.getElementById('sn_sort').value;
+      
+      let filtered = allStudents.filter(s => {
+        if (jantina !== 'all' && s.gender !== jantina) return false;
+        if (agama !== 'all' && s.religion !== agama) return false;
+        if (kelas !== 'all' && s.classroom !== kelas) return false;
+        if (dorm !== 'all' && s.block !== dorm) return false;
+        
+        if (tahap !== 'all' && s.classroom) {
+          let firstChar = s.classroom.charAt(0);
+          if (tahap === '1' && !['1','2','3','P'].includes(firstChar)) return false;
+          if (tahap === '2' && !['4','5','6'].includes(firstChar)) return false;
+        }
+        return true;
+      });
+      
+      if (sortOpt === 'az') {
+        filtered.sort((a,b) => a.name.localeCompare(b.name));
+      } else if (sortOpt === 'za') {
+        filtered.sort((a,b) => b.name.localeCompare(a.name));
+      } else if (sortOpt === 'kelas') {
+        filtered.sort((a,b) => (a.classroom||'').localeCompare(b.classroom||'') || a.name.localeCompare(b.name));
+      } else if (sortOpt === 'dorm') {
+        filtered.sort((a,b) => (a.block||'').localeCompare(b.block||'') || a.name.localeCompare(b.name));
+      }
+      
+      document.getElementById('sn_count').innerText = `Jumlah Pelajar: ${filtered.length}`;
+      
+      let container = document.getElementById('sn_list_container');
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="text-center text-muted p-4"><i class="fas fa-folder-open fa-3x mb-2"></i><br>Tiada rekod dijumpai.</div>';
+        return;
+      }
+      
+      let html = '<div class="list-group shadow-sm">';
+      filtered.forEach(s => {
+        html += `
+          <div class="list-group-item py-2 px-3 d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="mb-0 fw-bold text-dark">${s.name}</h6>
+              <small class="text-muted"><i class="fas fa-chalkboard-teacher me-1"></i>${s.classroom || '-'} <span class="mx-1">|</span> <i class="fas fa-bed me-1"></i>${s.block || '-'}</small>
+            </div>
+            <div class="text-end">
+              <small class="badge bg-light text-dark border">${s.gender || '-'}</small>
+              <small class="badge bg-light text-dark border">${s.religion || '-'}</small>
+            </div>
+          </div>
+        `;
+      });
+      html += '</div>';
+      
+      container.innerHTML = html;
+    }
+
+    // ==========================================
     // FUNGSI URUS PELAJAR (TAMBAH / BUANG)
     // ==========================================
     function bukaModalTambah() {
@@ -2853,6 +3033,7 @@
           : userEmail;
       }
 
+      document.getElementById('senaraiNamaView').style.display = 'none';
       document.getElementById('attendanceView').style.display = 'none';
       document.getElementById('disciplineView').style.display = 'none';
       document.getElementById('reportView').style.display = 'none';
@@ -2882,6 +3063,7 @@
 
     function bukaLaporan() {
       document.getElementById('mainMenuView').style.display = 'none';
+      document.getElementById('senaraiNamaView').style.display = 'none';
       document.getElementById('attendanceView').style.display = 'none';
       document.getElementById('disciplineView').style.display = 'none';
       document.getElementById('reportView').style.display = 'block';
@@ -2897,6 +3079,7 @@
     async function bukaDisiplin(jenis) {
       await fetchMeritLogs();
       document.getElementById('mainMenuView').style.display = 'none';
+      document.getElementById('senaraiNamaView').style.display = 'none';
       document.getElementById('attendanceView').style.display = 'none';
       document.getElementById('disciplineView').style.display = 'block';
       document.getElementById('reportView').style.display = 'none';
@@ -3148,6 +3331,7 @@
     // ==========================================
     function bukaAktivitiMenu() {
       document.getElementById('mainMenuView').style.display = 'none';
+      document.getElementById('senaraiNamaView').style.display = 'none';
       document.getElementById('attendanceView').style.display = 'none';
       document.getElementById('disciplineView').style.display = 'none';
       document.getElementById('reportView').style.display = 'none';
@@ -3416,6 +3600,7 @@
       await fetchMeritLogs();
       await fetchAktivitiLogs();
       document.getElementById('mainMenuView').style.display = 'none';
+      document.getElementById('senaraiNamaView').style.display = 'none';
       document.getElementById('attendanceView').style.display = 'none';
       document.getElementById('disciplineView').style.display = 'none';
       document.getElementById('reportView').style.display = 'none';
@@ -4302,6 +4487,7 @@ JUMLAH KEHADIRAN KE SEKOLAH     : ${data.kehadiranSekolah}`;
     function bukaTetapan() {
       if (userRole !== 'warden') { alert("Akses ditolak."); return; }
       document.getElementById('mainMenuView').style.display = 'none';
+      document.getElementById('senaraiNamaView').style.display = 'none';
       document.getElementById('attendanceView').style.display = 'none';
       document.getElementById('disciplineView').style.display = 'none';
       document.getElementById('reportView').style.display = 'none';
