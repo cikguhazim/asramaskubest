@@ -2420,8 +2420,8 @@
         let actionButtons = "";
         if (userRole === 'warden') {
           actionButtons = `
-              <button class="btn btn-sm btn-success mb-1" onclick="resolvePendingReq('${p.id}', true)"><i class="fas fa-check"></i></button>
-              <button class="btn btn-sm btn-danger" onclick="resolvePendingReq('${p.id}', false)"><i class="fas fa-times"></i></button>
+              <button class="btn btn-sm btn-success mb-1" onclick="resolvePendingReq('${p.docId}', true)"><i class="fas fa-check"></i></button>
+              <button class="btn btn-sm btn-danger" onclick="resolvePendingReq('${p.docId}', false)"><i class="fas fa-times"></i></button>
             `;
         } else {
           actionButtons = `<span class="badge bg-warning text-dark px-2 py-2"><i class="fas fa-hourglass-half me-1"></i> Menunggu...</span>`;
@@ -2429,7 +2429,7 @@
 
         const div = document.createElement('div');
         div.className = `student-card pending-card`;
-        div.id = 'pending-' + p.id;
+        div.id = 'pending-' + p.docId;
         div.innerHTML = `
           <div class="d-flex justify-content-between">
             <div>
