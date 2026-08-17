@@ -1062,7 +1062,78 @@
           <div class="card-sub">Pengurusan Data</div>
         </div>
 
+        <div class="menu-card" onclick="bukaPenjanaPosterId()">
+          <div class="icon-wrap" style="background:#fce7f3;">
+            <i class="fas fa-images" style="color:#9d174d;"></i>
+          </div>
+          <div class="card-label">Penjana Poster</div>
+          <div class="card-sub">Papan Mata Merit</div>
+        </div>
+
       </div>
+    </div>
+
+    <!-- Poster Generator View -->
+    <div id="posterView" style="display:none;" class="view-section">
+
+      <div class="section-header mb-4">
+        <div class="section-icon" style="background:#fce7f3;">
+          <i class="fas fa-images" style="color:#9d174d;"></i>
+        </div>
+        <div>
+          <h1 style="font-size:1.05rem;">Penjana Poster</h1>
+          <p class="text-muted mb-0" style="font-size:0.75rem;">Jana &amp; cetak poster papan mata merit</p>
+        </div>
+      </div>
+
+      <!-- Poster Card 1: Top 5 -->
+      <div class="form-card mb-3">
+        <div class="d-flex align-items-start gap-3">
+          <div style="width:44px;height:44px;border-radius:12px;background:#fef3c7;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <i class="fas fa-trophy" style="color:#92400e;font-size:1.2rem;"></i>
+          </div>
+          <div class="flex-grow-1">
+            <div class="fw-bold" style="font-size:0.9rem;color:var(--clr-text-primary);">Poster Top 5 Tertinggi</div>
+            <p class="text-muted mt-1 mb-3" style="font-size:0.78rem;">Jana poster bergaya 5 pelajar tertinggi mata merit. Sesuai untuk papan kenyataan asrama.</p>
+            <button class="btn btn-sm fw-bold px-3" style="background:#92400e;color:white;border-radius:8px;" onclick="janaPostTop5()">
+              <i class="fas fa-print me-1"></i> Jana &amp; Cetak Poster
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Poster Card 2: All Students -->
+      <div class="form-card mb-3">
+        <div class="d-flex align-items-start gap-3">
+          <div style="width:44px;height:44px;border-radius:12px;background:#dbeafe;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <i class="fas fa-list-ol" style="color:#1e40af;font-size:1.2rem;"></i>
+          </div>
+          <div class="flex-grow-1">
+            <div class="fw-bold" style="font-size:0.9rem;color:var(--clr-text-primary);">Poster Semua Pelajar</div>
+            <p class="text-muted mt-1 mb-3" style="font-size:0.78rem;">Jana senarai padat semua pelajar beserta mata merit mereka dalam format A4. Susun atur berbilang kolum untuk jimat kertas.</p>
+            <button class="btn btn-sm fw-bold px-3" style="background:#1e40af;color:white;border-radius:8px;" onclick="janaPostSemuaPelajar()">
+              <i class="fas fa-print me-1"></i> Jana &amp; Cetak Poster
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Poster Card 3: Dorm Summary -->
+      <div class="form-card mb-3">
+        <div class="d-flex align-items-start gap-3">
+          <div style="width:44px;height:44px;border-radius:12px;background:#dcfce7;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <i class="fas fa-building" style="color:#166534;font-size:1.2rem;"></i>
+          </div>
+          <div class="flex-grow-1">
+            <div class="fw-bold" style="font-size:0.9rem;color:var(--clr-text-primary);">Poster Jumlah Merit Dorm</div>
+            <p class="text-muted mt-1 mb-3" style="font-size:0.78rem;">Jana poster keseluruhan jumlah mata merit dikumpul bagi setiap bilik dorm, disusun dari tertinggi.</p>
+            <button class="btn btn-sm fw-bold px-3" style="background:#166534;color:white;border-radius:8px;" onclick="janaPostDorm()">
+              <i class="fas fa-print me-1"></i> Jana &amp; Cetak Poster
+            </button>
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <!-- Attendance View -->
@@ -2902,6 +2973,197 @@
     }
 
     // ==========================================
+    // FUNGSI PENJANA POSTER
+    // ==========================================
+    function bukaPenjanaPosterId() {
+      document.getElementById('mainMenuView').style.display = 'none';
+      document.getElementById('posterView').style.display = 'block';
+      document.getElementById('attendanceView').style.display = 'none';
+      document.getElementById('disciplineView').style.display = 'none';
+      document.getElementById('reportView').style.display = 'none';
+      document.getElementById('penjanaLaporanView').style.display = 'none';
+      document.getElementById('tetapanView').style.display = 'none';
+      document.getElementById('aktivitiMenuView').style.display = 'none';
+      document.getElementById('aktivitiFormView').style.display = 'none';
+      document.getElementById('senaraiNamaView').style.display = 'none';
+      document.getElementById('btnBackMenu').style.display = 'block';
+    }
+
+    function _posterHeader(title, subtitle) {
+      const now = new Date().toLocaleDateString('ms-MY', { day: '2-digit', month: 'long', year: 'numeric' });
+      return `
+        <div style="background:linear-gradient(135deg,#1a3c6e 0%,#0f2347 100%);padding:36px 48px 28px;text-align:center;position:relative;overflow:hidden;">
+          <div style="position:absolute;top:-30px;left:-30px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,0.04);"></div>
+          <div style="position:absolute;bottom:-40px;right:-40px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,0.04);"></div>
+          <div style="font-size:10px;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.55);text-transform:uppercase;margin-bottom:8px;">Sistem Kehadiran Asrama — MyAsrama</div>
+          <div style="font-size:28px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;line-height:1.2;">${title}</div>
+          <div style="font-size:13px;color:rgba(255,255,255,0.7);margin-top:6px;">${subtitle}</div>
+          <div style="margin-top:14px;font-size:10px;color:rgba(255,255,255,0.4);">Dijana pada ${now}</div>
+        </div>`;
+    }
+
+    function _posterStyles() {
+      return `
+        <style>
+          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+          * { margin:0;padding:0;box-sizing:border-box; }
+          body { font-family:'Inter',sans-serif;background:#f8fafc;color:#1e293b; }
+          @media print {
+            body { background:white; }
+            @page { size: A4 portrait; margin: 0; }
+          }
+        </style>`;
+    }
+
+    function janaPostTop5() {
+      const sorted = [...allStudents].sort((a,b) => (b.meritPoints||0) - (a.meritPoints||0)).slice(0,5);
+      const rankColors = ['#FFD700','#C0C0C0','#CD7F32','#60a5fa','#34d399'];
+      const rankLabels = ['1ST','2ND','3RD','4TH','5TH'];
+      const medalIcons = ['🥇','🥈','🥉','④','⑤'];
+      const maxPts = Math.max(...sorted.map(s => s.meritPoints||0), 1);
+
+      let rows = sorted.map((s, i) => {
+        const pts = s.meritPoints || 0;
+        const barWidth = Math.max(5, Math.round((pts / maxPts) * 100));
+        const isTop3 = i < 3;
+        return `
+          <div style="display:flex;align-items:center;gap:16px;padding:${isTop3?'18px':'14px'} 24px;background:${isTop3?'#fffbeb':'#f8fafc'};border-radius:14px;margin-bottom:12px;border:1.5px solid ${isTop3?'#fde68a':'#e2e8f0'};box-shadow:${isTop3?'0 4px 16px rgba(0,0,0,0.08)':'0 1px 4px rgba(0,0,0,0.04)'};">
+            <div style="width:52px;height:52px;border-radius:50%;background:${rankColors[i]};display:flex;align-items:center;justify-content:center;font-size:${isTop3?'24px':'18px'};flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,0.15);">${medalIcons[i]}</div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-weight:700;font-size:${isTop3?'15px':'13px'};color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.name}</div>
+              <div style="font-size:11px;color:#64748b;margin-top:2px;">${s.classroom||'-'} &nbsp;·&nbsp; ${s.block||'-'}</div>
+              <div style="margin-top:8px;height:6px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
+                <div style="height:100%;width:${barWidth}%;background:linear-gradient(90deg,${rankColors[i]},${rankColors[i]}cc);border-radius:99px;"></div>
+              </div>
+            </div>
+            <div style="text-align:right;flex-shrink:0;">
+              <div style="font-size:${isTop3?'26px':'20px'};font-weight:800;color:${pts>=0?'#166534':'#991b1b'};">${pts >= 0 ? '+' : ''}${pts}</div>
+              <div style="font-size:10px;color:#64748b;font-weight:600;">MATA</div>
+            </div>
+          </div>`;
+      }).join('');
+
+      const win = window.open('', '_blank');
+      win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Top 5 Merit</title>${_posterStyles()}</head><body>
+        <div style="width:210mm;min-height:297mm;margin:0 auto;background:white;overflow:hidden;">
+          ${_posterHeader('🏆 Papan Kedudukan Teratas', 'Top 5 Pelajar Mata Merit Tertinggi')}
+          <div style="padding:32px 40px;">
+            ${rows}
+            <div style="margin-top:32px;padding:18px 24px;background:#f0fdf4;border-radius:12px;border:1px solid #bbf7d0;text-align:center;">
+              <div style="font-size:11px;font-weight:600;color:#166534;letter-spacing:0.5px;">JUMLAH KESELURUHAN PELAJAR DITADBIR</div>
+              <div style="font-size:28px;font-weight:800;color:#1e293b;margin-top:4px;">${allStudents.length} Pelajar</div>
+            </div>
+          </div>
+        </div>
+        <script>window.onload = () => { window.print(); }<\/script>
+      </body></html>`);
+      win.document.close();
+    }
+
+    function janaPostSemuaPelajar() {
+      const sorted = [...allStudents].sort((a,b) => (b.meritPoints||0) - (a.meritPoints||0));
+      const half = Math.ceil(sorted.length / 2);
+      const col1 = sorted.slice(0, half);
+      const col2 = sorted.slice(half);
+
+      const renderRow = (s, rank) => {
+        const pts = s.meritPoints || 0;
+        const ptColor = pts > 0 ? '#166534' : pts < 0 ? '#991b1b' : '#475569';
+        const ptBg = pts > 0 ? '#dcfce7' : pts < 0 ? '#fee2e2' : '#f1f5f9';
+        return `<tr>
+          <td style="padding:5px 6px;font-size:10px;font-weight:600;color:#94a3b8;text-align:center;width:24px;">${rank}</td>
+          <td style="padding:5px 6px;font-size:10.5px;font-weight:600;color:#1e293b;">${s.name}</td>
+          <td style="padding:5px 6px;font-size:9.5px;color:#64748b;">${s.classroom||'-'}</td>
+          <td style="padding:5px 6px;font-size:9.5px;color:#64748b;">${s.block||'-'}</td>
+          <td style="padding:5px 8px;text-align:right;"><span style="font-size:10px;font-weight:700;color:${ptColor};background:${ptBg};padding:2px 7px;border-radius:99px;">${pts >= 0 ? '+' : ''}${pts}</span></td>
+        </tr>`;
+      };
+
+      const tableStyle = `style="width:100%;border-collapse:collapse;"`;
+      const thStyle = `style="padding:7px 6px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#64748b;border-bottom:2px solid #e2e8f0;text-align:left;"`;
+
+      const buildTable = (rows, startRank) => `
+        <table ${tableStyle}>
+          <thead><tr>
+            <th ${thStyle} style="text-align:center;">#</th>
+            <th ${thStyle}>Nama</th>
+            <th ${thStyle}>Kelas</th>
+            <th ${thStyle}>Dorm</th>
+            <th ${thStyle} style="text-align:right;">Mata</th>
+          </tr></thead>
+          <tbody>${rows.map((s,i) => renderRow(s, startRank+i)).join('')}</tbody>
+        </table>`;
+
+      const win = window.open('', '_blank');
+      win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Semua Pelajar Merit</title>${_posterStyles()}</head><body>
+        <div style="width:210mm;min-height:297mm;margin:0 auto;background:white;overflow:hidden;">
+          ${_posterHeader('📋 Senarai Mata Merit Pelajar', 'Keseluruhan ' + sorted.length + ' Pelajar — Disusun Tertinggi')}
+          <div style="padding:24px 28px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+              <div>${buildTable(col1, 1)}</div>
+              <div style="border-left:1px solid #e2e8f0;padding-left:20px;">${buildTable(col2, col1.length + 1)}</div>
+            </div>
+          </div>
+        </div>
+        <script>window.onload = () => { window.print(); }<\/script>
+      </body></html>`);
+      win.document.close();
+    }
+
+    function janaPostDorm() {
+      const dormMap = {};
+      allStudents.forEach(s => {
+        const dorm = s.block || 'Tidak Ditetapkan';
+        if (!dormMap[dorm]) dormMap[dorm] = { total: 0, count: 0 };
+        dormMap[dorm].total += (s.meritPoints || 0);
+        dormMap[dorm].count += 1;
+      });
+
+      const dormList = Object.entries(dormMap)
+        .map(([name, d]) => ({ name, total: d.total, count: d.count, avg: d.count > 0 ? Math.round(d.total / d.count * 10) / 10 : 0 }))
+        .sort((a, b) => b.total - a.total);
+
+      const maxTotal = Math.max(...dormList.map(d => Math.abs(d.total)), 1);
+      const rankMedals = ['🥇','🥈','🥉'];
+
+      const rows = dormList.map((d, i) => {
+        const barWidth = Math.max(4, Math.round((Math.abs(d.total) / maxTotal) * 100));
+        const isPos = d.total >= 0;
+        const barColor = isPos ? '#16a34a' : '#dc2626';
+        const ptColor = isPos ? '#166534' : '#991b1b';
+        const ptBg = isPos ? '#dcfce7' : '#fee2e2';
+        const medal = rankMedals[i] || `<span style="font-weight:700;color:#94a3b8;font-size:14px;">${i+1}</span>`;
+        return `
+          <div style="display:flex;align-items:center;gap:16px;padding:16px 20px;background:${i%2===0?'#f8fafc':'white'};border-radius:12px;margin-bottom:8px;border:1px solid #e2e8f0;">
+            <div style="width:36px;text-align:center;font-size:20px;flex-shrink:0;">${medal}</div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-weight:700;font-size:13px;color:#1e293b;">${d.name}</div>
+              <div style="font-size:10px;color:#64748b;margin-top:2px;">${d.count} pelajar &nbsp;·&nbsp; Purata ${d.avg >= 0 ? '+' : ''}${d.avg} mata/pelajar</div>
+              <div style="margin-top:8px;height:8px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
+                <div style="height:100%;width:${barWidth}%;background:linear-gradient(90deg,${barColor},${barColor}99);border-radius:99px;transition:width 0.4s;"></div>
+              </div>
+            </div>
+            <div style="text-align:right;flex-shrink:0;">
+              <div style="font-size:22px;font-weight:800;color:${ptColor};">${d.total >= 0 ? '+' : ''}${d.total}</div>
+              <div style="font-size:10px;color:#64748b;font-weight:600;">JUMLAH</div>
+            </div>
+          </div>`;
+      }).join('');
+
+      const win = window.open('', '_blank');
+      win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Merit Dorm</title>${_posterStyles()}</head><body>
+        <div style="width:210mm;min-height:297mm;margin:0 auto;background:white;overflow:hidden;">
+          ${_posterHeader('🏠 Papan Kedudukan Dorm', 'Jumlah Keseluruhan Mata Merit Mengikut Bilik Dorm')}
+          <div style="padding:28px 36px;">
+            ${rows}
+          </div>
+        </div>
+        <script>window.onload = () => { window.print(); }<\/script>
+      </body></html>`);
+      win.document.close();
+    }
+
+    // ==========================================
     // FUNGSI SENARAI NAMA
     // ==========================================
     function bukaSenaraiNama() {
@@ -3104,6 +3366,7 @@
           : userEmail;
       }
 
+      document.getElementById('posterView').style.display = 'none';
       document.getElementById('senaraiNamaView').style.display = 'none';
       document.getElementById('attendanceView').style.display = 'none';
       document.getElementById('disciplineView').style.display = 'none';
@@ -3134,6 +3397,7 @@
 
     function bukaLaporan() {
       document.getElementById('mainMenuView').style.display = 'none';
+      document.getElementById('posterView').style.display = 'none';
       document.getElementById('senaraiNamaView').style.display = 'none';
       document.getElementById('attendanceView').style.display = 'none';
       document.getElementById('disciplineView').style.display = 'none';
@@ -3150,6 +3414,7 @@
     async function bukaDisiplin(jenis) {
       await fetchMeritLogs();
       document.getElementById('mainMenuView').style.display = 'none';
+      document.getElementById('posterView').style.display = 'none';
       document.getElementById('senaraiNamaView').style.display = 'none';
       document.getElementById('attendanceView').style.display = 'none';
       document.getElementById('disciplineView').style.display = 'block';
@@ -3402,6 +3667,7 @@
     // ==========================================
     function bukaAktivitiMenu() {
       document.getElementById('mainMenuView').style.display = 'none';
+      document.getElementById('posterView').style.display = 'none';
       document.getElementById('senaraiNamaView').style.display = 'none';
       document.getElementById('attendanceView').style.display = 'none';
       document.getElementById('disciplineView').style.display = 'none';
@@ -3671,6 +3937,7 @@
       await fetchMeritLogs();
       await fetchAktivitiLogs();
       document.getElementById('mainMenuView').style.display = 'none';
+      document.getElementById('posterView').style.display = 'none';
       document.getElementById('senaraiNamaView').style.display = 'none';
       document.getElementById('attendanceView').style.display = 'none';
       document.getElementById('disciplineView').style.display = 'none';
@@ -4558,6 +4825,7 @@ JUMLAH KEHADIRAN KE SEKOLAH     : ${data.kehadiranSekolah}`;
     function bukaTetapan() {
       if (userRole !== 'warden') { alert("Akses ditolak."); return; }
       document.getElementById('mainMenuView').style.display = 'none';
+      document.getElementById('posterView').style.display = 'none';
       document.getElementById('senaraiNamaView').style.display = 'none';
       document.getElementById('attendanceView').style.display = 'none';
       document.getElementById('disciplineView').style.display = 'none';
