@@ -5,6 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>MyAsrama</title>
+  <meta name="description" content="Sistem Pengurusan Asrama MyAsrama - Rekod kehadiran, disiplin dan aktiviti pelajar.">
   <link rel="icon" type="image/png" href="iconasrama.png">
   <link rel="apple-touch-icon" href="iconasrama.png">
 
@@ -12,286 +13,1028 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;1,14..32,400&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
-    body {
-      background-color: #f8f9fa;
-      font-family: 'Inter', sans-serif;
+    /* ============================================================
+       DESIGN TOKENS
+    ============================================================ */
+    :root {
+      --clr-bg: #f0f2f5;
+      --clr-surface: #ffffff;
+      --clr-primary: #1a3c6e;
+      --clr-primary-light: #2a5298;
+      --clr-primary-muted: #e8eef8;
+      --clr-accent: #3b7dd8;
+      --clr-success: #12a454;
+      --clr-warning: #e67e22;
+      --clr-danger: #e74c3c;
+      --clr-info: #2980b9;
+      --clr-text-primary: #1a1d23;
+      --clr-text-secondary: #6b7280;
+      --clr-text-muted: #9ca3af;
+      --clr-border: #e5e8ed;
+      --clr-shadow: rgba(26, 60, 110, 0.08);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 20px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 12px rgba(26,60,110,0.10);
+      --shadow-lg: 0 8px 24px rgba(26,60,110,0.12);
     }
 
+    /* ============================================================
+       BASE
+    ============================================================ */
+    * { -webkit-tap-highlight-color: transparent; }
+
+    body {
+      background-color: var(--clr-bg);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--clr-text-primary);
+      font-size: 0.925rem;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ============================================================
+       LOADER
+    ============================================================ */
+    #loader {
+      position: fixed;
+      inset: 0;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    #loader .spinner-border {
+      color: var(--clr-primary);
+      width: 36px;
+      height: 36px;
+      border-width: 3px;
+    }
+
+    #loader p {
+      color: var(--clr-text-secondary);
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin: 0;
+    }
+
+    /* ============================================================
+       TOAST
+    ============================================================ */
+    .toast-container {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .custom-toast {
+      background: var(--clr-surface);
+      border-radius: var(--radius-md);
+      padding: 12px 18px;
+      box-shadow: var(--shadow-lg);
+      display: none;
+      font-weight: 500;
+      font-size: 0.875rem;
+      border-left: 3px solid var(--clr-accent);
+      min-width: 220px;
+    }
+
+    /* ============================================================
+       LOGIN SCREEN
+    ============================================================ */
     #loginScreen {
-      height: 100vh;
+      min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(135deg, #0d6efd, #0dcaf0);
+      background: linear-gradient(160deg, #1a3c6e 0%, #2a5298 55%, #3b7dd8 100%);
+      padding: 24px 16px;
     }
 
     .login-card {
-      background: white;
-      padding: 2rem;
-      border-radius: 15px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-      width: 90%;
-      max-width: 400px;
+      background: var(--clr-surface);
+      padding: 2.5rem 2rem;
+      border-radius: var(--radius-xl);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+      width: 100%;
+      max-width: 380px;
       text-align: center;
     }
 
+    .login-card .logo-wrap {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: var(--clr-primary-muted);
+      margin-bottom: 16px;
+    }
+
+    .login-card .app-name {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--clr-primary);
+      letter-spacing: -0.3px;
+      margin-bottom: 4px;
+    }
+
+    .login-card .app-sub {
+      font-size: 0.8rem;
+      color: var(--clr-text-muted);
+      margin-bottom: 2rem;
+    }
+
+    .login-card .form-control {
+      background: #f7f8fa;
+      border: 1.5px solid var(--clr-border);
+      border-radius: var(--radius-md);
+      padding: 0.75rem 1rem;
+      font-size: 0.9rem;
+      color: var(--clr-text-primary);
+      transition: border-color 0.18s, box-shadow 0.18s;
+    }
+
+    .login-card .form-control:focus {
+      border-color: var(--clr-accent);
+      box-shadow: 0 0 0 3px rgba(59,125,216,0.15);
+      background: #fff;
+    }
+
+    .login-card .btn-login {
+      background: var(--clr-primary);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 0.8rem 1rem;
+      font-weight: 600;
+      font-size: 0.95rem;
+      letter-spacing: 0.3px;
+      transition: background 0.18s, transform 0.1s;
+      width: 100%;
+    }
+
+    .login-card .btn-login:hover {
+      background: var(--clr-primary-light);
+    }
+
+    .login-card .btn-login:active {
+      transform: scale(0.98);
+    }
+
+    /* ============================================================
+       MAIN DASHBOARD
+    ============================================================ */
     #mainDashboard {
       display: none;
-      padding-bottom: 80px;
+      padding-bottom: 90px;
     }
 
-    .navbar {
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    /* ============================================================
+       TOPBAR / NAVBAR
+    ============================================================ */
+    .app-topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--clr-primary);
+      padding: 0 16px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
     }
 
-    .stat-card {
-      border-radius: 12px;
+    .app-topbar .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .app-topbar .topbar-logo {
+      height: 30px;
+      width: auto;
+      border-radius: 6px;
+      background: white;
+      padding: 2px 4px;
+      flex-shrink: 0;
+    }
+
+    .app-topbar .topbar-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: white;
+      letter-spacing: -0.2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .app-topbar .user-badge {
+      font-size: 0.65rem;
+      font-weight: 600;
+      background: rgba(255,255,255,0.18);
+      color: white;
+      border-radius: 20px;
+      padding: 2px 8px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .app-topbar .topbar-actions {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .btn-topbar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
       border: none;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-    }
-
-    .search-container {
-      background: white;
-      padding: 15px;
-      border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-      margin-bottom: 20px;
-    }
-
-    .student-card {
-      background: white;
-      border-radius: 10px;
-      padding: 15px;
-      margin-bottom: 10px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-      border-left: 5px solid #ccc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: background 0.15s;
+      background: rgba(255,255,255,0.15);
+      color: white;
     }
+
+    .btn-topbar:hover { background: rgba(255,255,255,0.25); }
+    .btn-topbar.btn-back { border-radius: var(--radius-sm); width: auto; padding: 0 10px; gap: 6px; font-size: 0.8rem; font-weight: 500; }
+    .btn-topbar.btn-logout { background: rgba(231,76,60,0.7); }
+    .btn-topbar.btn-logout:hover { background: rgba(231,76,60,0.9); }
+
+    /* ============================================================
+       MAIN MENU VIEW
+    ============================================================ */
+    #mainMenuView {
+      padding: 24px 16px 12px;
+    }
+
+    .menu-greeting {
+      margin-bottom: 24px;
+    }
+
+    .menu-greeting .hello-label {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--clr-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .menu-greeting .warden-name {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--clr-primary);
+      letter-spacing: -0.3px;
+      line-height: 1.2;
+    }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    @media (max-width: 400px) {
+      .menu-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (min-width: 768px) {
+      .menu-grid { grid-template-columns: repeat(4, 1fr); gap: 16px; }
+      #mainMenuView { padding: 32px 24px; }
+    }
+
+    .menu-card {
+      background: var(--clr-surface);
+      border-radius: var(--radius-lg);
+      padding: 20px 10px 16px;
+      text-align: center;
+      cursor: pointer;
+      border: 1.5px solid var(--clr-border);
+      transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+      box-shadow: var(--shadow-sm);
+      text-decoration: none;
+      display: block;
+      color: inherit;
+    }
+
+    .menu-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--clr-accent);
+      color: inherit;
+    }
+
+    .menu-card:active { transform: scale(0.97); }
+
+    .menu-card .icon-wrap {
+      width: 52px;
+      height: 52px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 12px;
+      font-size: 1.3rem;
+    }
+
+    .menu-card .card-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--clr-text-primary);
+      line-height: 1.3;
+    }
+
+    .menu-card .card-sub {
+      font-size: 0.65rem;
+      color: var(--clr-text-muted);
+      margin-top: 3px;
+      line-height: 1.3;
+    }
+
+    /* ============================================================
+       SECTION VIEWS
+    ============================================================ */
+    .view-section {
+      padding: 16px;
+    }
+
+    @media (min-width: 768px) {
+      .view-section { padding: 24px; max-width: 760px; margin: 0 auto; }
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .section-header .section-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.95rem;
+      flex-shrink: 0;
+    }
+
+    .section-header h1 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin: 0;
+      color: var(--clr-text-primary);
+    }
+
+    /* ============================================================
+       SEARCH / FILTER BAR
+    ============================================================ */
+    .filter-bar {
+      background: var(--clr-surface);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--clr-border);
+    }
+
+    .filter-bar .form-control,
+    .filter-bar .form-select {
+      background: var(--clr-bg);
+      border: 1.5px solid var(--clr-border);
+      border-radius: var(--radius-sm);
+      font-size: 0.875rem;
+      color: var(--clr-text-primary);
+    }
+
+    .filter-bar .form-control:focus,
+    .filter-bar .form-select:focus {
+      border-color: var(--clr-accent);
+      box-shadow: 0 0 0 3px rgba(59,125,216,0.12);
+    }
+
+    /* ============================================================
+       STUDENT CARDS
+    ============================================================ */
+    .student-card {
+      background: var(--clr-surface);
+      border-radius: var(--radius-md);
+      padding: 13px 14px;
+      margin-bottom: 8px;
+      border: 1.5px solid var(--clr-border);
+      cursor: pointer;
+      transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .student-card:hover {
+      border-color: var(--clr-accent);
+      box-shadow: var(--shadow-md);
+    }
+
+    .student-card:active { transform: scale(0.99); }
 
     .student-card.selected {
-      background-color: #e8f4fd;
-      border-left-color: #0d6efd;
-      transform: scale(1.02);
+      border-color: var(--clr-accent);
+      background: var(--clr-primary-muted);
+      box-shadow: 0 0 0 2px rgba(59,125,216,0.15);
     }
 
-    .status-badge {
-      padding: 5px 10px;
-      border-radius: 20px;
+    .student-card .student-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--clr-primary-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-size: 0.8rem;
-      font-weight: bold;
+      font-weight: 700;
+      color: var(--clr-primary);
+      flex-shrink: 0;
+      text-transform: uppercase;
+    }
+
+    .student-card .student-info { flex: 1; min-width: 0; }
+
+    .student-card .student-name {
+      font-weight: 600;
+      font-size: 0.875rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--clr-text-primary);
+    }
+
+    .student-card .student-meta {
+      font-size: 0.72rem;
+      color: var(--clr-text-muted);
+      margin-top: 2px;
+    }
+
+    .student-card .student-actions {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .btn-card-action {
+      width: 30px;
+      height: 30px;
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--clr-border);
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      cursor: pointer;
+      color: var(--clr-text-secondary);
+      transition: all 0.15s;
+    }
+
+    .btn-card-action:hover {
+      background: var(--clr-primary-muted);
+      border-color: var(--clr-accent);
+      color: var(--clr-primary);
+    }
+
+    /* ============================================================
+       STATUS BADGES
+    ============================================================ */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+      white-space: nowrap;
     }
 
     .status-masuk {
-      background-color: #d1e7dd;
-      color: #0f5132;
+      background: #dcfce7;
+      color: #166534;
     }
 
     .status-keluar {
-      background-color: #f8d7da;
-      color: #842029;
+      background: #fee2e2;
+      color: #991b1b;
     }
 
     .status-sakit {
-      background-color: #fff3cd;
-      color: #664d03;
+      background: #fef3c7;
+      color: #92400e;
     }
 
+    /* ============================================================
+       FORM CARDS (Discipline, Aktiviti, etc)
+    ============================================================ */
+    .form-card {
+      background: var(--clr-surface);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      border: 1px solid var(--clr-border);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 16px;
+    }
+
+    .form-card .form-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--clr-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .form-card .form-control,
+    .form-card .form-select {
+      border: 1.5px solid var(--clr-border);
+      border-radius: var(--radius-sm);
+      font-size: 0.875rem;
+      padding: 0.6rem 0.9rem;
+      background: #fafbfc;
+    }
+
+    .form-card .form-control:focus,
+    .form-card .form-select:focus {
+      border-color: var(--clr-accent);
+      box-shadow: 0 0 0 3px rgba(59,125,216,0.12);
+      background: white;
+    }
+
+    /* Point selector buttons */
+    .point-btn {
+      border-radius: var(--radius-sm) !important;
+      font-weight: 600;
+      font-size: 0.85rem;
+      padding: 8px 4px !important;
+      min-width: 36px;
+    }
+
+    .point-btn.active {
+      background: var(--clr-primary) !important;
+      border-color: var(--clr-primary) !important;
+      color: white !important;
+    }
+
+    /* Bulk filter area */
+    .bulk-filter-box {
+      background: #f7f8fa;
+      border: 1px solid var(--clr-border);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+
+    .bulk-filter-box .bulk-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--clr-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    /* Student checklist items */
+    #disc_studentList .form-check-label,
+    #akt_studentList .form-check-label {
+      font-size: 0.85rem;
+    }
+
+    /* ============================================================
+       PENDING CARDS
+    ============================================================ */
     .pending-card {
-      border-left: 5px solid #ffc107;
-      background: #fffcf2;
+      background: #fffbeb;
+      border: 1.5px solid #fde68a;
+      border-radius: var(--radius-md);
+      padding: 14px;
+      margin-bottom: 8px;
+      box-shadow: var(--shadow-sm);
     }
 
+    /* ============================================================
+       CHART CARD
+    ============================================================ */
+    .stat-card {
+      background: var(--clr-surface);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--clr-border);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* ============================================================
+       BOTTOM ACTION BAR
+    ============================================================ */
     .bottom-bar {
       position: fixed;
       bottom: 0;
       left: 0;
       right: 0;
-      background: white;
-      padding: 10px 20px;
-      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+      background: var(--clr-surface);
+      padding: 12px 20px;
+      border-top: 1px solid var(--clr-border);
+      box-shadow: 0 -4px 16px rgba(26,60,110,0.10);
       z-index: 1000;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
 
-    #loader {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(255, 255, 255, 0.9);
-      z-index: 2000;
-      display: none;
+    .bottom-bar .btn {
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+
+    .bottom-bar .btn-primary {
+      background: var(--clr-primary);
+      border: none;
+      padding: 10px 24px;
+    }
+
+    /* ============================================================
+       REPORT VIEW
+    ============================================================ */
+    .report-filter-chip {
+      background: var(--clr-bg);
+      border: 1.5px solid var(--clr-border);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      color: var(--clr-text-secondary);
+    }
+
+    .report-filter-chip:hover,
+    .report-filter-chip.active {
+      background: var(--clr-primary);
+      border-color: var(--clr-primary);
+      color: white;
+    }
+
+    .nav-tabs .nav-link {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--clr-text-secondary);
+      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+      padding: 8px 16px;
+    }
+
+    .nav-tabs .nav-link.active {
+      color: var(--clr-primary);
+      border-bottom-color: transparent;
+    }
+
+    /* ============================================================
+       MODAL OVERRIDES
+    ============================================================ */
+    .modal-content {
+      border: none;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+    }
+
+    .modal-header {
+      border-bottom: 1px solid var(--clr-border);
+      padding: 16px 20px;
+    }
+
+    .modal-header.primary-header {
+      background: var(--clr-primary);
+      color: white;
+      border-bottom: none;
+    }
+
+    .modal-header.success-header {
+      background: var(--clr-success);
+      color: white;
+      border-bottom: none;
+    }
+
+    .modal-header.info-header {
+      background: var(--clr-info);
+      color: white;
+      border-bottom: none;
+    }
+
+    .modal-header.warning-header {
+      background: var(--clr-warning);
+      color: white;
+      border-bottom: none;
+    }
+
+    .modal-title { font-weight: 700; font-size: 1rem; }
+    .modal-body { padding: 20px; }
+    .modal-footer { border-top: 1px solid var(--clr-border); padding: 14px 20px; }
+
+    /* ============================================================
+       OFFCANVAS
+    ============================================================ */
+    .offcanvas {
+      border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+    }
+
+    .offcanvas-header.info-header {
+      background: var(--clr-info);
+      color: white;
+    }
+
+    /* ============================================================
+       AKTIVITI MENU CARDS
+    ============================================================ */
+    .aktiviti-card {
+      background: var(--clr-surface);
+      border: 1.5px solid var(--clr-border);
+      border-radius: var(--radius-lg);
+      padding: 24px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .aktiviti-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--clr-accent);
+    }
+
+    .aktiviti-card:active { transform: scale(0.97); }
+
+    .aktiviti-card .icon-wrap {
+      width: 56px;
+      height: 56px;
+      border-radius: var(--radius-md);
+      display: flex;
       align-items: center;
       justify-content: center;
-      flex-direction: column;
+      margin: 0 auto 12px;
+      font-size: 1.4rem;
     }
 
-    .toast-container {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 9999;
+    .aktiviti-card h5 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--clr-text-primary);
+      margin: 0;
     }
 
-    .custom-toast {
-      background: white;
-      border-radius: 8px;
-      padding: 12px 20px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      margin-bottom: 10px;
-      display: none;
+    /* ============================================================
+       PENJANA LAPORAN
+    ============================================================ */
+    .btn-laporan-jenis {
+      font-size: 0.8rem;
+      padding: 5px 14px;
+      border-radius: 20px;
+    }
+
+    /* ============================================================
+       UTILITY OVERRIDES
+    ============================================================ */
+    .btn {
+      font-size: 0.875rem;
       font-weight: 500;
-      border-left: 4px solid #0d6efd;
+      border-radius: var(--radius-sm);
     }
+
+    .btn-primary {
+      background: var(--clr-primary);
+      border-color: var(--clr-primary);
+    }
+
+    .btn-primary:hover {
+      background: var(--clr-primary-light);
+      border-color: var(--clr-primary-light);
+    }
+
+    .btn-outline-primary {
+      border-color: var(--clr-primary);
+      color: var(--clr-primary);
+    }
+
+    .btn-outline-primary:hover {
+      background: var(--clr-primary);
+      border-color: var(--clr-primary);
+    }
+
+    .btn-submit {
+      background: var(--clr-primary);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 13px 20px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.15s, transform 0.1s;
+    }
+
+    .btn-submit:hover { background: var(--clr-primary-light); color: white; }
+    .btn-submit:active { transform: scale(0.99); }
+
+    .btn-submit.btn-danger-submit {
+      background: var(--clr-danger);
+    }
+
+    .btn-submit.btn-danger-submit:hover {
+      background: #c0392b;
+    }
+
+    /* Tables */
+    .table { font-size: 0.875rem; }
+    .table thead th { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; color: var(--clr-text-muted); }
   </style>
 </head>
 
 <body>
 
   <div id="loader">
-    <div class="spinner-border text-primary" role="status"></div>
-    <h5 class="mt-3 text-secondary">Memuatkan Data...</h5>
+    <div class="spinner-border" role="status"></div>
+    <p>Memuatkan Data...</p>
   </div>
 
   <div class="toast-container">
-    <div id="savingToast" class="custom-toast" style="border-left-color: #ffc107;">
-      <i class="fas fa-spinner fa-spin text-warning me-2"></i> Menyimpan...
+    <div id="savingToast" class="custom-toast" style="border-left-color: #e67e22;">
+      <i class="fas fa-spinner fa-spin me-2" style="color:#e67e22"></i> Menyimpan...
     </div>
-    <div id="syncToast" class="custom-toast" style="border-left-color: #198754;">
-      <i class="fas fa-check-circle text-success me-2"></i> Diselaraskan.
+    <div id="syncToast" class="custom-toast" style="border-left-color: #12a454;">
+      <i class="fas fa-check-circle me-2" style="color:#12a454"></i> Diselaraskan.
     </div>
   </div>
 
   <div id="loginScreen">
     <div class="login-card">
-      <img src="logosekolah.png" alt="Logo Sekolah" style="width: 100px; height: auto; margin-bottom: 15px;"
-        onerror="this.style.display='none'">
-      <h3 class="mb-4 text-dark">MyAsrama</h3>
-      <div id="loginError" class="alert alert-danger" style="display:none; font-size: 0.9rem;"></div>
-      <input type="text" id="loginUsername" class="form-control mb-3" placeholder="ID Pengguna (e.g., warden1)">
-      <input type="password" id="loginPass" class="form-control mb-4" placeholder="Kata Laluan">
-      <button id="btnLogin" class="btn btn-primary w-100 py-2" onclick="prosesLogMasuk()">LOG MASUK</button>
+      <div class="logo-wrap">
+        <img src="logosekolah.png" alt="Logo Sekolah" style="width: 58px; height: auto;"
+          onerror="this.style.display='none'">
+      </div>
+      <div class="app-name">MyAsrama</div>
+      <div class="app-sub">Sistem Pengurusan Asrama</div>
+      <div id="loginError" class="alert alert-danger text-start" style="display:none; font-size: 0.85rem;"></div>
+      <div class="mb-3">
+        <input type="text" id="loginUsername" class="form-control" placeholder="ID Pengguna" autocomplete="username">
+      </div>
+      <div class="mb-4">
+        <input type="password" id="loginPass" class="form-control" placeholder="Kata Laluan" autocomplete="current-password"
+          onkeydown="if(event.key==='Enter') prosesLogMasuk()">
+      </div>
+      <button id="btnLogin" class="btn-login" onclick="prosesLogMasuk()">
+        <i class="fas fa-sign-in-alt me-2"></i>LOG MASUK
+      </button>
     </div>
   </div>
 
   <div id="mainDashboard">
-    <nav class="navbar navbar-dark bg-primary sticky-top">
-      <div class="container-fluid flex-nowrap">
-        <span class="navbar-brand mb-0 h1 d-flex align-items-center text-truncate pe-2" style="min-width: 0;">
-          <button id="btnBackMenu" class="btn btn-sm btn-outline-light me-2" style="display:none;"
-            onclick="paparMenuUtama()"><i class="fas fa-home"></i></button>
-          <img src="logosekolah.png" alt="Logo"
-            style="height: 32px; width: auto; margin-right: 8px; background-color: white; border-radius: 4px; padding: 2px; flex-shrink: 0;"
-            onerror="this.style.display='none'">
-          <span class="text-truncate">MyAsrama</span>
-          <span id="userBadge" class="badge bg-light text-primary ms-2 flex-shrink-0"
-            style="font-size: 0.75rem;"></span>
-        </span>
-        <div class="d-flex flex-shrink-0">
-          <button class="btn btn-sm btn-outline-light me-2" onclick="loadDataServer()"><i
-              class="fas fa-sync-alt"></i></button>
-          <button class="btn btn-sm btn-danger" onclick="logKeluar()"><i class="fas fa-sign-out-alt"></i></button>
-        </div>
+    <header class="app-topbar">
+      <div class="topbar-left">
+        <button id="btnBackMenu" class="btn-topbar btn-back" style="display:none;" onclick="paparMenuUtama()">
+          <i class="fas fa-chevron-left"></i> <span>Utama</span>
+        </button>
+        <img src="logosekolah.png" alt="Logo" class="topbar-logo" id="topbarLogo"
+          onerror="this.style.display='none'">
+        <span class="topbar-title">MyAsrama</span>
+        <span id="userBadge" class="user-badge"></span>
       </div>
-    </nav>
+      <div class="topbar-actions">
+        <button class="btn-topbar" onclick="loadDataServer()" title="Muat Semula">
+          <i class="fas fa-sync-alt"></i>
+        </button>
+        <button class="btn-topbar btn-logout" onclick="logKeluar()" title="Log Keluar">
+          <i class="fas fa-sign-out-alt"></i>
+        </button>
+      </div>
+    </header>
 
     <!-- Main Menu View -->
-    <div id="mainMenuView" class="container mt-5">
-      <div class="text-center mb-5">
-        <h2 class="fw-bold text-dark text-uppercase" style="letter-spacing: 1px;">
-          WELCOME, <span id="welcomeNameText" class="text-primary">WARDEN</span>
-        </h2>
+    <div id="mainMenuView">
+      <div class="menu-greeting">
+        <div class="hello-label">Selamat Datang,</div>
+        <div class="warden-name" id="welcomeNameText">Warden</div>
       </div>
-      <div class="row g-4 justify-content-center">
-        <div class="col-12 col-md-6 col-lg-4">
-          <div class="card h-100 shadow-sm border-0 text-center p-4" onclick="bukaKeberadaan()"
-            style="cursor:pointer; transition: transform 0.2s;">
-            <i class="fas fa-map-marker-alt fa-4x text-primary mb-3"></i>
-            <h4 class="text-dark">Keberadaan Murid</h4>
-            <p class="text-muted small">Semak & Kemaskini Status Kehadiran Asrama</p>
+      <div class="menu-grid">
+
+        <div class="menu-card" onclick="bukaKeberadaan()">
+          <div class="icon-wrap" style="background:#e8eef8;">
+            <i class="fas fa-map-marker-alt" style="color:#1a3c6e;"></i>
           </div>
+          <div class="card-label">Keberadaan Murid</div>
+          <div class="card-sub">Semak &amp; Kemaskini Status</div>
         </div>
-        <div class="col-12 col-md-6 col-lg-4">
-          <div class="card h-100 shadow-sm border-0 text-center p-4" onclick="bukaDisiplin('Merit')"
-            style="cursor:pointer; transition: transform 0.2s;">
-            <i class="fas fa-star fa-4x text-success mb-3"></i>
-            <h4 class="text-dark">Rekod Amalan Baik</h4>
-            <p class="text-muted small">Beri Mata Merit kepada Individu atau Dorm</p>
+
+        <div class="menu-card" onclick="bukaDisiplin('Merit')">
+          <div class="icon-wrap" style="background:#dcfce7;">
+            <i class="fas fa-star" style="color:#166534;"></i>
           </div>
+          <div class="card-label">Amalan Baik</div>
+          <div class="card-sub">Rekod Merit</div>
         </div>
-        <div class="col-12 col-md-6 col-lg-4">
-          <div class="card h-100 shadow-sm border-0 text-center p-4" onclick="bukaDisiplin('Demerit')"
-            style="cursor:pointer; transition: transform 0.2s;">
-            <i class="fas fa-exclamation-triangle fa-4x text-danger mb-3"></i>
-            <h4 class="text-dark">Rekod Salah Laku</h4>
-            <p class="text-muted small">Beri Mata Demerit kepada Individu atau Dorm</p>
+
+        <div class="menu-card" onclick="bukaDisiplin('Demerit')">
+          <div class="icon-wrap" style="background:#fee2e2;">
+            <i class="fas fa-exclamation-triangle" style="color:#991b1b;"></i>
           </div>
+          <div class="card-label">Salah Laku</div>
+          <div class="card-sub">Rekod Demerit</div>
         </div>
-        <div class="col-12 col-md-6 col-lg-4">
-          <div class="card h-100 shadow-sm border-0 text-center p-4" onclick="bukaAktivitiMenu()"
-            style="cursor:pointer; transition: transform 0.2s;">
-            <i class="fas fa-running fa-4x text-primary mb-3"></i>
-            <h4 class="text-dark">Rekod Aktiviti</h4>
-            <p class="text-muted small">Rekod Solat Berjemaah, Prep, dll.</p>
+
+        <div class="menu-card" onclick="bukaAktivitiMenu()">
+          <div class="icon-wrap" style="background:#ede9fe;">
+            <i class="fas fa-running" style="color:#5b21b6;"></i>
           </div>
+          <div class="card-label">Rekod Aktiviti</div>
+          <div class="card-sub">Solat, Prep, dll.</div>
         </div>
-        <div class="col-12 col-md-6 col-lg-4">
-          <div class="card h-100 shadow-sm border-0 text-center p-4" onclick="bukaLaporan()"
-            style="cursor:pointer; transition: transform 0.2s;">
-            <i class="fas fa-chart-bar fa-4x text-info mb-3"></i>
-            <h4 class="text-dark">Laporan Disiplin</h4>
-            <p class="text-muted small">Lihat Kedudukan Mata & Sejarah Rekod</p>
+
+        <div class="menu-card" onclick="bukaLaporan()">
+          <div class="icon-wrap" style="background:#e0f2fe;">
+            <i class="fas fa-chart-bar" style="color:#0369a1;"></i>
           </div>
+          <div class="card-label">Laporan Disiplin</div>
+          <div class="card-sub">Kedudukan Mata</div>
         </div>
-        <div class="col-12 col-md-6 col-lg-4">
-          <div class="card h-100 shadow-sm border-0 text-center p-4" onclick="bukaPenjanaLaporan()"
-            style="cursor:pointer; transition: transform 0.2s;">
-            <i class="fas fa-file-signature fa-4x text-warning mb-3"></i>
-            <h4 class="text-dark">Penjana Laporan</h4>
-            <p class="text-muted small">Cetak Laporan Tindakan Warden</p>
+
+        <div class="menu-card" onclick="bukaPenjanaLaporan()">
+          <div class="icon-wrap" style="background:#fef9c3;">
+            <i class="fas fa-file-signature" style="color:#92400e;"></i>
           </div>
+          <div class="card-label">Penjana Laporan</div>
+          <div class="card-sub">Cetak PDF</div>
         </div>
-        <div class="col-12 col-md-6 col-lg-4">
-          <a href="https://docs.google.com/spreadsheets/d/1oY-LbRwZ0z74lpSQm5rKHgEXw3Hn0nbwawbeVY9je0o/edit?gid=471973262#gid=471973262"
-            target="_blank" class="text-decoration-none">
-            <div class="card h-100 shadow-sm border-0 text-center p-4"
-              style="cursor:pointer; transition: transform 0.2s;">
-              <i class="fas fa-cog fa-4x text-secondary mb-3"></i>
-              <h4 class="text-dark">Tetapan</h4>
-              <p class="text-muted small">Urus Data di dalam Google Sheet</p>
-            </div>
-          </a>
-        </div>
+
+        <a href="https://docs.google.com/spreadsheets/d/1oY-LbRwZ0z74lpSQm5rKHgEXw3Hn0nbwawbeVY9je0o/edit?gid=471973262#gid=471973262"
+          target="_blank" class="menu-card">
+          <div class="icon-wrap" style="background:#f0fdf4;">
+            <i class="fas fa-cog" style="color:#166534;"></i>
+          </div>
+          <div class="card-label">Tetapan</div>
+          <div class="card-sub">Google Sheet</div>
+        </a>
+
       </div>
     </div>
 
     <!-- Attendance View -->
-    <div id="attendanceView" style="display:none;" class="container mt-3">
-      <div id="chartSection" class="card stat-card p-3 mb-3" style="display:none;">
-        <h6 class="text-muted mb-2 text-center">Ringkasan Semasa</h6>
-        <div style="height: 150px; position: relative; width: 100%;">
+    <div id="attendanceView" style="display:none;" class="view-section">
+
+      <div id="chartSection" class="stat-card p-3 mb-3" style="display:none;">
+        <p class="text-muted mb-2 text-center" style="font-size:0.8rem; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Ringkasan Semasa</p>
+        <div style="height: 140px; position: relative; width: 100%;">
           <canvas id="statusChart"></canvas>
         </div>
       </div>
 
-      <div id="pendingSection" style="display:none;" class="mb-4">
-        <h5 class="text-warning mb-3"><i class="fas fa-bell"></i> Menunggu Pengesahan (<span id="pendingCount">0</span>)
-        </h5>
+      <div id="pendingSection" style="display:none;" class="mb-3">
+        <p class="mb-2" style="font-size:0.8rem; font-weight:700; color:#92400e;">
+          <i class="fas fa-bell me-1"></i> MENUNGGU PENGESAHAN (<span id="pendingCount">0</span>)
+        </p>
         <div id="pendingContainer"></div>
       </div>
 
-      <div class="search-container">
+      <div class="filter-bar">
         <div class="row g-2">
           <div class="col-12 col-md-4">
-            <input type="text" id="searchInput" class="form-control" placeholder="Cari Nama, Kelas, Dorm..."
+            <input type="text" id="searchInput" class="form-control" placeholder="🔍  Cari nama, kelas, dorm..."
               onkeyup="filterList()">
           </div>
           <div class="col-12 col-md-4">
@@ -303,70 +1046,69 @@
             </select>
           </div>
           <div class="col-6 col-md-2">
-            <button class="btn btn-info w-100 text-white" onclick="bukaLogHariIni()"><i class="fas fa-history"></i> Log
-              Hari Ini</button>
+            <button class="btn btn-outline-primary w-100" onclick="bukaLogHariIni()">
+              <i class="fas fa-history me-1"></i> Log
+            </button>
           </div>
           <div class="col-6 col-md-2">
-            <button class="btn btn-danger w-100" onclick="muatTurunPDF()"><i class="fas fa-file-pdf"></i> PDF</button>
+            <button class="btn btn-outline-danger w-100" onclick="muatTurunPDF()">
+              <i class="fas fa-file-pdf me-1"></i> PDF
+            </button>
           </div>
-          <div class="col-12 mt-2">
+          <div class="col-12">
             <div class="dropdown">
-              <button class="btn btn-sm btn-outline-primary dropdown-toggle w-100" type="button"
+              <button class="btn btn-outline-primary dropdown-toggle w-100" type="button"
                 data-bs-toggle="dropdown">
-                <i class="fas fa-check-double"></i> Pilih Pukal (Senarai Terkini)
+                <i class="fas fa-check-double me-1"></i> Pilih Pukal
               </button>
               <ul class="dropdown-menu w-100 shadow-sm">
                 <li><a class="dropdown-item" href="#" onclick="pilihPukal('Semua')">✅ Pilih Semua (Tersenarai)</a></li>
-                <li><a class="dropdown-item" href="#" onclick="pilihPukal('Masuk')"><i
-                      class="fas fa-sign-in-alt text-success"></i> Pilih Semua: Masuk</a></li>
-                <li><a class="dropdown-item" href="#" onclick="pilihPukal('Keluar')"><i
-                      class="fas fa-sign-out-alt text-danger"></i> Pilih Semua: Keluar</a></li>
-                <li><a class="dropdown-item" href="#" onclick="pilihPukal('Sakit')"><i
-                      class="fas fa-procedures text-warning"></i> Pilih Semua: Sakit</a></li>
-                <li>
-                  <hr class="dropdown-divider">
-                </li>
-                <li><a class="dropdown-item text-danger" href="#" onclick="clearSelection()"><i
-                      class="fas fa-times-circle"></i> Batal Semua Pilihan</a></li>
+                <li><a class="dropdown-item" href="#" onclick="pilihPukal('Masuk')"><i class="fas fa-sign-in-alt text-success me-1"></i> Pilih Semua: Masuk</a></li>
+                <li><a class="dropdown-item" href="#" onclick="pilihPukal('Keluar')"><i class="fas fa-sign-out-alt text-danger me-1"></i> Pilih Semua: Keluar</a></li>
+                <li><a class="dropdown-item" href="#" onclick="pilihPukal('Sakit')"><i class="fas fa-procedures text-warning me-1"></i> Pilih Semua: Sakit</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item text-danger" href="#" onclick="clearSelection()"><i class="fas fa-times-circle me-1"></i> Batal Semua Pilihan</a></li>
               </ul>
             </div>
           </div>
-          <div class="col-12 mt-2" id="adminToolsSection" style="display:none;">
-            <button class="btn btn-sm btn-success w-100" onclick="bukaModalTambah()"><i class="fas fa-user-plus"></i>
-              Tambah Pelajar Baru</button>
+          <div class="col-12" id="adminToolsSection" style="display:none;">
+            <button class="btn btn-success w-100" onclick="bukaModalTambah()">
+              <i class="fas fa-user-plus me-1"></i> Tambah Pelajar Baru
+            </button>
           </div>
         </div>
       </div>
 
-      <h5 class="text-secondary mb-3"><i class="fas fa-users"></i> Senarai Murid</h5>
+      <p class="mb-2" style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--clr-text-muted);">Senarai Murid</p>
       <div id="studentList"></div>
     </div>
 
     <div class="bottom-bar" id="bottomBar" style="display:none;">
       <div>
-        <span class="badge bg-primary rounded-pill fs-6 py-2 px-3" id="selectionCount">0 Dipilih</span>
+        <span class="badge rounded-pill py-2 px-3" id="selectionCount"
+          style="background:var(--clr-primary); font-size:0.85rem;">0 Dipilih</span>
       </div>
-      <div>
-        <button class="btn btn-outline-secondary me-2" onclick="clearSelection()">Batal</button>
-        <button class="btn btn-primary shadow" onclick="openActionModal()">Kemaskini <i
-            class="fas fa-chevron-right ms-1"></i></button>
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-secondary" onclick="clearSelection()">Batal</button>
+        <button class="btn btn-primary" onclick="openActionModal()">
+          Kemaskini <i class="fas fa-chevron-right ms-1"></i>
+        </button>
       </div>
     </div>
-  </div><!-- End attendanceView -->
 
   <!-- Discipline View (Merit / Demerit) -->
-  <div id="disciplineView" style="display:none;" class="container mt-3 mb-5">
-    <div class="card border-0 shadow-sm p-4">
-      <h4 id="disciplineTitle" class="mb-4 text-center"></h4>
+  <div id="disciplineView" style="display:none;" class="view-section">
+    <div class="form-card">
+      <h1 id="disciplineTitle" class="mb-4 text-center" style="font-size:1.15rem; font-weight:700;"></h1>
       <form id="disciplineForm">
         <input type="hidden" id="disc_type">
         <div class="mb-3">
-          <label class="form-label fw-bold">Tarikh</label>
+          <label class="form-label">Tarikh</label>
           <input type="date" class="form-control" id="disc_date">
         </div>
 
         <div class="mb-3">
-          <label class="form-label fw-bold">Pilihan Rekod</label>
+          <label class="form-label">Pilihan Rekod</label>
           <select class="form-select" id="disc_targetType" onchange="toggleDisciplineTarget()">
             <option value="Individu">Individu (Pilih Pelajar)</option>
             <option value="Dorm">Bilik Dorm (Semua dalam dorm)</option>
@@ -374,15 +1116,15 @@
         </div>
 
         <div class="mb-3" id="disc_individu_group">
-          <label class="form-label fw-bold">Nama Pelajar (Carian)</label>
-          <div class="border rounded p-2 mb-2" style="background-color: #f8f9fa;">
-            <p class="mb-1 small fw-bold text-muted">Penapis Pukal (Pelajar Hadir Sahaja)</p>
+          <label class="form-label">Nama Pelajar</label>
+          <div class="bulk-filter-box">
+            <div class="bulk-label">Penapis Pukal — Pelajar Hadir Sahaja</div>
             <div class="row g-1 mb-2">
               <div class="col-4">
                 <select class="form-select form-select-sm" id="bulk_tahap">
                   <option value="all">Semua Tahap</option>
-                  <option value="1">Tahap 1 (Ting. 1-3)</option>
-                  <option value="2">Tahap 2 (Ting. 4-6)</option>
+                  <option value="1">Tahap 1 (1-3)</option>
+                  <option value="2">Tahap 2 (4-6)</option>
                 </select>
               </div>
               <div class="col-4">
@@ -401,11 +1143,15 @@
               </div>
             </div>
             <div class="d-flex gap-2">
-              <button type="button" class="btn btn-sm btn-primary flex-fill fw-bold" onclick="applyCustomBulkSelection()"><i class="fas fa-check-double me-1"></i> Pilih Pelajar</button>
-              <button type="button" class="btn btn-sm btn-outline-danger fw-bold" onclick="clearDisciplineSelection()"><i class="fas fa-times me-1"></i> Nyahpilih</button>
+              <button type="button" class="btn btn-sm btn-primary flex-fill fw-bold" onclick="applyCustomBulkSelection()">
+                <i class="fas fa-check-double me-1"></i> Pilih Pelajar
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-danger fw-bold" onclick="clearDisciplineSelection()">
+                <i class="fas fa-times me-1"></i> Nyahpilih
+              </button>
             </div>
           </div>
-          <input type="text" id="disc_search" class="form-control mb-2" placeholder="Cari nama..."
+          <input type="text" id="disc_search" class="form-control mb-2" placeholder="🔍 Cari nama pelajar..."
             onkeyup="filterDisciplineStudents()">
           <div id="disc_studentList" class="border rounded p-2"
             style="max-height: 200px; overflow-y: auto; background: #fafafa;">
@@ -414,103 +1160,97 @@
         </div>
 
         <div class="mb-3" id="disc_dorm_group" style="display:none;">
-          <label class="form-label fw-bold">Pilih Blok / Dorm</label>
+          <label class="form-label">Pilih Blok / Dorm</label>
           <select class="form-select" id="disc_dormSelect">
             <!-- Dorms injected here -->
           </select>
         </div>
 
         <div class="mb-3">
-          <label class="form-label fw-bold">Mata (1 - 10)</label>
+          <label class="form-label">Mata (1 – 10)</label>
           <input type="hidden" id="disc_points" value="">
-          <div class="d-flex flex-wrap gap-2" id="disc_points_container">
-            <button type="button" class="btn btn-outline-primary point-btn flex-fill"
-              onclick="setDiscPoints(1)">1</button>
-            <button type="button" class="btn btn-outline-primary point-btn flex-fill"
-              onclick="setDiscPoints(2)">2</button>
-            <button type="button" class="btn btn-outline-primary point-btn flex-fill"
-              onclick="setDiscPoints(3)">3</button>
-            <button type="button" class="btn btn-outline-primary point-btn flex-fill"
-              onclick="setDiscPoints(4)">4</button>
-            <button type="button" class="btn btn-outline-primary point-btn flex-fill"
-              onclick="setDiscPoints(5)">5</button>
-            <button type="button" class="btn btn-outline-primary point-btn flex-fill"
-              onclick="setDiscPoints(6)">6</button>
-            <button type="button" class="btn btn-outline-primary point-btn flex-fill"
-              onclick="setDiscPoints(7)">7</button>
-            <button type="button" class="btn btn-outline-primary point-btn flex-fill"
-              onclick="setDiscPoints(8)">8</button>
-            <button type="button" class="btn btn-outline-primary point-btn flex-fill"
-              onclick="setDiscPoints(9)">9</button>
-            <button type="button" class="btn btn-outline-primary point-btn flex-fill"
-              onclick="setDiscPoints(10)">10</button>
+          <div class="d-flex flex-wrap gap-1" id="disc_points_container">
+            <button type="button" class="btn btn-outline-primary point-btn flex-fill" onclick="setDiscPoints(1)">1</button>
+            <button type="button" class="btn btn-outline-primary point-btn flex-fill" onclick="setDiscPoints(2)">2</button>
+            <button type="button" class="btn btn-outline-primary point-btn flex-fill" onclick="setDiscPoints(3)">3</button>
+            <button type="button" class="btn btn-outline-primary point-btn flex-fill" onclick="setDiscPoints(4)">4</button>
+            <button type="button" class="btn btn-outline-primary point-btn flex-fill" onclick="setDiscPoints(5)">5</button>
+            <button type="button" class="btn btn-outline-primary point-btn flex-fill" onclick="setDiscPoints(6)">6</button>
+            <button type="button" class="btn btn-outline-primary point-btn flex-fill" onclick="setDiscPoints(7)">7</button>
+            <button type="button" class="btn btn-outline-primary point-btn flex-fill" onclick="setDiscPoints(8)">8</button>
+            <button type="button" class="btn btn-outline-primary point-btn flex-fill" onclick="setDiscPoints(9)">9</button>
+            <button type="button" class="btn btn-outline-primary point-btn flex-fill" onclick="setDiscPoints(10)">10</button>
           </div>
         </div>
 
         <div class="mb-3">
-          <label class="form-label fw-bold">Catatan / Sebab</label>
+          <label class="form-label">Catatan / Sebab</label>
           <textarea class="form-control" id="disc_reason" rows="3" required
             placeholder="Cth: Tolong angkat barang / Bising selepas lampu tutup"></textarea>
         </div>
 
         <div class="mb-3" id="disc_tindakan_group" style="display:none;">
-          <label class="form-label fw-bold">Tindakan / Hukuman</label>
+          <label class="form-label">Tindakan / Hukuman</label>
           <textarea class="form-control" id="disc_tindakan" rows="2"
             placeholder="Cth: Amaran Lisan / Denda cuci tandas"></textarea>
         </div>
 
         <div class="mb-4">
-          <label class="form-label fw-bold">Gambar Bukti (Pilihan)</label>
+          <label class="form-label">Gambar Bukti (Pilihan)</label>
           <input class="form-control" type="file" accept="image/*" id="disc_cameraInput" onchange="compressDiscImage()">
           <input type="hidden" id="disc_imageFile">
           <div id="disc_imagePreview" class="mt-2 text-center" style="display:none;">
             <img id="disc_previewImg" src="" style="max-width: 100%; max-height: 200px; border-radius: 8px;">
           </div>
         </div>
-        <button type="button" class="btn btn-lg w-100 text-white" id="btnHantarDisiplin"
-          onclick="hantarRekodDisiplin()"><i class="fas fa-paper-plane me-2"></i> Hantar Rekod</button>
+        <button type="button" class="btn-submit" id="btnHantarDisiplin" onclick="hantarRekodDisiplin()">
+          <i class="fas fa-paper-plane"></i> Hantar Rekod
+        </button>
       </form>
     </div>
   </div>
 
   <!-- Aktiviti Menu View -->
-  <div id="aktivitiMenuView" style="display:none;" class="container mt-4 mb-5">
-    <h4 class="mb-4 text-center fw-bold text-dark">Pilih Aktiviti</h4>
-    <div class="row g-4 justify-content-center">
-      <div class="col-12 col-md-6 col-lg-4">
-        <div class="card h-100 shadow-sm border-0 text-center p-4" onclick="bukaAktivitiForm('Solat Berjemaah')"
-          style="cursor:pointer;">
-          <i class="fas fa-mosque fa-3x text-success mb-3"></i>
-          <h5 class="text-dark">Solat Berjemaah</h5>
+  <div id="aktivitiMenuView" style="display:none;" class="view-section">
+    <p class="mb-3" style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--clr-text-muted);">Pilih Jenis Aktiviti</p>
+    <div class="row g-3">
+      <div class="col-12 col-sm-4">
+        <div class="aktiviti-card" onclick="bukaAktivitiForm('Solat Berjemaah')">
+          <div class="icon-wrap" style="background:#dcfce7;">
+            <i class="fas fa-mosque" style="color:#166534;"></i>
+          </div>
+          <h5>Solat Berjemaah</h5>
         </div>
       </div>
-      <div class="col-12 col-md-6 col-lg-4">
-        <div class="card h-100 shadow-sm border-0 text-center p-4" onclick="bukaAktivitiForm('Pelaksanaan Prep')"
-          style="cursor:pointer;">
-          <i class="fas fa-book-reader fa-3x text-primary mb-3"></i>
-          <h5 class="text-dark">Pelaksanaan Prep</h5>
+      <div class="col-12 col-sm-4">
+        <div class="aktiviti-card" onclick="bukaAktivitiForm('Pelaksanaan Prep')">
+          <div class="icon-wrap" style="background:#e0f2fe;">
+            <i class="fas fa-book-reader" style="color:#0369a1;"></i>
+          </div>
+          <h5>Pelaksanaan Prep</h5>
         </div>
       </div>
-      <div class="col-12 col-md-6 col-lg-4">
-        <div class="card h-100 shadow-sm border-0 text-center p-4"
-          onclick="bukaAktivitiForm('Bilik Khas (Makmal / Muzik)')" style="cursor:pointer;">
-          <i class="fas fa-laptop-house fa-3x text-info mb-3"></i>
-          <h5 class="text-dark">Bilik Khas</h5>
+      <div class="col-12 col-sm-4">
+        <div class="aktiviti-card" onclick="bukaAktivitiForm('Bilik Khas (Makmal / Muzik)')">
+          <div class="icon-wrap" style="background:#ede9fe;">
+            <i class="fas fa-laptop-house" style="color:#5b21b6;"></i>
+          </div>
+          <h5>Bilik Khas</h5>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Aktiviti Form View -->
-  <div id="aktivitiFormView" style="display:none;" class="container mt-3 mb-5">
-    <div class="card border-0 shadow-sm p-4">
-      <h4 id="aktivitiTitle" class="mb-4 text-center fw-bold text-primary"></h4>
+  <div id="aktivitiFormView" style="display:none;" class="view-section">
+    <div class="form-card">
+      <h1 id="aktivitiTitle" class="mb-4 text-center" style="font-size:1.1rem; font-weight:700; color:var(--clr-primary);"></h1>
       <form id="aktivitiForm">
         <input type="hidden" id="akt_type">
 
         <div class="mb-3" id="akt_bilikKhas_group" style="display:none;">
-          <label class="form-label fw-bold text-info">Pilih Bilik Khas</label>
-          <select class="form-select border-info" id="akt_bilikKhas_select">
+          <label class="form-label">Pilih Bilik Khas</label>
+          <select class="form-select" id="akt_bilikKhas_select">
             <option value="Makmal Komputer">Makmal Komputer</option>
             <option value="Bilik Muzik">Bilik Muzik</option>
           </select>
@@ -518,17 +1258,17 @@
 
         <div class="row mb-3">
           <div class="col-6">
-            <label class="form-label fw-bold">Tarikh</label>
+            <label class="form-label">Tarikh</label>
             <input type="date" class="form-control" id="akt_date">
           </div>
           <div class="col-6">
-            <label class="form-label fw-bold">Masa</label>
+            <label class="form-label">Masa</label>
             <input type="time" class="form-control" id="akt_time">
           </div>
         </div>
 
         <div class="mb-3">
-          <label class="form-label fw-bold">Pilihan Rekod</label>
+          <label class="form-label">Pilihan Rekod</label>
           <select class="form-select" id="akt_targetType" onchange="toggleAktivitiTarget()">
             <option value="Dorm">Bilik Dorm (Semua dalam dorm)</option>
             <option value="Kelas">Kelas (Semua dalam kelas)</option>
@@ -537,9 +1277,9 @@
         </div>
 
         <div class="mb-3" id="akt_individu_group" style="display:none;">
-          <label class="form-label fw-bold">Nama Pelajar (Carian)</label>
+          <label class="form-label">Nama Pelajar</label>
           <div class="d-flex gap-2 mb-2">
-            <input type="text" id="akt_search" class="form-control" placeholder="Cari nama..."
+            <input type="text" id="akt_search" class="form-control" placeholder="🔍 Cari nama..."
               onkeyup="filterAktivitiStudents()">
             <button type="button" class="btn btn-outline-primary" onclick="selectAllAktivitiStudents()"
               style="white-space: nowrap;">Pilih Semua</button>
@@ -551,42 +1291,39 @@
         </div>
 
         <div class="mb-3" id="akt_dorm_group">
-          <label class="form-label fw-bold">Pilih Blok / Dorm</label>
+          <label class="form-label">Pilih Blok / Dorm</label>
           <select class="form-select" id="akt_dormSelect">
             <!-- Dorms injected here -->
           </select>
         </div>
 
         <div class="mb-3" id="akt_kelas_group" style="display:none;">
-          <label class="form-label fw-bold">Pilih Kelas</label>
+          <label class="form-label">Pilih Kelas</label>
           <select class="form-select" id="akt_kelasSelect">
             <!-- Classes injected here -->
           </select>
         </div>
 
         <div class="mb-4">
-          <label class="form-label fw-bold">Gambar Bukti (Pilihan)</label>
+          <label class="form-label">Gambar Bukti (Pilihan)</label>
           <input class="form-control" type="file" accept="image/*" id="akt_cameraInput" onchange="compressAktImage()">
           <input type="hidden" id="akt_imageFile">
           <div id="akt_imagePreview" class="mt-2 text-center" style="display:none;">
             <img id="akt_previewImg" src="" style="max-width: 100%; max-height: 200px; border-radius: 8px;">
           </div>
         </div>
-        <button type="button" class="btn btn-lg btn-primary w-100 text-white" id="btnHantarAktiviti"
-          onclick="hantarRekodAktiviti()">
-          <i class="fas fa-paper-plane me-2"></i> Simpan Kehadiran Aktiviti
+        <button type="button" class="btn-submit" id="btnHantarAktiviti" onclick="hantarRekodAktiviti()">
+          <i class="fas fa-paper-plane"></i> Simpan Kehadiran Aktiviti
         </button>
       </form>
     </div>
   </div>
 
   <!-- Report View -->
-  <div id="reportView" style="display:none;" class="container mt-3 mb-5">
-    <div
-      class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mb-3 gap-2">
-      <h4 class="text-primary mb-0"><i class="fas fa-chart-bar me-2"></i> Laporan Disiplin</h4>
+  <div id="reportView" style="display:none;" class="view-section">
+    <div class="filter-bar mb-3">
       <div class="d-flex gap-2 flex-wrap">
-        <select id="filterYear" class="form-select w-auto text-primary border-primary"
+        <select id="filterYear" class="form-select form-select-sm w-auto"
           onchange="renderReportIndividu(); renderReportDorm(); renderReportSejarah();">
           <option value="all">Semua Tahun</option>
           <option value="1">Tahun 1</option>
@@ -596,13 +1333,13 @@
           <option value="5">Tahun 5</option>
           <option value="6">Tahun 6</option>
         </select>
-        <select id="filterGender" class="form-select w-auto text-primary border-primary"
+        <select id="filterGender" class="form-select form-select-sm w-auto"
           onchange="renderReportIndividu(); renderReportDorm(); renderReportSejarah();">
           <option value="all">Semua Jantina</option>
           <option value="Lelaki">Lelaki</option>
           <option value="Perempuan">Perempuan</option>
         </select>
-        <select id="filterMonth" class="form-select w-auto fw-bold text-primary border-primary"
+        <select id="filterMonth" class="form-select form-select-sm w-auto"
           onchange="renderReportIndividu(); renderReportDorm(); renderReportSejarah();">
           <option value="all">Semua Masa</option>
           <option value="1">Januari</option>
@@ -621,34 +1358,35 @@
       </div>
     </div>
 
-    <ul class="nav nav-tabs mb-3" id="reportTabs" role="tablist">
+    <ul class="nav nav-tabs mb-0" id="reportTabs" role="tablist">
       <li class="nav-item" role="presentation">
-        <button class="nav-link active fw-bold" id="tab-individu" data-bs-toggle="tab"
-          data-bs-target="#content-individu" type="button" role="tab" onclick="renderReportIndividu()">🏆
-          Individu</button>
+        <button class="nav-link active" id="tab-individu" data-bs-toggle="tab"
+          data-bs-target="#content-individu" type="button" role="tab" onclick="renderReportIndividu()">
+          🏆 Individu
+        </button>
       </li>
       <li class="nav-item" role="presentation">
-        <button class="nav-link fw-bold" id="tab-dorm" data-bs-toggle="tab" data-bs-target="#content-dorm" type="button"
+        <button class="nav-link" id="tab-dorm" data-bs-toggle="tab" data-bs-target="#content-dorm" type="button"
           role="tab" onclick="renderReportDorm()">🏠 Dorm</button>
       </li>
       <li class="nav-item" role="presentation">
-        <button class="nav-link fw-bold" id="tab-sejarah" data-bs-toggle="tab" data-bs-target="#content-sejarah"
+        <button class="nav-link" id="tab-sejarah" data-bs-toggle="tab" data-bs-target="#content-sejarah"
           type="button" role="tab" onclick="renderReportSejarah()">📜 Sejarah</button>
       </li>
     </ul>
 
-    <div class="tab-content bg-white p-3 border border-top-0 rounded-bottom" id="reportTabsContent">
+    <div class="tab-content" id="reportTabsContent"
+      style="background:var(--clr-surface); border: 1px solid var(--clr-border); border-top: none; border-radius: 0 0 var(--radius-md) var(--radius-md); padding: 16px;">
       <div class="tab-pane fade show active" id="content-individu" role="tabpanel">
-        <div class="mb-3 position-relative">
-          <i class="fas fa-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
-          <input type="text" id="searchIndividu" class="form-control form-control-lg ps-5 bg-light border-0 shadow-sm"
-            placeholder="Cari nama pelajar..." onkeyup="renderReportIndividu()">
+        <div class="mb-3">
+          <input type="text" id="searchIndividu" class="form-control"
+            placeholder="🔍  Cari nama pelajar..." onkeyup="renderReportIndividu()">
         </div>
         <div class="table-responsive">
           <table class="table table-hover align-middle">
             <thead class="table-light">
               <tr>
-                <th style="width: 50px">No</th>
+                <th style="width: 40px">No</th>
                 <th>Nama Murid</th>
                 <th>Dorm</th>
                 <th class="text-end">Mata</th>
@@ -663,9 +1401,9 @@
           <table class="table table-hover align-middle">
             <thead class="table-light">
               <tr>
-                <th style="width: 50px">No</th>
+                <th style="width: 40px">No</th>
                 <th>Blok / Dorm</th>
-                <th class="text-end">Jumlah Mata Keseluruhan</th>
+                <th class="text-end">Jumlah Mata</th>
               </tr>
             </thead>
             <tbody id="tbody-dorm"></tbody>
@@ -676,7 +1414,6 @@
         <div id="historyLogContainer"></div>
       </div>
     </div>
-  </div>
   </div>
 
   <!-- Penjana Laporan View -->
@@ -823,9 +1560,9 @@
 
   <div class="modal fade" id="dormStudentsModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-      <div class="modal-content border-0 shadow">
-        <div class="modal-header border-0 bg-primary text-white">
-          <h5 class="modal-title fw-bold" id="dormStudentsModalTitle">Senarai Murid</h5>
+      <div class="modal-content">
+        <div class="modal-header primary-header">
+          <h5 class="modal-title" id="dormStudentsModalTitle">Senarai Murid</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body p-0">
@@ -853,9 +1590,9 @@
   <!-- Modal Sejarah Pelajar Individu -->
   <div class="modal fade" id="studentHistoryModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-      <div class="modal-content border-0 shadow">
-        <div class="modal-header border-0 bg-info text-white">
-          <h5 class="modal-title fw-bold" id="studentHistoryModalTitle">Rekod Disiplin</h5>
+      <div class="modal-content">
+        <div class="modal-header info-header">
+          <h5 class="modal-title" id="studentHistoryModalTitle">Rekod Disiplin</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body p-0">
@@ -872,7 +1609,7 @@
   </div>
 
   <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasLog" aria-labelledby="offcanvasLogLabel">
-    <div class="offcanvas-header bg-info text-white">
+    <div class="offcanvas-header info-header">
       <h5 class="offcanvas-title" id="offcanvasLogLabel"><i class="fas fa-history me-2"></i> Pergerakan Hari Ini</h5>
       <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
@@ -885,8 +1622,8 @@
   <div class="modal fade" id="actionModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
-        <div class="modal-header bg-primary text-white">
-          <h5 class="modal-title">Tindakan</h5>
+        <div class="modal-header primary-header">
+          <h5 class="modal-title">Kemaskini Status</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
@@ -978,7 +1715,7 @@
   <div class="modal fade" id="tambahPelajarModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
-        <div class="modal-header bg-success text-white">
+        <div class="modal-header success-header">
           <h5 class="modal-title"><i class="fas fa-user-plus me-2"></i>Tambah Pelajar</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
@@ -1028,7 +1765,7 @@
   <div class="modal fade" id="aktivitiDetailsModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-lg">
       <div class="modal-content">
-        <div class="modal-header bg-info text-white">
+        <div class="modal-header info-header">
           <h5 class="modal-title"><i class="fas fa-users me-2"></i>Senarai Murid Aktiviti</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
@@ -1370,19 +2107,19 @@
         const div = document.createElement('div');
         div.className = `student-card ${isSel}`;
         div.id = 'card-' + s.name.replace(/\s+/g, '-');
+        const initials = s.name.trim().split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
+        const avatarBg = s.status === 'Masuk' ? 'background:#dcfce7; color:#166534;' : (s.status === 'Keluar' ? 'background:#fee2e2; color:#991b1b;' : 'background:#fef3c7; color:#92400e;');
         div.innerHTML = `
-          <div class="d-flex justify-content-between align-items-center">
-            <div style="flex:1;" onclick="toggleSelection('${s.name}')">
-              <h6 class="mb-1">${s.name} ${attachIcon}</h6>
-              <small class="text-muted"><i class="fas fa-door-open me-1"></i>${s.classroom} | ${s.block}</small><br>
-              <small class="text-muted" style="font-size:0.75rem;"><i class="far fa-clock me-1"></i>${timeStr}${daysOutStr}</small>
-              <div class="mt-1">${meritBadge}</div>
-            </div>
-            <div class="text-end ms-2">
-              <span class="status-badge ${badgeCls} mb-2 d-inline-block">${s.status}</span><br>
-              <button class="btn btn-sm btn-light border" onclick="showDetails('${s.name}'); event.stopPropagation();"><i class="fas fa-info-circle text-info"></i></button>
-              ${userRole === 'warden' ? `<button class="btn btn-sm btn-light border text-danger ms-1" onclick="buangPelajar('${s.name.replace(/'/g, "\\'")}'); event.stopPropagation();"><i class="fas fa-trash-alt"></i></button>` : ''}
-            </div>
+          <div class="student-avatar" style="${avatarBg}" onclick="toggleSelection('${s.name}')">${initials}</div>
+          <div class="student-info" onclick="toggleSelection('${s.name}')">
+            <div class="student-name">${s.name} ${attachIcon}</div>
+            <div class="student-meta"><i class="fas fa-door-open me-1"></i>${s.classroom} &bull; ${s.block} &bull; ${timeStr}${daysOutStr}</div>
+            <div class="mt-1">${meritBadge}</div>
+          </div>
+          <div class="student-actions">
+            <span class="status-badge ${badgeCls}">${s.status}</span>
+            <button class="btn-card-action" onclick="showDetails('${s.name}'); event.stopPropagation();" title="Info"><i class="fas fa-info-circle"></i></button>
+            ${userRole === 'warden' ? `<button class="btn-card-action" style="color:#e74c3c;" onclick="buangPelajar('${s.name.replace(/'/g, "\\'")}'); event.stopPropagation();" title="Padam"><i class="fas fa-trash-alt"></i></button>` : ''}
           </div>
         `;
         container.appendChild(div);
