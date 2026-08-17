@@ -2969,25 +2969,22 @@
       
       let html = '<div class="list-group list-group-flush stat-card overflow-hidden">';
       filtered.forEach((s, i) => {
-        const statusColor = s.status === 'Masuk' ? 'var(--clr-success)' : '#dc3545';
-        const statusDot = `<span style="width:8px;height:8px;border-radius:50%;background:${statusColor};display:inline-block;flex-shrink:0;"></span>`;
+        const statusColor = s.status === 'Masuk' ? 'var(--clr-success)' : (s.status === 'Keluar' ? '#dc3545' : '#d97706');
         const statusLabel = s.status || 'Masuk';
         const border = i < filtered.length - 1 ? 'border-bottom:1px solid var(--clr-border);' : '';
         html += `
-          <div class="list-group-item border-0 py-3 px-3 d-flex align-items-center gap-3" style="${border}background:transparent;">
-            <div class="flex-grow-1 min-width-0">
-              <div class="fw-600" style="font-size:0.88rem;color:var(--clr-text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.name}</div>
-              <div class="mt-1 d-flex flex-wrap gap-2" style="font-size:0.72rem;color:var(--clr-text-muted);">
-                <span><i class="fas fa-chalkboard-teacher me-1"></i>${s.classroom || '-'}</span>
-                <span><i class="fas fa-bed me-1"></i>${s.block || '-'}</span>
-              </div>
-            </div>
-            <div class="d-flex flex-column align-items-end gap-1 flex-shrink-0">
-              <div class="d-flex align-items-center gap-1">${statusDot}<span style="font-size:0.7rem;color:${statusColor};font-weight:600;">${statusLabel}</span></div>
-              <div class="d-flex gap-1">
-                <span class="badge rounded-pill" style="font-size:0.65rem;background:#f1f5f9;color:#475569;font-weight:500;">${s.gender || '-'}</span>
-                <span class="badge rounded-pill" style="font-size:0.65rem;background:#f1f5f9;color:#475569;font-weight:500;">${s.religion || '-'}</span>
-              </div>
+          <div class="list-group-item border-0 py-2 px-3" style="${border}background:transparent;">
+            <div style="font-size:0.85rem;font-weight:600;color:var(--clr-text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.name}</div>
+            <div class="d-flex align-items-center gap-2 mt-1" style="font-size:0.7rem;color:var(--clr-text-muted);">
+              <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0;">
+                <i class="fas fa-chalkboard-teacher me-1"></i>${s.classroom || '-'}
+                <span class="mx-1">&bull;</span>
+                <i class="fas fa-bed me-1"></i>${s.block || '-'}
+              </span>
+              <span style="flex-shrink:0;display:inline-flex;align-items:center;gap:4px;">
+                <span style="width:7px;height:7px;border-radius:50%;background:${statusColor};display:inline-block;flex-shrink:0;"></span>
+                <span style="font-size:0.68rem;color:${statusColor};font-weight:600;">${statusLabel}</span>
+              </span>
             </div>
           </div>
         `;
