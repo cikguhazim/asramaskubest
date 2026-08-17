@@ -289,6 +289,31 @@
     .btn-topbar.btn-logout { background: rgba(231,76,60,0.7); }
     .btn-topbar.btn-logout:hover { background: rgba(231,76,60,0.9); }
 
+    /* On small screens, shrink topbar padding & hide app title when back button is shown */
+    @media (max-width: 430px) {
+      .app-topbar {
+        padding: 0 10px;
+        gap: 6px;
+      }
+      .app-topbar .topbar-left {
+        gap: 6px;
+      }
+      /* Hide title text on small screens to give room to back button + logo + badge */
+      .app-topbar .topbar-title {
+        display: none;
+      }
+      /* Make action buttons slightly smaller */
+      .btn-topbar {
+        width: 32px;
+        height: 32px;
+        font-size: 0.8rem;
+      }
+      .btn-topbar.btn-back {
+        font-size: 0.75rem;
+        padding: 0 8px;
+      }
+    }
+
     /* ============================================================
        MAIN MENU VIEW
     ============================================================ */
