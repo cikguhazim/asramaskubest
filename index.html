@@ -15,6 +15,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;1,14..32,400&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <style>
     /* ============================================================
@@ -1002,14 +1003,13 @@
           <div class="card-sub">Cetak PDF</div>
         </div>
 
-        <a href="https://docs.google.com/spreadsheets/d/1oY-LbRwZ0z74lpSQm5rKHgEXw3Hn0nbwawbeVY9je0o/edit?gid=471973262#gid=471973262"
-          target="_blank" class="menu-card">
+        <div class="menu-card" onclick="bukaTetapan()" style="cursor:pointer;">
           <div class="icon-wrap" style="background:#f0fdf4;">
             <i class="fas fa-cog" style="color:#166534;"></i>
           </div>
           <div class="card-label">Tetapan</div>
-          <div class="card-sub">Google Sheet</div>
-        </a>
+          <div class="card-sub">Pengurusan Data</div>
+        </div>
 
       </div>
     </div>
@@ -1442,6 +1442,121 @@
       </div>
       <div class="tab-pane fade" id="content-sejarah" role="tabpanel">
         <div id="historyLogContainer"></div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Tetapan View -->
+  <div id="tetapanView" style="display:none;" class="view-section container mt-4 animate__animated animate__fadeIn">
+    <div class="d-flex align-items-center mb-4">
+      <div class="bg-success bg-opacity-10 p-3 rounded-circle me-3 shadow-sm">
+        <i class="fas fa-cog text-success fa-2x"></i>
+      </div>
+      <div>
+        <h4 class="fw-bold mb-0 text-dark">Tetapan Sistem</h4>
+        <p class="text-muted mb-0 small">Urus data pukal, konfigurasi asrama dan arkib data.</p>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <!-- Arkib & Eksport Data -->
+      <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100" style="border-radius:var(--radius-lg);">
+          <div class="card-body p-4">
+            <h5 class="fw-bold text-dark"><i class="fas fa-file-excel text-success me-2"></i> Arkib & Eksport Data</h5>
+            <p class="text-muted small">Muat turun semua data pelajar, rekod disiplin dan rekod aktiviti ke dalam format Excel (.xlsx) sebagai sandaran (backup).</p>
+            <button class="btn btn-outline-success w-100 fw-bold" onclick="arkibDataExcel()">
+              <i class="fas fa-download me-1"></i> Muat Turun Arkib Data
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bulk Add Students -->
+      <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100" style="border-radius:var(--radius-lg);">
+          <div class="card-body p-4">
+            <h5 class="fw-bold text-dark"><i class="fas fa-users text-primary me-2"></i> Tambah Pelajar (Pukal)</h5>
+            <p class="text-muted small">Muat naik fail Excel mengikut format templat rasmi untuk mendaftar ramai pelajar sekaligus.</p>
+            <div class="d-flex gap-2 mb-2">
+              <button class="btn btn-outline-secondary btn-sm flex-fill fw-bold" onclick="muatTurunTemplat()">
+                <i class="fas fa-file-download me-1"></i> Templat Excel
+              </button>
+            </div>
+            <input type="file" id="excelUploadInput" class="form-control mb-2" accept=".xlsx, .xls">
+            <button class="btn btn-primary w-100 fw-bold" onclick="muatNaikExcel()">
+              <i class="fas fa-upload me-1"></i> Muat Naik & Daftar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Manage Classes -->
+      <div class="col-md-6 mt-4">
+        <div class="card border-0 shadow-sm h-100" style="border-radius:var(--radius-lg);">
+          <div class="card-body p-4">
+            <h5 class="fw-bold text-dark"><i class="fas fa-chalkboard text-info me-2"></i> Pengurusan Kelas</h5>
+            <div class="d-flex gap-2 mb-3">
+              <input type="text" id="newClassNameInput" class="form-control form-control-sm" placeholder="Contoh: 1 AMANAH">
+              <button class="btn btn-sm btn-info text-white fw-bold" onclick="tambahKelas()">Tambah</button>
+            </div>
+            <div id="kelasSettingList" class="border rounded p-2" style="max-height: 200px; overflow-y: auto; background: #fafafa;">
+              <!-- Kelas list will be injected here -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Manage Dorms -->
+      <div class="col-md-6 mt-4">
+        <div class="card border-0 shadow-sm h-100" style="border-radius:var(--radius-lg);">
+          <div class="card-body p-4">
+            <h5 class="fw-bold text-dark"><i class="fas fa-bed text-warning me-2"></i> Pengurusan Dorm/Bilik</h5>
+            <div class="d-flex gap-2 mb-3">
+              <input type="text" id="newDormNameInput" class="form-control form-control-sm" placeholder="Contoh: ALAM (L)">
+              <button class="btn btn-sm btn-warning text-white fw-bold" onclick="tambahDorm()">Tambah</button>
+            </div>
+            <div id="dormSettingList" class="border rounded p-2" style="max-height: 200px; overflow-y: auto; background: #fafafa;">
+              <!-- Dorm list will be injected here -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Wipe System (Danger Zone) -->
+      <div class="col-12 mt-5">
+        <div class="card border-danger shadow-sm h-100" style="border-radius:var(--radius-lg); background:#fff5f5;">
+          <div class="card-body p-4 text-center">
+            <i class="fas fa-exclamation-triangle text-danger fa-3x mb-3"></i>
+            <h5 class="fw-bold text-danger">Padam Semua Data Sistem</h5>
+            <p class="text-danger small mb-3">Tindakan ini akan <strong>MEMADAM SEMUA</strong> rekod pelajar, disiplin dan aktiviti. Konfigurasi kelas dan bilik tidak akan terjejas. Sila buat arkib data terlebih dahulu!</p>
+            <button class="btn btn-danger fw-bold px-4 py-2" onclick="bukaModalPadam()">
+              <i class="fas fa-trash-alt me-2"></i>Padam Keseluruhan Sistem
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Padam Data -->
+  <div class="modal fade" id="modalPadamData" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-danger">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title"><i class="fas fa-exclamation-triangle me-2"></i>Amaran Keselamatan</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body text-center">
+          <p class="mb-3">Anda pasti ingin memadam <strong>SEMUA DATA</strong>? Tindakan ini tidak boleh diundur.</p>
+          <p class="small text-muted mb-2">Taip <strong>PADAM</strong> di bawah untuk mengesahkan:</p>
+          <input type="text" class="form-control text-center text-danger fw-bold mb-3" id="pengesahanPadamInput" placeholder="PADAM">
+        </div>
+        <div class="modal-footer justify-content-center border-0 pt-0">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+          <button type="button" class="btn btn-danger" onclick="sahkanPadamSemuaData()">Teruskan Memadam</button>
+        </div>
       </div>
     </div>
   </div>
@@ -2741,6 +2856,7 @@
       document.getElementById('disciplineView').style.display = 'none';
       document.getElementById('reportView').style.display = 'none';
       document.getElementById('penjanaLaporanView').style.display = 'none';
+      document.getElementById('tetapanView').style.display = 'none';
       document.getElementById('aktivitiMenuView').style.display = 'none';
       document.getElementById('aktivitiFormView').style.display = 'none';
       document.getElementById('btnBackMenu').style.display = 'none';
@@ -2752,6 +2868,7 @@
       document.getElementById('disciplineView').style.display = 'none';
       document.getElementById('reportView').style.display = 'none';
       document.getElementById('penjanaLaporanView').style.display = 'none';
+      document.getElementById('tetapanView').style.display = 'none';
 
       if (userRole === 'warden') {
         document.getElementById('btnBackMenu').style.display = 'block';
@@ -2768,6 +2885,7 @@
       document.getElementById('disciplineView').style.display = 'none';
       document.getElementById('reportView').style.display = 'block';
       document.getElementById('penjanaLaporanView').style.display = 'none';
+      document.getElementById('tetapanView').style.display = 'none';
       document.getElementById('aktivitiMenuView').style.display = 'none';
       document.getElementById('aktivitiFormView').style.display = 'none';
       document.getElementById('btnBackMenu').style.display = 'block';
@@ -2782,6 +2900,7 @@
       document.getElementById('disciplineView').style.display = 'block';
       document.getElementById('reportView').style.display = 'none';
       document.getElementById('penjanaLaporanView').style.display = 'none';
+      document.getElementById('tetapanView').style.display = 'none';
       document.getElementById('aktivitiMenuView').style.display = 'none';
       document.getElementById('aktivitiFormView').style.display = 'none';
       document.getElementById('btnBackMenu').style.display = 'block';
@@ -3032,6 +3151,7 @@
       document.getElementById('disciplineView').style.display = 'none';
       document.getElementById('reportView').style.display = 'none';
       document.getElementById('penjanaLaporanView').style.display = 'none';
+      document.getElementById('tetapanView').style.display = 'none';
       document.getElementById('aktivitiMenuView').style.display = 'block';
       document.getElementById('aktivitiFormView').style.display = 'none';
       document.getElementById('btnBackMenu').style.display = 'block';
@@ -4135,7 +4255,321 @@ JUMLAH KEHADIRAN KE SEKOLAH     : ${data.kehadiranSekolah}`;
       currentSejarahPage += dir;
       renderReportSejarah(false);
     }
+
+    // ==========================================
+    // TETAPAN SYSTEM LOGIC
+    // ==========================================
+    function bukaTetapan() {
+      if (userRole !== 'warden') { alert("Akses ditolak."); return; }
+      document.getElementById('mainMenuView').style.display = 'none';
+      document.getElementById('attendanceView').style.display = 'none';
+      document.getElementById('disciplineView').style.display = 'none';
+      document.getElementById('reportView').style.display = 'none';
+      document.getElementById('penjanaLaporanView').style.display = 'none';
+      document.getElementById('aktivitiMenuView').style.display = 'none';
+      document.getElementById('aktivitiFormView').style.display = 'none';
+      
+      document.getElementById('tetapanView').style.display = 'block';
+      document.getElementById('btnBackMenu').style.display = 'block';
+
+      renderKelasSettingList();
+      renderDormSettingList();
+    }
+
+    // -- Pengurusan Kelas & Dorm --
+    let currentClassesDocs = [];
+    let currentDormsDocs = [];
+
+    async function loadTetapanConfigs() {
+      try {
+        const [cSnap, dSnap] = await Promise.all([
+          db.collection("classes").get(),
+          db.collection("dorms").get()
+        ]);
+        currentClassesDocs = cSnap.docs.map(d => ({ id: d.id, name: d.data().name }));
+        currentDormsDocs = dSnap.docs.map(d => ({ id: d.id, name: d.data().name }));
+        
+        const classKeywordOrder = ['NILAM', 'DELIMA', 'MUTIARA', 'ZAMRUD'];
+        currentClassesDocs.sort((a, b) => {
+          const numA = parseInt(a.name) || 0;
+          const numB = parseInt(b.name) || 0;
+          if (numA !== numB) return numA - numB;
+          const idxA = classKeywordOrder.findIndex(w => a.name.toUpperCase().includes(w));
+          const idxB = classKeywordOrder.findIndex(w => b.name.toUpperCase().includes(w));
+          const finalIdxA = idxA === -1 ? 999 : idxA;
+          const finalIdxB = idxB === -1 ? 999 : idxB;
+          if (finalIdxA !== finalIdxB) return finalIdxA - finalIdxB;
+          return a.name.localeCompare(b.name, undefined, {numeric: true, sensitivity: 'base'});
+        });
+
+        const dormExactOrder = ['ALAM (L)', 'BAYU (L)', 'CITRA (L)', 'DAMAI (L)', 'EMBUN (L)', 'ANGIN (P)', 'BULAN (P)', 'CAHAYA (P)', 'DANAU (P)', 'EMBUN (P)', 'FLORA (P)'];
+        currentDormsDocs.sort((a, b) => {
+          let idxA = dormExactOrder.findIndex(d => d.replace(/\s+/g, '').toUpperCase() === a.name.replace(/\s+/g, '').toUpperCase());
+          let idxB = dormExactOrder.findIndex(d => d.replace(/\s+/g, '').toUpperCase() === b.name.replace(/\s+/g, '').toUpperCase());
+          idxA = idxA === -1 ? 999 : idxA;
+          idxB = idxB === -1 ? 999 : idxB;
+          if (idxA !== idxB) return idxA - idxB;
+          return a.name.localeCompare(b.name, undefined, {numeric: true, sensitivity: 'base'});
+        });
+      } catch (err) {
+        console.error("Gagal muat tetapan config: ", err);
+      }
+    }
+
+    async function renderKelasSettingList() {
+      await loadTetapanConfigs();
+      const container = document.getElementById('kelasSettingList');
+      if (currentClassesDocs.length === 0) {
+        container.innerHTML = '<div class="text-center text-muted small p-2">Tiada kelas didaftarkan.</div>';
+        return;
+      }
+      let html = '<ul class="list-group list-group-flush">';
+      currentClassesDocs.forEach(c => {
+        html += `<li class="list-group-item d-flex justify-content-between align-items-center py-1 px-2 border-0 border-bottom">
+          <span class="small fw-bold">${c.name}</span>
+          <button class="btn btn-sm text-danger" onclick="padamKelas('${c.id}')"><i class="fas fa-trash-alt"></i></button>
+        </li>`;
+      });
+      html += '</ul>';
+      container.innerHTML = html;
+    }
+
+    async function tambahKelas() {
+      const input = document.getElementById('newClassNameInput');
+      const val = input.value.trim().toUpperCase();
+      if (!val) return;
+      if (currentClassesDocs.some(c => c.name === val)) { alert("Kelas sudah wujud."); return; }
+      try {
+        await db.collection("classes").add({ name: val });
+        input.value = '';
+        renderKelasSettingList();
+        loadDataServer(); // sync main form
+      } catch (err) { alert(err.message); }
+    }
+
+    async function padamKelas(id) {
+      if(!confirm("Anda pasti ingin memadam kelas ini?")) return;
+      try {
+        await db.collection("classes").doc(id).delete();
+        renderKelasSettingList();
+        loadDataServer(); // sync main form
+      } catch (err) { alert(err.message); }
+    }
+
+    async function renderDormSettingList() {
+      await loadTetapanConfigs();
+      const container = document.getElementById('dormSettingList');
+      if (currentDormsDocs.length === 0) {
+        container.innerHTML = '<div class="text-center text-muted small p-2">Tiada bilik didaftarkan.</div>';
+        return;
+      }
+      let html = '<ul class="list-group list-group-flush">';
+      currentDormsDocs.forEach(d => {
+        html += `<li class="list-group-item d-flex justify-content-between align-items-center py-1 px-2 border-0 border-bottom">
+          <span class="small fw-bold">${d.name}</span>
+          <button class="btn btn-sm text-danger" onclick="padamDorm('${d.id}')"><i class="fas fa-trash-alt"></i></button>
+        </li>`;
+      });
+      html += '</ul>';
+      container.innerHTML = html;
+    }
+
+    async function tambahDorm() {
+      const input = document.getElementById('newDormNameInput');
+      const val = input.value.trim().toUpperCase();
+      if (!val) return;
+      if (currentDormsDocs.some(d => d.name === val)) { alert("Dorm sudah wujud."); return; }
+      try {
+        await db.collection("dorms").add({ name: val });
+        input.value = '';
+        renderDormSettingList();
+        loadDataServer(); // sync main form
+      } catch (err) { alert(err.message); }
+    }
+
+    async function padamDorm(id) {
+      if(!confirm("Anda pasti ingin memadam bilik ini?")) return;
+      try {
+        await db.collection("dorms").doc(id).delete();
+        renderDormSettingList();
+        loadDataServer(); // sync main form
+      } catch (err) { alert(err.message); }
+    }
+
+    // -- Arkib Data --
+    async function arkibDataExcel() {
+      if (!allStudents || allStudents.length === 0) {
+        alert("Tiada data untuk diarkib."); return;
+      }
+      try {
+        Swal.fire({ title: 'Menjana Arkib...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+        await fetchMeritLogs();
+        await fetchAktivitiLogs();
+
+        const wb = XLSX.utils.book_new();
+
+        // 1. Sheet Pelajar
+        let dataPelajar = allStudents.map(s => ({
+          "Nama": s.name,
+          "Kelas": s.classroom,
+          "Bilik": s.block,
+          "Jantina": s.gender || '-',
+          "Agama": s.religion || '-',
+          "Status Semasa": s.status,
+          "Mata Merit": s.meritPoints || 0
+        }));
+        let wsPelajar = XLSX.utils.json_to_sheet(dataPelajar);
+        XLSX.utils.book_append_sheet(wb, wsPelajar, "Pelajar");
+
+        // 2. Sheet Disiplin
+        let dataDisiplin = (allMeritLogs || []).map(l => ({
+          "Tarikh/Masa": new Date(l.timestamp).toLocaleString('ms-MY'),
+          "Nama": l.name,
+          "Jenis": l.type,
+          "Mata": l.points,
+          "Sebab": l.reason,
+          "Warden": WARDEN_NAMES[l.warden] || l.warden || '-'
+        }));
+        let wsDisiplin = XLSX.utils.json_to_sheet(dataDisiplin);
+        XLSX.utils.book_append_sheet(wb, wsDisiplin, "Rekod Disiplin");
+
+        // 3. Sheet Aktiviti
+        let dataAktiviti = (allAktivitiLogs || []).map(l => ({
+          "Tarikh/Masa": new Date(l.timestamp).toLocaleString('ms-MY'),
+          "Program": l.programName,
+          "Penganjur": l.organizer,
+          "Peringkat": l.level,
+          "Sumbangan": l.contribution,
+          "Penglibatan": Array.isArray(l.students) ? l.students.join(", ") : l.students,
+          "Warden": WARDEN_NAMES[l.warden] || l.warden || '-'
+        }));
+        let wsAktiviti = XLSX.utils.json_to_sheet(dataAktiviti);
+        XLSX.utils.book_append_sheet(wb, wsAktiviti, "Rekod Aktiviti");
+
+        XLSX.writeFile(wb, "Arkib_Asrama_" + new Date().toISOString().split('T')[0] + ".xlsx");
+        Swal.close();
+      } catch (err) {
+        Swal.fire('Ralat', err.message, 'error');
+      }
+    }
+
+    function muatTurunTemplat() {
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet([
+        { "Nama": "ALI BIN ABU", "Kelas": "1 AMANAH", "Jantina": "Lelaki", "Agama": "Islam", "Bilik": "ALAM (L)" }
+      ]);
+      XLSX.utils.book_append_sheet(wb, ws, "Templat");
+      XLSX.writeFile(wb, "Templat_Tambah_Pelajar.xlsx");
+    }
+
+    async function muatNaikExcel() {
+      const fileInput = document.getElementById('excelUploadInput');
+      if (!fileInput.files.length) { alert("Sila pilih fail Excel."); return; }
+
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+
+      reader.onload = async (e) => {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+          const json = XLSX.utils.sheet_to_json(worksheet);
+
+          if (json.length === 0) { alert("Fail Excel kosong."); return; }
+
+          Swal.fire({ title: 'Memuat Naik...', text: 'Sila tunggu...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+          let batch = db.batch();
+          let count = 0;
+          let addedNames = new Set();
+          allStudents.forEach(s => addedNames.add(s.name.toUpperCase()));
+
+          for (let row of json) {
+            let nama = row["Nama"] ? String(row["Nama"]).trim().toUpperCase() : "";
+            if (!nama || addedNames.has(nama)) continue;
+
+            let newStudent = {
+              name: nama,
+              classroom: row["Kelas"] ? String(row["Kelas"]).trim().toUpperCase() : "",
+              gender: row["Jantina"] ? String(row["Jantina"]).trim() : "Lelaki",
+              religion: row["Agama"] ? String(row["Agama"]).trim() : "Islam",
+              block: row["Bilik"] ? String(row["Bilik"]).trim().toUpperCase() : "",
+              status: "Masuk",
+              meritPoints: 0,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            const ref = db.collection("students").doc();
+            batch.set(ref, newStudent);
+            count++;
+            addedNames.add(nama);
+
+            if (count % 450 === 0) {
+              await batch.commit();
+              batch = db.batch();
+            }
+          }
+
+          if (count > 0 || (count % 450 !== 0)) {
+            await batch.commit();
+          }
+
+          fileInput.value = '';
+          await loadDataServer();
+          Swal.fire('Berjaya', count + ' pelajar telah ditambah.', 'success');
+        } catch (err) {
+          Swal.fire('Ralat', err.message, 'error');
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    let modalPadamInst = null;
+    function bukaModalPadam() {
+      document.getElementById('pengesahanPadamInput').value = '';
+      modalPadamInst = new bootstrap.Modal(document.getElementById('modalPadamData'));
+      modalPadamInst.show();
+    }
+
+    async function sahkanPadamSemuaData() {
+      const inputVal = document.getElementById('pengesahanPadamInput').value.trim();
+      if (inputVal !== 'PADAM') {
+        alert("Sila taip 'PADAM' dengan huruf besar untuk mengesahkan.");
+        return;
+      }
+      
+      try {
+        modalPadamInst.hide();
+        Swal.fire({ title: 'Memadam Data...', text: 'Sila tunggu, ini mungkin mengambil sedikit masa...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+        const collections = ["students", "meritLogs", "aktivitiLogs", "pending"];
+        for (let col of collections) {
+          const snap = await db.collection(col).get();
+          let batch = db.batch();
+          let count = 0;
+          snap.docs.forEach(doc => {
+            batch.delete(doc.ref);
+            count++;
+            if (count === 450) {
+              batch.commit();
+              batch = db.batch();
+              count = 0;
+            }
+          });
+          if (count > 0) await batch.commit();
+        }
+
+        await loadDataServer();
+        Swal.fire('Berjaya', 'Semua data telah dipadam.', 'success');
+        paparMenuUtama();
+      } catch (err) {
+        Swal.fire('Ralat', err.message, 'error');
+      }
+    }
   </script>
 </body>
+
 
 </html>
