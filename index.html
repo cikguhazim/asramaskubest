@@ -3930,14 +3930,19 @@ JUMLAH KEHADIRAN KE SEKOLAH     : ${data.kehadiranSekolah}`;
     }
 
     let currentHistoryStudent = "";
+    let currentStudentLogs = [];
+    let currentHistoryPage = 1;
+    const historyItemsPerPage = 10;
+
     async function viewStudentHistory(studentName) {
       await fetchMeritLogs();
       currentHistoryStudent = studentName;
+      currentHistoryPage = 1;
       document.getElementById('studentHistoryModalTitle').innerText = "Rekod: " + studentName;
-      const container = document.getElementById('studentHistoryContainer');
+      
       const monthFilter = document.getElementById('filterMonth') ? document.getElementById('filterMonth').value : "all";
 
-      let studentLogs = allMeritLogs.filter(log => {
+      currentStudentLogs = allMeritLogs.filter(log => {
         if (log.name !== studentName) return false;
         if (monthFilter !== "all") {
           let d = new Date(log.timestamp);
@@ -3948,51 +3953,83 @@ JUMLAH KEHADIRAN KE SEKOLAH     : ${data.kehadiranSekolah}`;
 
       const btnPrint = document.getElementById('btnPrintSalahLaku');
       if (btnPrint) {
-        let hasSalahLaku = studentLogs.some(log => log.type === 'Demerit');
+        let hasSalahLaku = currentStudentLogs.some(log => log.type === 'Demerit');
         btnPrint.style.display = hasSalahLaku ? 'block' : 'none';
       }
 
-      if (!studentLogs || studentLogs.length === 0) {
-        container.innerHTML = '<div class="text-center text-muted p-4"><i class="fas fa-folder-open fa-3x mb-2"></i><br>Tiada rekod disiplin setakat ini.</div>';
-      } else {
-        let sortedLogs = [...studentLogs].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-        let html = '<div class="list-group list-group-flush">';
+      renderStudentHistoryPage();
 
-        sortedLogs.forEach(log => {
-          let d = new Date(log.timestamp);
-          let timeStr = d.toLocaleDateString('ms-MY') + " " + d.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' });
-          let typeIcon = log.type === 'Merit' ? '<i class="fas fa-star text-success"></i>' : '<i class="fas fa-exclamation-triangle text-danger"></i>';
-          let pointBadge = log.points >= 0 ? `<span class="badge bg-success">+${log.points}</span>` : `<span class="badge bg-danger">${log.points}</span>`;
-          let imageLink = (log.imageUrl && log.imageUrl.trim() !== "")
-            ? `<a href="${log.imageUrl}" target="_blank" class="badge bg-secondary text-decoration-none mt-2"><i class="fas fa-camera"></i> Gambar</a>` : '';
-
-          let wardenName = WARDEN_NAMES[log.warden] || log.warden || '-';
-
-          html += `
-            <div class="list-group-item py-3">
-              <div class="d-flex w-100 justify-content-between align-items-center mb-1">
-                <h6 class="mb-0 fw-bold">${typeIcon} ${log.type}</h6>
-                ${pointBadge}
-              </div>
-              <p class="mb-1 text-dark small">${log.reason}</p>
-              <small class="text-muted"><i class="far fa-clock"></i> ${timeStr} | Oleh: ${wardenName}</small>
-              <div>${imageLink}</div>
-            </div>
-          `;
-        });
-        html += '</div>';
-        container.innerHTML = html;
-      }
-
-      let myModal = new bootstrap.Modal(document.getElementById('studentHistoryModal'));
+      let modalEl = document.getElementById('studentHistoryModal');
+      let myModal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
       myModal.show();
     }
 
-    function renderReportSejarah() {
+    function renderStudentHistoryPage() {
+      const container = document.getElementById('studentHistoryContainer');
+      if (!currentStudentLogs || currentStudentLogs.length === 0) {
+        container.innerHTML = '<div class="text-center text-muted p-4"><i class="fas fa-folder-open fa-3x mb-2"></i><br>Tiada rekod disiplin setakat ini.</div>';
+        return;
+      }
+
+      let sortedLogs = [...currentStudentLogs].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      
+      const totalPages = Math.ceil(sortedLogs.length / historyItemsPerPage);
+      const startIndex = (currentHistoryPage - 1) * historyItemsPerPage;
+      const paginatedLogs = sortedLogs.slice(startIndex, startIndex + historyItemsPerPage);
+
+      let html = '<div class="list-group list-group-flush">';
+      paginatedLogs.forEach(log => {
+        let d = new Date(log.timestamp);
+        let timeStr = d.toLocaleDateString('ms-MY') + " " + d.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' });
+        let typeIcon = log.type === 'Merit' ? '<i class="fas fa-star text-success"></i>' : '<i class="fas fa-exclamation-triangle text-danger"></i>';
+        let pointBadge = log.points >= 0 ? `<span class="badge bg-success">+${log.points}</span>` : `<span class="badge bg-danger">${log.points}</span>`;
+        let imageLink = (log.imageUrl && log.imageUrl.trim() !== "")
+          ? `<a href="${log.imageUrl}" target="_blank" class="badge bg-secondary text-decoration-none mt-2"><i class="fas fa-camera"></i> Gambar</a>` : '';
+
+        let wardenName = WARDEN_NAMES[log.warden] || log.warden || '-';
+
+        html += `
+          <div class="list-group-item py-3">
+            <div class="d-flex w-100 justify-content-between align-items-center mb-1">
+              <h6 class="mb-0 fw-bold">${typeIcon} ${log.type}</h6>
+              ${pointBadge}
+            </div>
+            <p class="mb-1 text-dark small">${log.reason}</p>
+            <small class="text-muted"><i class="far fa-clock"></i> ${timeStr} | Oleh: ${wardenName}</small>
+            <div>${imageLink}</div>
+          </div>
+        `;
+      });
+      html += '</div>';
+
+      if (totalPages > 1) {
+        html += `
+          <div class="d-flex justify-content-between align-items-center mt-3 p-2">
+            <button class="btn btn-sm btn-outline-primary" onclick="changeHistoryPage(-1)" ${currentHistoryPage === 1 ? 'disabled' : ''}>&larr; Sblm</button>
+            <span class="text-muted small">Muka ${currentHistoryPage} / ${totalPages}</span>
+            <button class="btn btn-sm btn-outline-primary" onclick="changeHistoryPage(1)" ${currentHistoryPage === totalPages ? 'disabled' : ''}>Seterus &rarr;</button>
+          </div>
+        `;
+      }
+
+      container.innerHTML = html;
+    }
+
+    function changeHistoryPage(dir) {
+      currentHistoryPage += dir;
+      renderStudentHistoryPage();
+    }
+
+    let currentSejarahPage = 1;
+    let currentFilteredSejarahLogs = [];
+
+    function renderReportSejarah(resetPage = true) {
       const container = document.getElementById('historyLogContainer');
       const monthFilter = document.getElementById('filterMonth') ? document.getElementById('filterMonth').value : "all";
       const yearFilter = document.getElementById('filterYear') ? document.getElementById('filterYear').value : "all";
       const genderFilter = document.getElementById('filterGender') ? document.getElementById('filterGender').value : "all";
+
+      if (resetPage) currentSejarahPage = 1;
 
       let filteredLogs = allMeritLogs || [];
       if (monthFilter !== "all") {
@@ -4012,15 +4049,21 @@ JUMLAH KEHADIRAN KE SEKOLAH     : ${data.kehadiranSekolah}`;
         });
       }
 
-      if (!filteredLogs || filteredLogs.length === 0) {
+      currentFilteredSejarahLogs = filteredLogs;
+
+      if (!currentFilteredSejarahLogs || currentFilteredSejarahLogs.length === 0) {
         container.innerHTML = '<div class="text-center text-muted p-4"><i class="fas fa-folder-open fa-3x mb-2"></i><br>Tiada rekod setakat ini.</div>';
         return;
       }
 
-      let sortedLogs = [...filteredLogs].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      let sortedLogs = [...currentFilteredSejarahLogs].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      
+      const totalPages = Math.ceil(sortedLogs.length / historyItemsPerPage);
+      const startIndex = (currentSejarahPage - 1) * historyItemsPerPage;
+      const paginatedLogs = sortedLogs.slice(startIndex, startIndex + historyItemsPerPage);
 
       let html = '<div class="list-group">';
-      sortedLogs.forEach(log => {
+      paginatedLogs.forEach(log => {
         let d = new Date(log.timestamp);
         let timeStr = d.toLocaleDateString('ms-MY') + " " + d.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' });
 
@@ -4045,7 +4088,23 @@ JUMLAH KEHADIRAN KE SEKOLAH     : ${data.kehadiranSekolah}`;
         `;
       });
       html += '</div>';
+
+      if (totalPages > 1) {
+        html += `
+          <div class="d-flex justify-content-between align-items-center mt-3 p-2 bg-white rounded shadow-sm border">
+            <button class="btn btn-sm btn-outline-primary" onclick="changeSejarahPage(-1)" ${currentSejarahPage === 1 ? 'disabled' : ''}>&larr; Sblm</button>
+            <span class="text-muted small">Muka ${currentSejarahPage} / ${totalPages}</span>
+            <button class="btn btn-sm btn-outline-primary" onclick="changeSejarahPage(1)" ${currentSejarahPage === totalPages ? 'disabled' : ''}>Seterus &rarr;</button>
+          </div>
+        `;
+      }
+
       container.innerHTML = html;
+    }
+
+    function changeSejarahPage(dir) {
+      currentSejarahPage += dir;
+      renderReportSejarah(false);
     }
   </script>
 </body>
