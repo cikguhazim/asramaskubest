@@ -1027,7 +1027,7 @@
     <!-- Attendance View -->
     <div id="senaraiNamaView" style="display:none;" class="view-section">
       <div class="container py-4">
-        <h4 class="fw-bold mb-4" style="color: #1e293b;"><i class="fas fa-list-ul me-2"></i> Senarai Nama Pelajar</h4>
+        <h4 class="fw-bold mb-4" style="color: #1e293b;"><i class="fas fa-list-ul me-2"></i> Senarai Nama Murid</h4>
         
         <div class="card border-0 shadow-sm mb-4">
           <div class="card-body">
@@ -2906,8 +2906,8 @@
       const sortOpt = document.getElementById('sn_sort').value;
       
       let filtered = allStudents.filter(s => {
-        if (jantina !== 'all' && s.gender !== jantina) return false;
-        if (agama !== 'all' && s.religion !== agama) return false;
+        if (jantina !== 'all' && (!s.gender || s.gender.toLowerCase() !== jantina.toLowerCase())) return false;
+        if (agama !== 'all' && (!s.religion || s.religion.toLowerCase() !== agama.toLowerCase())) return false;
         if (kelas !== 'all' && s.classroom !== kelas) return false;
         if (dorm !== 'all' && s.block !== dorm) return false;
         
