@@ -3076,7 +3076,7 @@
     // ==========================================
     
     let anaChartInstance;
-    function bukaAnalisa() {
+    async function bukaAnalisa() {
       document.getElementById('mainMenuView').style.display = 'none';
       document.getElementById('attendanceView').style.display = 'none';
       document.getElementById('disciplineView').style.display = 'none';
@@ -3089,6 +3089,7 @@
       document.getElementById('posterView').style.display = 'none';
       
       document.getElementById('analisaView').style.display = 'block';
+      await fetchMeritLogs();
       renderAnalisa();
     }
 
