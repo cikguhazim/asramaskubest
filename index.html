@@ -1082,6 +1082,89 @@
     </div>
 
     <!-- Poster Generator View -->
+    
+  <div id="analisaView" class="view-section" style="display:none;">
+    <header class="app-topbar">
+      <div class="topbar-left">
+        <button class="btn-topbar btn-back" onclick="paparMenuUtama()">
+          <i class="fas fa-arrow-left"></i>
+        </button>
+        <h1 class="page-title">Analisa & Statistik</h1>
+      </div>
+    </header>
+    
+    <div class="p-3" style="max-width:800px; margin:0 auto; padding-bottom:100px;">
+      
+      <!-- Top Level Cards -->
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-md-4">
+          <div class="stat-card p-3 text-center" style="height:100%;">
+            <div style="font-size:24px; color:#4338ca; margin-bottom:8px;"><i class="fas fa-user-graduate"></i></div>
+            <div style="font-size:12px; color:#64748b; font-weight:600;">Jumlah Pelajar</div>
+            <div id="anaTotalPelajar" style="font-size:22px; font-weight:800; color:#1e293b; margin-top:4px;">0</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4">
+          <div class="stat-card p-3 text-center" style="height:100%;">
+            <div style="font-size:24px; color:#16a34a; margin-bottom:8px;"><i class="fas fa-check-circle"></i></div>
+            <div style="font-size:12px; color:#64748b; font-weight:600;">Rekod Keberadaan</div>
+            <div id="anaTotalHadir" style="font-size:22px; font-weight:800; color:#1e293b; margin-top:4px;">0</div>
+          </div>
+        </div>
+        <div class="col-12 col-md-4">
+          <div class="stat-card p-3 text-center" style="height:100%;">
+            <div style="font-size:24px; color:#eab308; margin-bottom:8px;"><i class="fas fa-star"></i></div>
+            <div style="font-size:12px; color:#64748b; font-weight:600;">Jumlah Rekod Disiplin</div>
+            <div id="anaTotalDisiplin" style="font-size:22px; font-weight:800; color:#1e293b; margin-top:4px;">0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart Keberadaan -->
+      <div class="stat-card p-3 mb-4">
+        <h6 class="fw-bold mb-3" style="color:var(--clr-text-primary);"><i class="fas fa-chart-pie me-2" style="color:#0ea5e9;"></i>Taburan Keberadaan Semasa</h6>
+        <div style="height:250px; position:relative;">
+          <canvas id="anaKeberadaanChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Kedudukan -->
+      <div class="row g-3 mb-4">
+        <div class="col-md-6">
+          <div class="stat-card p-3" style="height:100%;">
+            <h6 class="fw-bold mb-3" style="color:var(--clr-text-primary);"><i class="fas fa-trophy me-2" style="color:#f59e0b;"></i>Top 3 Pelajar</h6>
+            <div id="anaTopPelajar"></div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="stat-card p-3" style="height:100%;">
+            <h6 class="fw-bold mb-3" style="color:var(--clr-text-primary);"><i class="fas fa-home me-2" style="color:#10b981;"></i>Top 3 Dorm</h6>
+            <div id="anaTopDorm"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Warden Leaderboard -->
+      <div class="stat-card p-3 mb-4">
+        <h6 class="fw-bold mb-3" style="color:var(--clr-text-primary);"><i class="fas fa-list-alt me-2" style="color:#8b5cf6;"></i>Rekod Kemasukan Warden (Merit & Demerit)</h6>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0" style="font-size:0.85rem;">
+            <thead class="table-light">
+              <tr>
+                <th>Warden</th>
+                <th class="text-center">Amalan Baik</th>
+                <th class="text-center">Amalan Buruk</th>
+                <th class="text-center">Jumlah</th>
+              </tr>
+            </thead>
+            <tbody id="anaWardenList"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
     <div id="posterView" style="display:none;" class="view-section">
 
       <div class="section-header mb-4">
