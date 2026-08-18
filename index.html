@@ -1113,9 +1113,9 @@
         </div>
       </div>
       <div class="col-12 col-md-4">
-        <div class="stat-card p-3 text-center">
+          <div class="stat-card p-3 text-center">
           <div style="font-size:20px; color:#eab308; margin-bottom:6px;"><i class="fas fa-clipboard-list"></i></div>
-          <div style="font-size:11px; color:var(--clr-text-secondary); font-weight:600; text-transform:uppercase; letter-spacing:0.4px;">Rekod Disiplin</div>
+          <div style="font-size:11px; color:var(--clr-text-secondary); font-weight:600; text-transform:uppercase; letter-spacing:0.4px;">Salah Laku Berat (&gt;6 Mata)</div>
           <div id="anaTotalDisiplin" style="font-size:24px; font-weight:800; color:var(--clr-text-primary); margin-top:2px;">—</div>
         </div>
       </div>
@@ -3104,7 +3104,15 @@
         statusCounts[st] = (statusCounts[st] || 0) + 1;
       });
       document.getElementById('anaTotalHadir').innerText = masukCount;
-      document.getElementById('anaTotalDisiplin').innerText = allMeritLogs.length;
+      
+      let beratCount = 0;
+      allMeritLogs.forEach(log => {
+        if (log.type === 'Demerit') {
+          let pts = parseInt(log.points, 10) || 0;
+          if (Math.abs(pts) > 6) beratCount++;
+        }
+      });
+      document.getElementById('anaTotalDisiplin').innerText = beratCount;
 
       // Chart
       const ctx = document.getElementById('anaKeberadaanChart').getContext('2d');
@@ -3178,13 +3186,15 @@
       targetWardens.forEach(w => wMap[w] = { baik: 0, buruk: 0 });
 
       allMeritLogs.forEach(log => {
-        // log.warden may be a full name OR a username key (e.g. "warden1")
-        let w = log.warden;
-        // If it looks like a key, resolve to full name via WARDEN_NAMES
+        let w = (log.warden || '').trim();
         if (WARDEN_NAMES[w]) w = WARDEN_NAMES[w];
-        if (wMap[w]) {
-          if (log.type === 'Merit') wMap[w].baik++;
-          else if (log.type === 'Demerit') wMap[w].buruk++;
+        else if (WARDEN_NAMES[w.toLowerCase()]) w = WARDEN_NAMES[w.toLowerCase()];
+        
+        let matchedWarden = targetWardens.find(tw => tw.toUpperCase() === w.toUpperCase());
+        
+        if (matchedWarden) {
+          if (log.type === 'Merit') wMap[matchedWarden].baik++;
+          else if (log.type === 'Demerit') wMap[matchedWarden].buruk++;
         }
       });
       
