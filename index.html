@@ -1146,7 +1146,7 @@
 
       <!-- Warden Leaderboard -->
       <div class="stat-card p-3 mb-4">
-        <h6 class="fw-bold mb-3" style="color:var(--clr-text-primary);"><i class="fas fa-list-alt me-2" style="color:#8b5cf6;"></i>Rekod Kemasukan Warden (Merit & Demerit)</h6>
+        <h6 class="fw-bold mb-3" style="color:var(--clr-text-primary);"><i class="fas fa-list-alt me-2" style="color:#8b5cf6;"></i>Rekod Pengisian Warden</h6>
         <div class="table-responsive">
           <table class="table table-hover align-middle mb-0" style="font-size:0.85rem;">
             <thead class="table-light">
@@ -3157,29 +3157,36 @@
       document.getElementById('anaTopDorm').innerHTML = htmlD;
 
       // Warden Leaderboard
+      const targetWardens = [
+        "NIK MUHAMMAD HAZIM BIN NIK ROHIMI",
+        "MUHAMAD FIRDAUS BIN NOORIZAN",
+        "NOR SYAFIQAH BINTI NOOR AZMI",
+        "FATIN ALIA BINTI MOHD SUHAIMIN",
+        "SITI NUR IZYANA BINTI CHE RAHIM",
+        "MUHAMMAD AZUWAN BIN KAMARUDDIN"
+      ];
       const wMap = {};
+      targetWardens.forEach(w => wMap[w] = { baik: 0, buruk: 0 });
+
       allMeritLogs.forEach(log => {
-        const w = log.warden || 'Tidak Diketahui';
-        if (!wMap[w]) wMap[w] = { baik: 0, buruk: 0 };
-        if (log.type === 'Merit') wMap[w].baik++;
-        else if (log.type === 'Demerit') wMap[w].buruk++;
+        const w = log.warden;
+        if (targetWardens.includes(w)) {
+          if (log.type === 'Merit') wMap[w].baik++;
+          else if (log.type === 'Demerit') wMap[w].buruk++;
+        }
       });
       
       const sortedW = Object.entries(wMap).sort((a, b) => (b[1].baik + b[1].buruk) - (a[1].baik + a[1].buruk));
       let htmlW = '';
-      if (sortedW.length === 0) {
-        htmlW = `<tr><td colspan="4" class="text-center text-muted py-3">Tiada rekod.</td></tr>`;
-      } else {
-        sortedW.forEach(w => {
-          const total = w[1].baik + w[1].buruk;
-          htmlW += `<tr>
-            <td style="font-weight:600;color:#334155;">${w[0]}</td>
-            <td class="text-center"><span class="badge bg-success bg-opacity-10 text-success rounded-pill px-2 py-1">${w[1].baik}</span></td>
-            <td class="text-center"><span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-2 py-1">${w[1].buruk}</span></td>
-            <td class="text-center fw-bold">${total}</td>
-          </tr>`;
-        });
-      }
+      sortedW.forEach(w => {
+        const total = w[1].baik + w[1].buruk;
+        htmlW += `<tr>
+          <td style="font-weight:600;color:#334155;">${w[0]}</td>
+          <td class="text-center"><span class="badge bg-success bg-opacity-10 text-success rounded-pill px-2 py-1">${w[1].baik}</span></td>
+          <td class="text-center"><span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-2 py-1">${w[1].buruk}</span></td>
+          <td class="text-center fw-bold">${total}</td>
+        </tr>`;
+      });
       document.getElementById('anaWardenList').innerHTML = htmlW;
     }
 
