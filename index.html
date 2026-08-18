@@ -1062,6 +1062,14 @@
           <div class="card-sub">Papan Mata Merit</div>
         </div>
 
+                <div class="menu-card" onclick="bukaAnalisa()">
+          <div class="icon-wrap" style="background:#e0e7ff;">
+            <i class="fas fa-chart-pie" style="color:#4338ca;"></i>
+          </div>
+          <div class="card-label">Analisa</div>
+          <div class="card-sub">Statistik Semasa</div>
+        </div>
+
         <div class="menu-card" onclick="bukaTetapan()" style="cursor:pointer;">
           <div class="icon-wrap" style="background:#f0fdf4;">
             <i class="fas fa-cog" style="color:#166534;"></i>
@@ -2975,6 +2983,113 @@
     // ==========================================
     // FUNGSI PENJANA POSTER
     // ==========================================
+    
+    let anaChartInstance;
+    function bukaAnalisa() {
+      tutupSemuaView();
+      document.getElementById('analisaView').style.display = 'block';
+      renderAnalisa();
+    }
+
+    function renderAnalisa() {
+      // Basic Stats
+      document.getElementById('anaTotalPelajar').innerText = allStudents.length;
+      
+      let hadirCount = 0;
+      const statusCounts = {};
+      allStudents.forEach(s => {
+        const st = s.status || 'Hadir';
+        if (st === 'Hadir') hadirCount++;
+        statusCounts[st] = (statusCounts[st] || 0) + 1;
+      });
+      document.getElementById('anaTotalHadir').innerText = hadirCount + " Hadir";
+      document.getElementById('anaTotalDisiplin').innerText = allMeritLogs.length;
+
+      // Chart
+      const ctx = document.getElementById('anaKeberadaanChart').getContext('2d');
+      if (anaChartInstance) anaChartInstance.destroy();
+      
+      const labels = Object.keys(statusCounts);
+      const data = Object.values(statusCounts);
+      const colors = labels.map(l => {
+        if (l === 'Hadir') return '#16a34a';
+        if (l.includes('Balik')) return '#eab308';
+        if (l.includes('Sakit')) return '#dc2626';
+        if (l.includes('Kecemasan')) return '#ef4444';
+        return '#64748b';
+      });
+
+      anaChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: labels,
+          datasets: [{ data: data, backgroundColor: colors, borderWidth: 1 }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'right', labels: { font: { size: 11, family: 'Inter' } } }
+          },
+          cutout: '65%'
+        }
+      });
+
+      // Top Pelajar
+      const sortedS = [...allStudents].sort((a,b) => (b.meritPoints||0) - (a.meritPoints||0)).slice(0, 3);
+      let htmlS = '';
+      sortedS.forEach((s, i) => {
+        htmlS += `<div class="d-flex justify-content-between align-items-center mb-2 pb-2" style="border-bottom:1px solid #f1f5f9;">
+          <div><div style="font-size:12px;font-weight:600;color:#1e293b;">${i+1}. ${s.name}</div><div style="font-size:10px;color:#64748b;">${s.classroom||'-'}</div></div>
+          <div style="font-weight:800;color:${(s.meritPoints||0)>=0?'#166534':'#991b1b'};font-size:14px;">${s.meritPoints||0}</div>
+        </div>`;
+      });
+      document.getElementById('anaTopPelajar').innerHTML = htmlS;
+
+      // Top Dorm
+      const dormMap = {};
+      allStudents.forEach(s => {
+        const d = s.block || '-';
+        if (!dormMap[d]) dormMap[d] = 0;
+        dormMap[d] += (s.meritPoints||0);
+      });
+      const sortedD = Object.entries(dormMap).sort((a,b) => b[1] - a[1]).slice(0, 3);
+      let htmlD = '';
+      sortedD.forEach((d, i) => {
+        htmlD += `<div class="d-flex justify-content-between align-items-center mb-2 pb-2" style="border-bottom:1px solid #f1f5f9;">
+          <div style="font-size:12px;font-weight:600;color:#1e293b;">${i+1}. ${d[0]}</div>
+          <div style="font-weight:800;color:${d[1]>=0?'#166534':'#991b1b'};font-size:14px;">${d[1]}</div>
+        </div>`;
+      });
+      document.getElementById('anaTopDorm').innerHTML = htmlD;
+
+      // Warden Leaderboard
+      const wMap = {};
+      allMeritLogs.forEach(log => {
+        const w = log.warden || 'Tidak Diketahui';
+        if (!wMap[w]) wMap[w] = { baik: 0, buruk: 0 };
+        if (log.type === 'Merit') wMap[w].baik++;
+        else if (log.type === 'Demerit') wMap[w].buruk++;
+      });
+      
+      const sortedW = Object.entries(wMap).sort((a, b) => (b[1].baik + b[1].buruk) - (a[1].baik + a[1].buruk));
+      let htmlW = '';
+      if (sortedW.length === 0) {
+        htmlW = `<tr><td colspan="4" class="text-center text-muted py-3">Tiada rekod.</td></tr>`;
+      } else {
+        sortedW.forEach(w => {
+          const total = w[1].baik + w[1].buruk;
+          htmlW += `<tr>
+            <td style="font-weight:600;color:#334155;">${w[0]}</td>
+            <td class="text-center"><span class="badge bg-success bg-opacity-10 text-success rounded-pill px-2 py-1">${w[1].baik}</span></td>
+            <td class="text-center"><span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-2 py-1">${w[1].buruk}</span></td>
+            <td class="text-center fw-bold">${total}</td>
+          </tr>`;
+        });
+      }
+      document.getElementById('anaWardenList').innerHTML = htmlW;
+    }
+
     function bukaPenjanaPosterId() {
       document.getElementById('mainMenuView').style.display = 'none';
       document.getElementById('posterView').style.display = 'block';
@@ -3376,6 +3491,7 @@
       }
 
       document.getElementById('posterView').style.display = 'none';
+      document.getElementById('analisaView').style.display = 'none';
       document.getElementById('senaraiNamaView').style.display = 'none';
       document.getElementById('attendanceView').style.display = 'none';
       document.getElementById('disciplineView').style.display = 'none';
@@ -3407,6 +3523,7 @@
     function bukaLaporan() {
       document.getElementById('mainMenuView').style.display = 'none';
       document.getElementById('posterView').style.display = 'none';
+      document.getElementById('analisaView').style.display = 'none';
       document.getElementById('senaraiNamaView').style.display = 'none';
       document.getElementById('attendanceView').style.display = 'none';
       document.getElementById('disciplineView').style.display = 'none';
@@ -3424,6 +3541,7 @@
       await fetchMeritLogs();
       document.getElementById('mainMenuView').style.display = 'none';
       document.getElementById('posterView').style.display = 'none';
+      document.getElementById('analisaView').style.display = 'none';
       document.getElementById('senaraiNamaView').style.display = 'none';
       document.getElementById('attendanceView').style.display = 'none';
       document.getElementById('disciplineView').style.display = 'block';
@@ -3677,6 +3795,7 @@
     function bukaAktivitiMenu() {
       document.getElementById('mainMenuView').style.display = 'none';
       document.getElementById('posterView').style.display = 'none';
+      document.getElementById('analisaView').style.display = 'none';
       document.getElementById('senaraiNamaView').style.display = 'none';
       document.getElementById('attendanceView').style.display = 'none';
       document.getElementById('disciplineView').style.display = 'none';
@@ -3947,6 +4066,7 @@
       await fetchAktivitiLogs();
       document.getElementById('mainMenuView').style.display = 'none';
       document.getElementById('posterView').style.display = 'none';
+      document.getElementById('analisaView').style.display = 'none';
       document.getElementById('senaraiNamaView').style.display = 'none';
       document.getElementById('attendanceView').style.display = 'none';
       document.getElementById('disciplineView').style.display = 'none';
@@ -4835,6 +4955,7 @@ JUMLAH KEHADIRAN KE SEKOLAH     : ${data.kehadiranSekolah}`;
       if (userRole !== 'warden') { alert("Akses ditolak."); return; }
       document.getElementById('mainMenuView').style.display = 'none';
       document.getElementById('posterView').style.display = 'none';
+      document.getElementById('analisaView').style.display = 'none';
       document.getElementById('senaraiNamaView').style.display = 'none';
       document.getElementById('attendanceView').style.display = 'none';
       document.getElementById('disciplineView').style.display = 'none';
