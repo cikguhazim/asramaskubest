@@ -3096,14 +3096,14 @@
       // Basic Stats
       document.getElementById('anaTotalPelajar').innerText = allStudents.length;
       
-      let hadirCount = 0;
+      let masukCount = 0;
       const statusCounts = {};
       allStudents.forEach(s => {
-        const st = s.status || 'Hadir';
-        if (st === 'Hadir') hadirCount++;
+        const st = s.status || 'Masuk';
+        if (st === 'Masuk') masukCount++;
         statusCounts[st] = (statusCounts[st] || 0) + 1;
       });
-      document.getElementById('anaTotalHadir').innerText = hadirCount + " Hadir";
+      document.getElementById('anaTotalHadir').innerText = masukCount;
       document.getElementById('anaTotalDisiplin').innerText = allMeritLogs.length;
 
       // Chart
@@ -3112,13 +3112,14 @@
       
       const labels = Object.keys(statusCounts);
       const data = Object.values(statusCounts);
-      const colors = labels.map(l => {
-        if (l === 'Hadir') return '#16a34a';
-        if (l.includes('Balik')) return '#eab308';
-        if (l.includes('Sakit')) return '#dc2626';
-        if (l.includes('Kecemasan')) return '#ef4444';
-        return '#64748b';
-      });
+      const colorMap = {
+        'Masuk':  '#16a34a',
+        'Keluar': '#dc2626',
+        'Sakit':  '#eab308',
+      };
+      const palette = ['#6366f1','#0ea5e9','#f97316','#8b5cf6','#14b8a6'];
+      let paletteIdx = 0;
+      const colors = labels.map(l => colorMap[l] || palette[paletteIdx++ % palette.length]);
 
       anaChartInstance = new Chart(ctx, {
         type: 'doughnut',
@@ -3177,8 +3178,11 @@
       targetWardens.forEach(w => wMap[w] = { baik: 0, buruk: 0 });
 
       allMeritLogs.forEach(log => {
-        const w = log.warden;
-        if (targetWardens.includes(w)) {
+        // log.warden may be a full name OR a username key (e.g. "warden1")
+        let w = log.warden;
+        // If it looks like a key, resolve to full name via WARDEN_NAMES
+        if (WARDEN_NAMES[w]) w = WARDEN_NAMES[w];
+        if (wMap[w]) {
           if (log.type === 'Merit') wMap[w].baik++;
           else if (log.type === 'Demerit') wMap[w].buruk++;
         }
