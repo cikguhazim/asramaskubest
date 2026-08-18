@@ -1084,85 +1084,93 @@
     <!-- Poster Generator View -->
     
   <div id="analisaView" class="view-section" style="display:none;">
-    <header class="app-topbar">
-      <div class="topbar-left">
-        <button class="btn-topbar btn-back" onclick="paparMenuUtama()">
-          <i class="fas fa-arrow-left"></i>
-        </button>
-        <h1 class="page-title">Analisa & Statistik</h1>
-      </div>
-    </header>
-    
-    <div class="p-3" style="max-width:800px; margin:0 auto; padding-bottom:100px;">
-      
-      <!-- Top Level Cards -->
-      <div class="row g-3 mb-4">
-        <div class="col-6 col-md-4">
-          <div class="stat-card p-3 text-center" style="height:100%;">
-            <div style="font-size:24px; color:#4338ca; margin-bottom:8px;"><i class="fas fa-user-graduate"></i></div>
-            <div style="font-size:12px; color:#64748b; font-weight:600;">Jumlah Pelajar</div>
-            <div id="anaTotalPelajar" style="font-size:22px; font-weight:800; color:#1e293b; margin-top:4px;">0</div>
-          </div>
-        </div>
-        <div class="col-6 col-md-4">
-          <div class="stat-card p-3 text-center" style="height:100%;">
-            <div style="font-size:24px; color:#16a34a; margin-bottom:8px;"><i class="fas fa-check-circle"></i></div>
-            <div style="font-size:12px; color:#64748b; font-weight:600;">Rekod Keberadaan</div>
-            <div id="anaTotalHadir" style="font-size:22px; font-weight:800; color:#1e293b; margin-top:4px;">0</div>
-          </div>
-        </div>
-        <div class="col-12 col-md-4">
-          <div class="stat-card p-3 text-center" style="height:100%;">
-            <div style="font-size:24px; color:#eab308; margin-bottom:8px;"><i class="fas fa-star"></i></div>
-            <div style="font-size:12px; color:#64748b; font-weight:600;">Jumlah Rekod Disiplin</div>
-            <div id="anaTotalDisiplin" style="font-size:22px; font-weight:800; color:#1e293b; margin-top:4px;">0</div>
-          </div>
-        </div>
-      </div>
 
-      <!-- Chart Keberadaan -->
-      <div class="stat-card p-3 mb-4">
-        <h6 class="fw-bold mb-3" style="color:var(--clr-text-primary);"><i class="fas fa-chart-pie me-2" style="color:#0ea5e9;"></i>Taburan Keberadaan Semasa</h6>
-        <div style="height:250px; position:relative;">
-          <canvas id="anaKeberadaanChart"></canvas>
-        </div>
+    <!-- Section Header (consistent with other views) -->
+    <div class="section-header mb-3">
+      <div class="section-icon" style="background:#e0e7ff;">
+        <i class="fas fa-chart-pie" style="color:#4338ca;"></i>
       </div>
-
-      <!-- Kedudukan -->
-      <div class="row g-3 mb-4">
-        <div class="col-md-6">
-          <div class="stat-card p-3" style="height:100%;">
-            <h6 class="fw-bold mb-3" style="color:var(--clr-text-primary);"><i class="fas fa-trophy me-2" style="color:#f59e0b;"></i>Top 3 Pelajar</h6>
-            <div id="anaTopPelajar"></div>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="stat-card p-3" style="height:100%;">
-            <h6 class="fw-bold mb-3" style="color:var(--clr-text-primary);"><i class="fas fa-home me-2" style="color:#10b981;"></i>Top 3 Dorm</h6>
-            <div id="anaTopDorm"></div>
-          </div>
-        </div>
+      <div>
+        <h1 style="font-size:1.05rem;">Analisa & Statistik</h1>
+        <p class="text-muted mb-0" style="font-size:0.75rem;">Paparan ringkasan dan data terkini</p>
       </div>
-
-      <!-- Warden Leaderboard -->
-      <div class="stat-card p-3 mb-4">
-        <h6 class="fw-bold mb-3" style="color:var(--clr-text-primary);"><i class="fas fa-list-alt me-2" style="color:#8b5cf6;"></i>Rekod Pengisian Warden</h6>
-        <div class="table-responsive">
-          <table class="table table-hover align-middle mb-0" style="font-size:0.85rem;">
-            <thead class="table-light">
-              <tr>
-                <th>Warden</th>
-                <th class="text-center">Amalan Baik</th>
-                <th class="text-center">Amalan Buruk</th>
-                <th class="text-center">Jumlah</th>
-              </tr>
-            </thead>
-            <tbody id="anaWardenList"></tbody>
-          </table>
-        </div>
-      </div>
-
     </div>
+
+    <!-- Top Level Stats -->
+    <div class="row g-2 mb-3">
+      <div class="col-6 col-md-4">
+        <div class="stat-card p-3 text-center">
+          <div style="font-size:20px; color:#4338ca; margin-bottom:6px;"><i class="fas fa-user-graduate"></i></div>
+          <div style="font-size:11px; color:var(--clr-text-secondary); font-weight:600; text-transform:uppercase; letter-spacing:0.4px;">Jumlah Pelajar</div>
+          <div id="anaTotalPelajar" style="font-size:24px; font-weight:800; color:var(--clr-text-primary); margin-top:2px;">—</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4">
+        <div class="stat-card p-3 text-center">
+          <div style="font-size:20px; color:#16a34a; margin-bottom:6px;"><i class="fas fa-check-circle"></i></div>
+          <div style="font-size:11px; color:var(--clr-text-secondary); font-weight:600; text-transform:uppercase; letter-spacing:0.4px;">Pelajar Hadir</div>
+          <div id="anaTotalHadir" style="font-size:24px; font-weight:800; color:var(--clr-text-primary); margin-top:2px;">—</div>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="stat-card p-3 text-center">
+          <div style="font-size:20px; color:#eab308; margin-bottom:6px;"><i class="fas fa-clipboard-list"></i></div>
+          <div style="font-size:11px; color:var(--clr-text-secondary); font-weight:600; text-transform:uppercase; letter-spacing:0.4px;">Rekod Disiplin</div>
+          <div id="anaTotalDisiplin" style="font-size:24px; font-weight:800; color:var(--clr-text-primary); margin-top:2px;">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart Keberadaan -->
+    <div class="stat-card p-3 mb-3">
+      <p class="mb-2" style="font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; color:var(--clr-text-secondary);">
+        <i class="fas fa-chart-pie me-1" style="color:#0ea5e9;"></i> Taburan Keberadaan Semasa
+      </p>
+      <div style="height:220px; position:relative;">
+        <canvas id="anaKeberadaanChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Top 3 Leaderboards -->
+    <div class="row g-2 mb-3">
+      <div class="col-12 col-md-6">
+        <div class="stat-card p-3">
+          <p class="mb-2" style="font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; color:var(--clr-text-secondary);">
+            <i class="fas fa-trophy me-1" style="color:#f59e0b;"></i> Top 3 Pelajar (Mata Terkumpul)
+          </p>
+          <div id="anaTopPelajar"></div>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="stat-card p-3">
+          <p class="mb-2" style="font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; color:var(--clr-text-secondary);">
+            <i class="fas fa-home me-1" style="color:#10b981;"></i> Top 3 Dorm (Mata Terkumpul)
+          </p>
+          <div id="anaTopDorm"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Warden Table -->
+    <div class="stat-card p-3 mb-3">
+      <p class="mb-3" style="font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; color:var(--clr-text-secondary);">
+        <i class="fas fa-user-shield me-1" style="color:#8b5cf6;"></i> Rekod Pengisian Warden
+      </p>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" style="font-size:0.82rem;">
+          <thead>
+            <tr style="font-size:0.7rem; text-transform:uppercase; letter-spacing:0.5px; color:var(--clr-text-secondary);">
+              <th class="border-0 pb-2">Warden</th>
+              <th class="border-0 pb-2 text-center">Amalan Baik</th>
+              <th class="border-0 pb-2 text-center">Salah Laku</th>
+              <th class="border-0 pb-2 text-center">Jumlah</th>
+            </tr>
+          </thead>
+          <tbody id="anaWardenList"></tbody>
+        </table>
+      </div>
+    </div>
+
   </div>
 
     <div id="posterView" style="display:none;" class="view-section">
