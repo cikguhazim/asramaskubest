@@ -3069,7 +3069,17 @@
     
     let anaChartInstance;
     function bukaAnalisa() {
-      tutupSemuaView();
+      document.getElementById('mainMenuView').style.display = 'none';
+      document.getElementById('attendanceView').style.display = 'none';
+      document.getElementById('disciplineView').style.display = 'none';
+      document.getElementById('reportView').style.display = 'none';
+      document.getElementById('penjanaLaporanView').style.display = 'none';
+      document.getElementById('tetapanView').style.display = 'none';
+      document.getElementById('aktivitiMenuView').style.display = 'none';
+      document.getElementById('aktivitiFormView').style.display = 'none';
+      document.getElementById('senaraiNamaView').style.display = 'none';
+      document.getElementById('posterView').style.display = 'none';
+      
       document.getElementById('analisaView').style.display = 'block';
       renderAnalisa();
     }
