@@ -1433,7 +1433,10 @@
 
           <div class="mb-3">
             <label class="form-label text-secondary fw-semibold" style="font-size:0.8rem;">Mata / Markah</label>
-            <input type="number" id="murid_mata" class="form-control" placeholder="Contoh: 3 atau -3">
+            <input type="hidden" id="murid_mata">
+            <div id="murid_mata_buttons" class="d-flex flex-wrap gap-2">
+              <!-- Dijana oleh JS -->
+            </div>
           </div>
 
           <div class="mb-3">
@@ -1480,10 +1483,17 @@
         <div class="card-body p-3">
           <div class="input-group">
             <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
-            <input type="text" class="form-control border-start-0 bg-light" id="murid_carian" placeholder="Taip nama anda di sini..." onkeyup="renderCarianMurid()" style="font-size:1rem; padding:12px 10px;">
+            <!-- readonly prevents default device keyboard from popping up -->
+            <input type="text" class="form-control border-start-0 bg-light" id="murid_carian" placeholder="Taip nama menggunakan papan kekunci di bawah..." readonly style="font-size:1rem; padding:12px 10px; background-color:#fff !important;">
+            <button class="btn btn-outline-secondary border-start-0" type="button" onclick="padamCarianMurid()"><i class="fas fa-backspace"></i></button>
           </div>
-          <div id="murid_senaraiPelajar" style="max-height: 200px; overflow-y: auto; margin-top:8px;">
+          <div id="murid_senaraiPelajar" style="max-height: 180px; overflow-y: auto; margin-top:8px;">
             <!-- Hasil carian -->
+          </div>
+          
+          <!-- Custom On-Screen Keyboard -->
+          <div id="murid_keyboard" class="mt-3" style="background:#f1f5f9; padding:10px; border-radius:10px;">
+            <!-- Dijana oleh JS -->
           </div>
         </div>
       </div>
@@ -2588,15 +2598,84 @@ if (userRole === 'guard') {
       muridGoToPhaseWarden();
     }
     
+
     function tukarBorangMurid() {
       const type = document.getElementById('murid_jenisMata').value;
       const input = document.getElementById('murid_mata');
-      if (type === 'Merit') {
-        input.placeholder = "Contoh: 3, 5";
+      input.value = ""; // Reset selected points
+      
+      const container = document.getElementById('murid_mata_buttons');
+      let html = '';
+      
+      for(let i=1; i<=10; i++) {
+        let val = type === 'Merit' ? i : -i;
+        let colorClass = type === 'Merit' ? 'btn-outline-success' : 'btn-outline-danger';
+        html += `<button type="button" class="btn ${colorClass} fw-bold mata-btn" style="width:45px; height:45px;" onclick="pilihMataMurid(this, ${val})">${val}</button>`;
+      }
+      
+      container.innerHTML = html;
+    }
+    
+    function pilihMataMurid(btnElement, val) {
+      document.getElementById('murid_mata').value = val;
+      
+      // Highlight selected button
+      const buttons = document.querySelectorAll('.mata-btn');
+      buttons.forEach(b => {
+        b.classList.remove('active');
+        b.style.backgroundColor = 'transparent';
+        b.style.color = '';
+      });
+      
+      btnElement.classList.add('active');
+      if (val > 0) {
+        btnElement.style.backgroundColor = '#198754';
+        btnElement.style.color = '#fff';
       } else {
-        input.placeholder = "Contoh: -3, -5";
+        btnElement.style.backgroundColor = '#dc3545';
+        btnElement.style.color = '#fff';
       }
     }
+    
+    // --- Custom Keyboard Logic ---
+    function binaKeyboardMurid() {
+      const layout = [
+        ['Q','W','E','R','T','Y','U','I','O','P'],
+        ['A','S','D','F','G','H','J','K','L'],
+        ['Z','X','C','V','B','N','M']
+      ];
+      
+      let html = '<div class="d-flex flex-column gap-2 align-items-center">';
+      
+      layout.forEach(row => {
+        html += '<div class="d-flex gap-2 justify-content-center w-100">';
+        row.forEach(key => {
+          html += `<button type="button" class="btn btn-light border shadow-sm flex-fill fw-bold" style="height:45px; font-size:1.1rem; max-width:45px;" onclick="tekanKekunci('${key}')">${key}</button>`;
+        });
+        html += '</div>';
+      });
+      
+      // Spacebar row
+      html += '<div class="d-flex gap-2 justify-content-center w-100" style="max-width: 400px;">';
+      html += `<button type="button" class="btn btn-light border shadow-sm w-100 fw-bold" style="height:45px; font-size:1rem;" onclick="tekanKekunci(' ')">SPACE</button>`;
+      html += '</div>';
+      
+      html += '</div>';
+      document.getElementById('murid_keyboard').innerHTML = html;
+    }
+    
+    function tekanKekunci(char) {
+      const input = document.getElementById('murid_carian');
+      input.value += char;
+      renderCarianMurid();
+    }
+    
+    function padamCarianMurid() {
+      const input = document.getElementById('murid_carian');
+      input.value = input.value.slice(0, -1);
+      renderCarianMurid();
+    }
+
 
     function muridGoToPhaseWarden() {
       document.getElementById('muridPhase_Warden').style.display = 'block';
@@ -2639,6 +2718,7 @@ if (userRole === 'guard') {
       
       // Auto focus doesn't work perfectly on mobile iOS without user interaction, but we can try
       setTimeout(() => document.getElementById('murid_carian').focus(), 100);
+      binaKeyboardMurid();
     }
 
     function renderCarianMurid() {
@@ -2681,7 +2761,8 @@ if (userRole === 'guard') {
       renderSenaraiTerpilih();
       
       // Keep focus on input for the next student
-      document.getElementById('murid_carian').focus();
+      // Keyboard custom digunakan
+      binaKeyboardMurid();
     }
 
     function buangMuridTerpilih(docId) {
