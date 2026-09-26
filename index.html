@@ -1407,7 +1407,69 @@
     </div>
 
   <!-- Discipline View (Merit / Demerit) -->
-  <div id="disciplineView" style="display:none;" class="view-section">
+  
+  <div id="muridView" style="display:none;" class="view-section">
+    <div class="section-header mb-3">
+      <div class="section-icon" style="background:#fef08a;">
+        <i class="fas fa-star" style="color:#a16207;"></i>
+      </div>
+      <div>
+        <h1 style="font-size:1.05rem;">Rekod Disiplin (Murid)</h1>
+        <p class="text-muted mb-0" style="font-size:0.75rem;">Sila isikan maklumat dan minta murid pilih nama</p>
+      </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body">
+        <h6 class="mb-3 text-primary fw-bold" style="font-size:0.9rem;">1. Maklumat Rekod (Oleh Warden)</h6>
+        
+        <div class="mb-3">
+          <label class="form-label text-secondary fw-semibold" style="font-size:0.8rem;">Jenis Rekod</label>
+          <select id="murid_jenisMata" class="form-select fw-bold" onchange="tukarBorangMurid()">
+            <option value="Merit" class="text-success fw-bold">Amalan Baik</option>
+            <option value="Demerit" class="text-danger fw-bold">Salah Laku</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label text-secondary fw-semibold" style="font-size:0.8rem;">Mata / Markah</label>
+          <input type="number" id="murid_mata" class="form-control" placeholder="Contoh: 3 atau -3">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label text-secondary fw-semibold" style="font-size:0.8rem;">Sebab / Keterangan</label>
+          <textarea id="murid_sebab" class="form-control" rows="2" placeholder="Sila nyatakan sebab..."></textarea>
+        </div>
+        
+        <div class="mb-3">
+          <label class="form-label text-secondary fw-semibold" style="font-size:0.8rem;">Nama Warden Bertugas</label>
+          <select id="murid_warden" class="form-select">
+            <option value="">-- Pilih Warden --</option>
+            <!-- Diisi melalui JS -->
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body">
+        <h6 class="mb-3 text-primary fw-bold" style="font-size:0.9rem;">2. Pilih Nama (Oleh Murid)</h6>
+        <div class="input-group mb-3">
+          <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+          <input type="text" class="form-control border-start-0 ps-0" id="murid_carian" placeholder="Taip nama anda..." onkeyup="renderCarianMurid()">
+        </div>
+        <div id="murid_senaraiPelajar" style="max-height: 300px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 5px;">
+          <!-- Senarai pelajar akan dijana di sini -->
+        </div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary w-100 fw-bold py-2 mb-5 shadow-sm" onclick="hantarRekodMurid()" id="btnHantarMurid">
+      <i class="fas fa-paper-plane me-2"></i>HANTAR REKOD
+    </button>
+  </div>
+
+<div id="disciplineView" style="display:none;" class="view-section">
     <div class="form-card">
       <h1 id="disciplineTitle" class="mb-4 text-center" style="font-size:1.15rem; font-weight:700;"></h1>
       <form id="disciplineForm">
@@ -2312,7 +2374,8 @@
       "warden5": { peranan: "warden", kataLaluan: "1234", namaPenuh: "SITI NUR IZYANA BINTI CHE RAHIM" },
       "kwarden": { peranan: "warden", kataLaluan: "1234", namaPenuh: "MUHAMMAD AZUWAN BIN KAMARUDDIN" },
       "pasrama": { peranan: "warden", kataLaluan: "1234", namaPenuh: "SITI NUR FATIHAH BINTI MUSA" },
-      "pengawal": { peranan: "guard", kataLaluan: "1234", namaPenuh: "Pengawal Keselamatan" }
+      "pengawal": { peranan: "guard", kataLaluan: "1234", namaPenuh: "Pengawal Keselamatan" },
+      "murid": { peranan: "murid", kataLaluan: "1234", namaPenuh: "Akaun Murid" }
     };
 
     const WARDEN_NAMES = {
@@ -2429,8 +2492,10 @@
           document.getElementById('loginScreen').style.display = 'none';
           document.getElementById('mainDashboard').style.display = 'block';
 
-          if (userRole === 'guard') {
+if (userRole === 'guard') {
             bukaKeberadaan();
+          } else if (userRole === 'murid') {
+            bukaMuridView();
           } else {
             paparMenuUtama();
           }
@@ -2453,6 +2518,151 @@
       document.getElementById('loginPass').value = '';
       document.getElementById('btnLogin').disabled = false;
       document.getElementById('btnLogin').innerText = "LOG MASUK";
+    }
+
+
+    function bukaMuridView() {
+      document.getElementById('mainMenuView').style.display = 'none';
+      document.getElementById('attendanceView').style.display = 'none';
+      document.getElementById('disciplineView').style.display = 'none';
+      document.getElementById('reportView').style.display = 'none';
+      document.getElementById('penjanaLaporanView').style.display = 'none';
+      document.getElementById('tetapanView').style.display = 'none';
+      document.getElementById('aktivitiMenuView').style.display = 'none';
+      document.getElementById('aktivitiFormView').style.display = 'none';
+      document.getElementById('senaraiNamaView').style.display = 'none';
+      document.getElementById('posterView').style.display = 'none';
+      document.getElementById('analisaView').style.display = 'none';
+      document.getElementById('kuponView').style.display = 'none';
+      document.getElementById('muridView').style.display = 'none';
+      document.getElementById('btnBackMenu').style.display = 'none';
+      
+      document.getElementById('muridView').style.display = 'block';
+      
+      // Populate warden dropdown if empty
+      const wardenSelect = document.getElementById('murid_warden');
+      if (wardenSelect.options.length <= 1 && typeof WARDEN_NAMES !== 'undefined') {
+        Object.entries(WARDEN_NAMES).forEach(([key, name]) => {
+          if(key !== 'pengawal' && key !== 'murid') {
+            wardenSelect.innerHTML += `<option value="${key}">${name}</option>`;
+          }
+        });
+      }
+      
+      tukarBorangMurid();
+      document.getElementById('murid_carian').value = '';
+      renderCarianMurid();
+    }
+    
+    function tukarBorangMurid() {
+      const type = document.getElementById('murid_jenisMata').value;
+      const input = document.getElementById('murid_mata');
+      if (type === 'Merit') {
+        input.placeholder = "Contoh: 3, 5";
+        input.value = "";
+      } else {
+        input.placeholder = "Contoh: -3, -5";
+        input.value = "";
+      }
+    }
+
+    function renderCarianMurid() {
+      const searchTerm = document.getElementById('murid_carian').value.toLowerCase();
+      let html = '';
+      
+      let count = 0;
+      allStudents.forEach(s => {
+        if (!searchTerm) {
+            // Show only first 20 if no search term
+            if(count >= 20) return;
+        } else {
+            if (!s.name.toLowerCase().includes(searchTerm)) return;
+        }
+        
+        html += `
+          <label class="d-flex align-items-center p-2 mb-1 border rounded murid-item" style="cursor:pointer; background:#fff;">
+            <input type="checkbox" class="form-check-input me-3 murid-check" value="${s.docId}" style="transform:scale(1.3);">
+            <div>
+              <div style="font-weight:600;font-size:0.85rem;color:#1e293b;">${s.name}</div>
+              <div style="font-size:0.75rem;color:#64748b;">${s.classroom || '-'} | Dorm: ${s.block || '-'}</div>
+            </div>
+          </label>
+        `;
+        count++;
+      });
+      
+      if (!html) html = '<div class="p-3 text-center text-muted">Tiada murid ditemui.</div>';
+      document.getElementById('murid_senaraiPelajar').innerHTML = html;
+    }
+
+    async function hantarRekodMurid() {
+      const jenis = document.getElementById('murid_jenisMata').value;
+      const mata = parseInt(document.getElementById('murid_mata').value, 10);
+      const sebab = document.getElementById('murid_sebab').value.trim();
+      const warden = document.getElementById('murid_warden').value;
+      
+      if (isNaN(mata) || !sebab || !warden) {
+        Swal.fire('Ralat', 'Sila isi Mata, Sebab, dan pilih Warden.', 'error');
+        return;
+      }
+      
+      if (jenis === 'Demerit' && mata > 0) {
+        Swal.fire('Ralat', 'Mata untuk Salah Laku mestilah nilai negatif (contoh: -3)', 'warning');
+        return;
+      }
+      
+      if (jenis === 'Merit' && mata < 0) {
+        Swal.fire('Ralat', 'Mata untuk Amalan Baik mestilah nilai positif (contoh: 3)', 'warning');
+        return;
+      }
+      
+      const checkedBoxes = document.querySelectorAll('.murid-check:checked');
+      if (checkedBoxes.length === 0) {
+        Swal.fire('Ralat', 'Sila pilih sekurang-kurangnya seorang murid.', 'error');
+        return;
+      }
+      
+      const selectedIds = Array.from(checkedBoxes).map(cb => cb.value);
+      
+      const btn = document.getElementById('btnHantarMurid');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Menyimpan...';
+      document.getElementById('loader').style.display = 'flex';
+      
+      try {
+        const timestamp = new Date().toISOString();
+        for (const sId of selectedIds) {
+          const s = allStudents.find(x => x.docId === sId);
+          if (s) {
+            await db.collection("meritLogs").add({
+              studentId: sId,
+              studentName: s.name,
+              type: jenis,
+              points: mata,
+              reason: sebab,
+              warden: WARDEN_NAMES[warden] || warden,
+              timestamp: timestamp
+            });
+            await db.collection("students").doc(sId).update({
+              meritPoints: firebase.firestore.FieldValue.increment(mata)
+            });
+          }
+        }
+        
+        Swal.fire('Berjaya', 'Rekod telah disimpan!', 'success');
+        
+        // Reset check boxes and carian
+        document.getElementById('murid_carian').value = '';
+        renderCarianMurid();
+        await fetchMeritLogs(true);
+        loadDataServer(); // Reload students
+      } catch (err) {
+        Swal.fire('Ralat', err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>HANTAR REKOD';
+        document.getElementById('loader').style.display = 'none';
+      }
     }
 
     async function loadDataServer() {
@@ -3126,6 +3336,7 @@
       document.getElementById('penjanaLaporanView').style.display = 'none';
       document.getElementById('tetapanView').style.display = 'none';
       document.getElementById('kuponView').style.display = 'none';
+      document.getElementById('muridView').style.display = 'none';
       document.getElementById('aktivitiMenuView').style.display = 'none';
       document.getElementById('aktivitiFormView').style.display = 'none';
       document.getElementById('senaraiNamaView').style.display = 'none';
@@ -3266,6 +3477,7 @@
       document.getElementById('penjanaLaporanView').style.display = 'none';
       document.getElementById('tetapanView').style.display = 'none';
       document.getElementById('kuponView').style.display = 'none';
+      document.getElementById('muridView').style.display = 'none';
       document.getElementById('aktivitiMenuView').style.display = 'none';
       document.getElementById('aktivitiFormView').style.display = 'none';
       document.getElementById('senaraiNamaView').style.display = 'none';
@@ -3466,6 +3678,7 @@
       document.getElementById('penjanaLaporanView').style.display = 'none';
       document.getElementById('tetapanView').style.display = 'none';
       document.getElementById('kuponView').style.display = 'none';
+      document.getElementById('muridView').style.display = 'none';
       document.getElementById('aktivitiMenuView').style.display = 'none';
       document.getElementById('aktivitiFormView').style.display = 'none';
       document.getElementById('senaraiNamaView').style.display = 'block';
@@ -3668,6 +3881,7 @@
       document.getElementById('penjanaLaporanView').style.display = 'none';
       document.getElementById('tetapanView').style.display = 'none';
       document.getElementById('kuponView').style.display = 'none';
+      document.getElementById('muridView').style.display = 'none';
       document.getElementById('aktivitiMenuView').style.display = 'none';
       document.getElementById('aktivitiFormView').style.display = 'none';
       document.getElementById('btnBackMenu').style.display = 'none';
@@ -3681,6 +3895,7 @@
       document.getElementById('penjanaLaporanView').style.display = 'none';
       document.getElementById('tetapanView').style.display = 'none';
       document.getElementById('kuponView').style.display = 'none';
+      document.getElementById('muridView').style.display = 'none';
 
       if (userRole === 'warden') {
         document.getElementById('btnBackMenu').style.display = 'block';
@@ -3702,6 +3917,7 @@
       document.getElementById('penjanaLaporanView').style.display = 'none';
       document.getElementById('tetapanView').style.display = 'none';
       document.getElementById('kuponView').style.display = 'none';
+      document.getElementById('muridView').style.display = 'none';
       document.getElementById('aktivitiMenuView').style.display = 'none';
       document.getElementById('aktivitiFormView').style.display = 'none';
       document.getElementById('btnBackMenu').style.display = 'block';
@@ -3721,6 +3937,7 @@
       document.getElementById('penjanaLaporanView').style.display = 'none';
       document.getElementById('tetapanView').style.display = 'none';
       document.getElementById('kuponView').style.display = 'none';
+      document.getElementById('muridView').style.display = 'none';
       document.getElementById('aktivitiMenuView').style.display = 'none';
       document.getElementById('aktivitiFormView').style.display = 'none';
       document.getElementById('btnBackMenu').style.display = 'block';
@@ -3976,6 +4193,7 @@
       document.getElementById('penjanaLaporanView').style.display = 'none';
       document.getElementById('tetapanView').style.display = 'none';
       document.getElementById('kuponView').style.display = 'none';
+      document.getElementById('muridView').style.display = 'none';
       document.getElementById('aktivitiMenuView').style.display = 'block';
       document.getElementById('aktivitiFormView').style.display = 'none';
       document.getElementById('btnBackMenu').style.display = 'block';
