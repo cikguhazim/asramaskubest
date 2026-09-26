@@ -1409,64 +1409,98 @@
   <!-- Discipline View (Merit / Demerit) -->
   
   <div id="muridView" style="display:none;" class="view-section">
-    <div class="section-header mb-3">
-      <div class="section-icon" style="background:#fef08a;">
-        <i class="fas fa-star" style="color:#a16207;"></i>
+    <!-- WARDEN PHASE -->
+    <div id="muridPhase_Warden">
+      <div class="section-header mb-3">
+        <div class="section-icon" style="background:#fef08a;">
+          <i class="fas fa-edit" style="color:#a16207;"></i>
+        </div>
+        <div>
+          <h1 style="font-size:1.05rem;">Tetapan Rekod (Oleh Warden)</h1>
+          <p class="text-muted mb-0" style="font-size:0.75rem;">Isi maklumat sebelum serahkan kepada pelajar</p>
+        </div>
       </div>
-      <div>
-        <h1 style="font-size:1.05rem;">Rekod Disiplin (Murid)</h1>
-        <p class="text-muted mb-0" style="font-size:0.75rem;">Sila isikan maklumat dan minta murid pilih nama</p>
+
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="form-label text-secondary fw-semibold" style="font-size:0.8rem;">Jenis Rekod</label>
+            <select id="murid_jenisMata" class="form-select fw-bold" onchange="tukarBorangMurid()">
+              <option value="Merit" class="text-success fw-bold">Amalan Baik</option>
+              <option value="Demerit" class="text-danger fw-bold">Salah Laku</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label text-secondary fw-semibold" style="font-size:0.8rem;">Mata / Markah</label>
+            <input type="number" id="murid_mata" class="form-control" placeholder="Contoh: 3 atau -3">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label text-secondary fw-semibold" style="font-size:0.8rem;">Sebab / Keterangan</label>
+            <textarea id="murid_sebab" class="form-control" rows="2" placeholder="Sila nyatakan sebab..."></textarea>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label text-secondary fw-semibold" style="font-size:0.8rem;">Nama Warden Bertugas</label>
+            <select id="murid_warden" class="form-select">
+              <option value="">-- Pilih Warden --</option>
+              <!-- Diisi melalui JS -->
+            </select>
+          </div>
+        </div>
       </div>
+
+      <button class="btn btn-primary w-100 fw-bold py-3 mb-5 shadow-sm" onclick="muridGoToPhasePelajar()" style="border-radius:12px;">
+        SETERUSNYA <i class="fas fa-arrow-right ms-2"></i>
+      </button>
     </div>
 
-    <div class="card border-0 shadow-sm mb-4">
-      <div class="card-body">
-        <h6 class="mb-3 text-primary fw-bold" style="font-size:0.9rem;">1. Maklumat Rekod (Oleh Warden)</h6>
-        
-        <div class="mb-3">
-          <label class="form-label text-secondary fw-semibold" style="font-size:0.8rem;">Jenis Rekod</label>
-          <select id="murid_jenisMata" class="form-select fw-bold" onchange="tukarBorangMurid()">
-            <option value="Merit" class="text-success fw-bold">Amalan Baik</option>
-            <option value="Demerit" class="text-danger fw-bold">Salah Laku</option>
-          </select>
+    <!-- PELAJAR PHASE -->
+    <div id="muridPhase_Pelajar" style="display:none;">
+      <div class="section-header mb-3">
+        <div class="section-icon" style="background:#e0e7ff;">
+          <i class="fas fa-users" style="color:#4338ca;"></i>
         </div>
-
-        <div class="mb-3">
-          <label class="form-label text-secondary fw-semibold" style="font-size:0.8rem;">Mata / Markah</label>
-          <input type="number" id="murid_mata" class="form-control" placeholder="Contoh: 3 atau -3">
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label text-secondary fw-semibold" style="font-size:0.8rem;">Sebab / Keterangan</label>
-          <textarea id="murid_sebab" class="form-control" rows="2" placeholder="Sila nyatakan sebab..."></textarea>
-        </div>
-        
-        <div class="mb-3">
-          <label class="form-label text-secondary fw-semibold" style="font-size:0.8rem;">Nama Warden Bertugas</label>
-          <select id="murid_warden" class="form-select">
-            <option value="">-- Pilih Warden --</option>
-            <!-- Diisi melalui JS -->
-          </select>
+        <div>
+          <h1 style="font-size:1.05rem;">Pilih Nama (Oleh Murid)</h1>
+          <p class="text-muted mb-0" style="font-size:0.75rem;">Cari nama anda dan klik untuk tambah ke senarai</p>
         </div>
       </div>
-    </div>
 
-    <div class="card border-0 shadow-sm mb-4">
-      <div class="card-body">
-        <h6 class="mb-3 text-primary fw-bold" style="font-size:0.9rem;">2. Pilih Nama (Oleh Murid)</h6>
-        <div class="input-group mb-3">
-          <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
-          <input type="text" class="form-control border-start-0 ps-0" id="murid_carian" placeholder="Taip nama anda..." onkeyup="renderCarianMurid()">
+      <!-- Info Banner -->
+      <div class="alert alert-info py-2 px-3 mb-3 d-flex justify-content-between align-items-center" style="font-size:0.85rem;">
+        <div>
+          <strong id="murid_display_jenis">Amalan Baik</strong>: <span id="murid_display_sebab" class="text-muted"></span> (<span id="murid_display_mata" class="fw-bold"></span>)
         </div>
-        <div id="murid_senaraiPelajar" style="max-height: 300px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 5px;">
-          <!-- Senarai pelajar akan dijana di sini -->
+        <button class="btn btn-sm btn-outline-secondary py-0 px-2" onclick="muridGoToPhaseWarden()" style="font-size:0.7rem;">Edit</button>
+      </div>
+
+      <div class="card border-0 shadow-sm mb-3">
+        <div class="card-body p-3">
+          <div class="input-group">
+            <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
+            <input type="text" class="form-control border-start-0 bg-light" id="murid_carian" placeholder="Taip nama anda di sini..." onkeyup="renderCarianMurid()" style="font-size:1rem; padding:12px 10px;">
+          </div>
+          <div id="murid_senaraiPelajar" style="max-height: 200px; overflow-y: auto; margin-top:8px;">
+            <!-- Hasil carian -->
+          </div>
         </div>
       </div>
-    </div>
 
-    <button class="btn btn-primary w-100 fw-bold py-2 mb-5 shadow-sm" onclick="hantarRekodMurid()" id="btnHantarMurid">
-      <i class="fas fa-paper-plane me-2"></i>HANTAR REKOD
-    </button>
+      <div class="card border-0 shadow-sm mb-4" style="background-color:#f8fafc;">
+        <div class="card-body p-3">
+          <h6 class="text-secondary fw-bold mb-2" style="font-size:0.8rem;">Senarai Terpilih (<span id="murid_count_terpilih">0</span>)</h6>
+          <div id="murid_senaraiTerpilih" style="min-height: 50px;">
+            <div class="text-muted text-center" style="font-size:0.8rem; margin-top:15px;">Belum ada pelajar yang dipilih.</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-success w-100 fw-bold py-3 mb-5 shadow-sm" onclick="hantarRekodMurid()" id="btnHantarMurid" style="border-radius:12px;">
+        <i class="fas fa-paper-plane me-2"></i>HANTAR REKOD
+      </button>
+    </div>
   </div>
 
 <div id="disciplineView" style="display:none;" class="view-section">
@@ -2521,6 +2555,9 @@ if (userRole === 'guard') {
     }
 
 
+
+    let selectedMuridIds = [];
+
     function bukaMuridView() {
       document.getElementById('mainMenuView').style.display = 'none';
       document.getElementById('attendanceView').style.display = 'none';
@@ -2534,12 +2571,10 @@ if (userRole === 'guard') {
       document.getElementById('posterView').style.display = 'none';
       document.getElementById('analisaView').style.display = 'none';
       document.getElementById('kuponView').style.display = 'none';
-      document.getElementById('muridView').style.display = 'none';
       document.getElementById('btnBackMenu').style.display = 'none';
       
       document.getElementById('muridView').style.display = 'block';
       
-      // Populate warden dropdown if empty
       const wardenSelect = document.getElementById('murid_warden');
       if (wardenSelect.options.length <= 1 && typeof WARDEN_NAMES !== 'undefined') {
         Object.entries(WARDEN_NAMES).forEach(([key, name]) => {
@@ -2550,8 +2585,7 @@ if (userRole === 'guard') {
       }
       
       tukarBorangMurid();
-      document.getElementById('murid_carian').value = '';
-      renderCarianMurid();
+      muridGoToPhaseWarden();
     }
     
     function tukarBorangMurid() {
@@ -2559,48 +2593,22 @@ if (userRole === 'guard') {
       const input = document.getElementById('murid_mata');
       if (type === 'Merit') {
         input.placeholder = "Contoh: 3, 5";
-        input.value = "";
       } else {
         input.placeholder = "Contoh: -3, -5";
-        input.value = "";
       }
     }
 
-    function renderCarianMurid() {
-      const searchTerm = document.getElementById('murid_carian').value.toLowerCase();
-      let html = '';
-      
-      let count = 0;
-      allStudents.forEach(s => {
-        if (!searchTerm) {
-            // Show only first 20 if no search term
-            if(count >= 20) return;
-        } else {
-            if (!s.name.toLowerCase().includes(searchTerm)) return;
-        }
-        
-        html += `
-          <label class="d-flex align-items-center p-2 mb-1 border rounded murid-item" style="cursor:pointer; background:#fff;">
-            <input type="checkbox" class="form-check-input me-3 murid-check" value="${s.docId}" style="transform:scale(1.3);">
-            <div>
-              <div style="font-weight:600;font-size:0.85rem;color:#1e293b;">${s.name}</div>
-              <div style="font-size:0.75rem;color:#64748b;">${s.classroom || '-'} | Dorm: ${s.block || '-'}</div>
-            </div>
-          </label>
-        `;
-        count++;
-      });
-      
-      if (!html) html = '<div class="p-3 text-center text-muted">Tiada murid ditemui.</div>';
-      document.getElementById('murid_senaraiPelajar').innerHTML = html;
+    function muridGoToPhaseWarden() {
+      document.getElementById('muridPhase_Warden').style.display = 'block';
+      document.getElementById('muridPhase_Pelajar').style.display = 'none';
     }
 
-    async function hantarRekodMurid() {
+    function muridGoToPhasePelajar() {
       const jenis = document.getElementById('murid_jenisMata').value;
       const mata = parseInt(document.getElementById('murid_mata').value, 10);
       const sebab = document.getElementById('murid_sebab').value.trim();
       const warden = document.getElementById('murid_warden').value;
-      
+
       if (isNaN(mata) || !sebab || !warden) {
         Swal.fire('Ralat', 'Sila isi Mata, Sebab, dan pilih Warden.', 'error');
         return;
@@ -2615,14 +2623,106 @@ if (userRole === 'guard') {
         Swal.fire('Ralat', 'Mata untuk Amalan Baik mestilah nilai positif (contoh: 3)', 'warning');
         return;
       }
+
+      document.getElementById('murid_display_jenis').innerText = jenis === 'Merit' ? 'Amalan Baik' : 'Salah Laku';
+      document.getElementById('murid_display_jenis').className = jenis === 'Merit' ? 'text-success fw-bold' : 'text-danger fw-bold';
+      document.getElementById('murid_display_sebab').innerText = sebab;
+      document.getElementById('murid_display_mata').innerText = mata;
+
+      document.getElementById('muridPhase_Warden').style.display = 'none';
+      document.getElementById('muridPhase_Pelajar').style.display = 'block';
       
-      const checkedBoxes = document.querySelectorAll('.murid-check:checked');
-      if (checkedBoxes.length === 0) {
+      selectedMuridIds = [];
+      renderSenaraiTerpilih();
+      document.getElementById('murid_carian').value = '';
+      renderCarianMurid();
+      
+      // Auto focus doesn't work perfectly on mobile iOS without user interaction, but we can try
+      setTimeout(() => document.getElementById('murid_carian').focus(), 100);
+    }
+
+    function renderCarianMurid() {
+      const searchTerm = document.getElementById('murid_carian').value.toLowerCase();
+      let html = '';
+      
+      if (!searchTerm) {
+        document.getElementById('murid_senaraiPelajar').innerHTML = '';
+        return;
+      }
+
+      let count = 0;
+      allStudents.forEach(s => {
+        if (count >= 10) return; // Limit suggestions to 10
+        if (selectedMuridIds.includes(s.docId)) return; // Don't show already selected
+        if (s.name.toLowerCase().includes(searchTerm)) {
+          html += `
+            <div class="p-3 mb-2 border rounded bg-white shadow-sm d-flex justify-content-between align-items-center" style="cursor:pointer;" onclick="tambahMuridTerpilih('${s.docId}')">
+              <div>
+                <div style="font-weight:700;font-size:0.95rem;color:#1e293b;">${s.name}</div>
+                <div style="font-size:0.8rem;color:#64748b;">${s.classroom || '-'} | Dorm: ${s.block || '-'}</div>
+              </div>
+              <div class="text-success"><i class="fas fa-plus-circle fa-2x"></i></div>
+            </div>
+          `;
+          count++;
+        }
+      });
+      
+      if (!html) html = '<div class="p-3 text-center text-muted">Tiada murid ditemui.</div>';
+      document.getElementById('murid_senaraiPelajar').innerHTML = html;
+    }
+
+    function tambahMuridTerpilih(docId) {
+      if (!selectedMuridIds.includes(docId)) {
+        selectedMuridIds.push(docId);
+      }
+      document.getElementById('murid_carian').value = '';
+      renderCarianMurid();
+      renderSenaraiTerpilih();
+      
+      // Keep focus on input for the next student
+      document.getElementById('murid_carian').focus();
+    }
+
+    function buangMuridTerpilih(docId) {
+      selectedMuridIds = selectedMuridIds.filter(id => id !== docId);
+      renderSenaraiTerpilih();
+      renderCarianMurid();
+    }
+
+    function renderSenaraiTerpilih() {
+      document.getElementById('murid_count_terpilih').innerText = selectedMuridIds.length;
+      
+      if (selectedMuridIds.length === 0) {
+        document.getElementById('murid_senaraiTerpilih').innerHTML = '<div class="text-muted text-center" style="font-size:0.8rem; margin-top:15px;">Belum ada pelajar yang dipilih.</div>';
+        return;
+      }
+
+      let html = '';
+      selectedMuridIds.forEach(id => {
+        const s = allStudents.find(x => x.docId === id);
+        if (s) {
+          html += `
+            <div class="d-inline-flex align-items-center bg-white border border-primary rounded-pill px-3 py-2 me-2 mb-2 shadow-sm">
+              <span style="font-size:0.85rem; font-weight:700; color:#1e40af;" class="me-2">${s.name}</span>
+              <i class="fas fa-times-circle text-danger fa-lg" style="cursor:pointer;" onclick="buangMuridTerpilih('${s.docId}')"></i>
+            </div>
+          `;
+        }
+      });
+      document.getElementById('murid_senaraiTerpilih').innerHTML = html;
+    }
+
+    async function hantarRekodMurid() {
+      if (selectedMuridIds.length === 0) {
         Swal.fire('Ralat', 'Sila pilih sekurang-kurangnya seorang murid.', 'error');
         return;
       }
-      
-      const selectedIds = Array.from(checkedBoxes).map(cb => cb.value);
+
+      const jenis = document.getElementById('murid_jenisMata').value;
+      const mata = parseInt(document.getElementById('murid_mata').value, 10);
+      const sebab = document.getElementById('murid_sebab').value.trim();
+      const warden = document.getElementById('murid_warden').value;
       
       const btn = document.getElementById('btnHantarMurid');
       btn.disabled = true;
@@ -2631,7 +2731,7 @@ if (userRole === 'guard') {
       
       try {
         const timestamp = new Date().toISOString();
-        for (const sId of selectedIds) {
+        for (const sId of selectedMuridIds) {
           const s = allStudents.find(x => x.docId === sId);
           if (s) {
             await db.collection("meritLogs").add({
@@ -2649,11 +2749,19 @@ if (userRole === 'guard') {
           }
         }
         
-        Swal.fire('Berjaya', 'Rekod telah disimpan!', 'success');
+        Swal.fire({
+          title: 'Berjaya!',
+          text: `Rekod telah disimpan untuk ${selectedMuridIds.length} orang murid!`,
+          icon: 'success',
+          timer: 2500,
+          showConfirmButton: false
+        });
         
-        // Reset check boxes and carian
-        document.getElementById('murid_carian').value = '';
-        renderCarianMurid();
+        // Reset everything
+        document.getElementById('murid_mata').value = '';
+        document.getElementById('murid_sebab').value = '';
+        muridGoToPhaseWarden();
+        
         await fetchMeritLogs(true);
         loadDataServer(); // Reload students
       } catch (err) {
@@ -2664,6 +2772,7 @@ if (userRole === 'guard') {
         document.getElementById('loader').style.display = 'none';
       }
     }
+
 
     async function loadDataServer() {
       document.getElementById('loader').style.display = 'flex';
