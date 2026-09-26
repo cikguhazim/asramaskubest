@@ -2642,6 +2642,26 @@ if (userRole === 'guard') {
     
     // --- Custom Keyboard Logic ---
     function binaKeyboardMurid() {
+      // Kenal pasti jika peranti adalah tablet (iPad/Android Tablet)
+      const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+      const isTablet = isTouch && window.innerWidth >= 700;
+      
+      const input = document.getElementById('murid_carian');
+      const keyboardDiv = document.getElementById('murid_keyboard');
+      
+      if (!isTablet) {
+        // Jika telefon bimbit atau komputer, gunakan keyboard asal peranti
+        input.removeAttribute('readonly');
+        input.placeholder = "Taip nama anda di sini...";
+        keyboardDiv.style.display = 'none';
+        return;
+      }
+      
+      // Jika tablet, gunakan custom keyboard
+      input.setAttribute('readonly', true);
+      input.placeholder = "Taip nama menggunakan papan kekunci di bawah...";
+      keyboardDiv.style.display = 'block';
+
       const layout = [
         ['Q','W','E','R','T','Y','U','I','O','P'],
         ['A','S','D','F','G','H','J','K','L'],
@@ -2664,7 +2684,7 @@ if (userRole === 'guard') {
       html += '</div>';
       
       html += '</div>';
-      document.getElementById('murid_keyboard').innerHTML = html;
+      keyboardDiv.innerHTML = html;
     }
     
     function tekanKekunci(char) {
